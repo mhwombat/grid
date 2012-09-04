@@ -1,0 +1,4 @@
+#!/bin/sh
+xelatex -interaction=nonstopmode grid
+xelatex -interaction=nonstopmode grid
+

@@ -1,0 +1,39 @@
+name:           grid
+version:        1.0
+synopsis:       Tools for working with regular grids\/graphs\/lattices.
+description:    Provides tools for working with regular arrangements
+                of tiles, such as might be used in a board game or some
+                other type of grid map. Currently supports triangular,
+                square, and hexagonal tiles, with various 2D and 
+                toroidal layouts.
+category:       Math
+cabal-version:  >=1.8
+build-type:     Simple
+author:         Amy de Buitléir
+copyright:      (c) Amy de Buitléir 2010-2012
+license:        BSD3
+stability:      experimental
+maintainer:     amy@nualeargais.ie
+license-file:   LICENSE
+
+library
+  hs-source-dirs:  src
+  build-depends:   base ==4.*,
+                   base-unicode-symbols ==0.2.*
+  ghc-options:     -Wall -rtsopts
+  exposed-modules: Math.Geometry.Grid,
+                   Math.Geometry.GridInternal
+
+test-suite grid-tests
+  type:            exitcode-stdio-1.0
+  build-depends:   base ==4.*,
+                   test-framework-quickcheck2 == 0.2.*,
+                   QuickCheck == 2.4.*,
+                   test-framework == 0.*,
+                   grid,
+                   base-unicode-symbols ==0.2.*
+  hs-source-dirs:  test
+  ghc-options:     -Wall -rtsopts
+  main-is:         Main.hs
+  other-modules: Math.Geometry.GridQC
+
