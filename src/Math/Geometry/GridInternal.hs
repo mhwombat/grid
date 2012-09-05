@@ -105,7 +105,7 @@ triNeighbours (x,y) g = filter (`inGrid` g) xs
 
 -- | A triangular grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
---   available from 
+--   available at https://github.com/mhwombat/grid/wiki.
 data TriTriGrid = TriTriGrid Int [(Int, Int)]
 
 instance Show TriTriGrid where show (TriTriGrid s _) = "triTriGrid " ++ show s
@@ -136,6 +136,8 @@ triTriGrid s =
 --
 
 -- | A Parallelogrammatical grid with triangular tiles.
+--   The grid and its indexing scheme are illustrated in the user guide,
+--   available at https://github.com/mhwombat/grid/wiki.
 data ParaTriGrid = ParaTriGrid (Int, Int) [(Int, Int)]
 
 instance Show ParaTriGrid where 
@@ -161,6 +163,8 @@ paraTriGrid r c =
 --
 
 -- | A rectangular grid with square tiles.
+--   The grid and its indexing scheme are illustrated in the user guide,
+--   available at https://github.com/mhwombat/grid/wiki.
 data RectSquareGrid = RectSquareGrid (Int, Int) [(Int, Int)]
 
 instance Show RectSquareGrid where 
@@ -187,6 +191,8 @@ rectSquareGrid r c = RectSquareGrid (r,c) [(x,y) | x ← [0..c-1], y ← [0..r-1
 --
 
 -- | A toroidal grid with square tiles.
+--   The grid and its indexing scheme are illustrated in the user guide,
+--   available at https://github.com/mhwombat/grid/wiki.
 data TorSquareGrid = TorSquareGrid (Int, Int) [(Int, Int)]
 
 instance Show TorSquareGrid where 
@@ -230,6 +236,8 @@ hexDistance (x1, y1) (x2, y2) g =
 --
 
 -- | A hexagonal grid with hexagonal tiles
+--   The grid and its indexing scheme are illustrated in the user guide,
+--   available at https://github.com/mhwombat/grid/wiki.
 data HexHexGrid = HexHexGrid Int [(Int, Int)]
 
 instance Show HexHexGrid where show (HexHexGrid s _) = "hexHexGrid " ++ show s
@@ -253,6 +261,8 @@ hexHexGrid r = HexHexGrid r [(x, y) | x ← [-r+1..r-1], y ← f x]
 --
 
 -- | A parallelogramatical grid with hexagonal tiles
+--   The grid and its indexing scheme are illustrated in the user guide,
+--   available at https://github.com/mhwombat/grid/wiki.
 data ParaHexGrid = ParaHexGrid (Int, Int) [(Int, Int)]
 
 instance Show ParaHexGrid where 
@@ -273,5 +283,3 @@ instance Grid ParaHexGrid (Int, Int) (Int, Int) where
 paraHexGrid ∷ Int → Int → ParaHexGrid
 paraHexGrid r c = 
   ParaHexGrid (r,c) [(x, y) | x ← [0..c-1], y ← [0..r-1]]
-
-

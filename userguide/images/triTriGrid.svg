@@ -14,7 +14,10 @@
    id="svg3060"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="triTriGrid.svg">
+   sodipodi:docname="triTriGrid.svg"
+   inkscape:export-filename="/home/amy/nosync/src/grid/userguide/images/triTriGrid.png"
+   inkscape:export-xdpi="70"
+   inkscape:export-ydpi="70">
   <defs
      id="defs3062" />
   <sodipodi:namedview
@@ -47,7 +50,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -362,7 +365,7 @@
        transform="matrix(0.8,0,0,0.8,24.191318,105.88704)">
       <path
          transform="translate(923.58767,593.20717)"
-         d="m -482.37664,215.32787 a 6.3331728,6.3331728 0 1 1 -12.66634,0 6.3331728,6.3331728 0 1 1 12.66634,0 z"
+         d="m -482.37664,215.32787 c 0,3.49771 -2.83545,6.33317 -6.33317,6.33317 -3.49771,0 -6.33317,-2.83546 -6.33317,-6.33317 0,-3.49772 2.83546,-6.33318 6.33317,-6.33318 3.49772,0 6.33317,2.83546 6.33317,6.33318 z"
          sodipodi:ry="6.3331728"
          sodipodi:rx="6.3331728"
          sodipodi:cy="215.32787"
@@ -371,7 +374,7 @@
          style="color:#000000;fill:#999999;fill-opacity:1;stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          sodipodi:type="arc" />
       <path
-         d="m -482.37664,215.32787 a 6.3331728,6.3331728 0 1 1 -12.66634,0 6.3331728,6.3331728 0 1 1 12.66634,0 z"
+         d="m -482.37664,215.32787 c 0,3.49771 -2.83545,6.33317 -6.33317,6.33317 -3.49771,0 -6.33317,-2.83546 -6.33317,-6.33317 0,-3.49772 2.83546,-6.33318 6.33317,-6.33318 3.49772,0 6.33317,2.83546 6.33317,6.33318 z"
          sodipodi:ry="6.3331728"
          sodipodi:rx="6.3331728"
          sodipodi:cy="215.32787"
@@ -381,7 +384,7 @@
          sodipodi:type="arc"
          transform="translate(1002.7524,593.20717)" />
       <path
-         d="m -482.37664,215.32787 a 6.3331728,6.3331728 0 1 1 -12.66634,0 6.3331728,6.3331728 0 1 1 12.66634,0 z"
+         d="m -482.37664,215.32787 c 0,3.49771 -2.83545,6.33317 -6.33317,6.33317 -3.49771,0 -6.33317,-2.83546 -6.33317,-6.33317 0,-3.49772 2.83546,-6.33318 6.33317,-6.33318 3.49772,0 6.33317,2.83546 6.33317,6.33318 z"
          sodipodi:ry="6.3331728"
          sodipodi:rx="6.3331728"
          sodipodi:cy="215.32787"
@@ -396,7 +399,7 @@
        transform="matrix(0.4,-0.69282032,0.69282032,0.4,-491.06774,522.55942)">
       <path
          transform="translate(923.58767,593.20717)"
-         d="m -482.37664,215.32787 a 6.3331728,6.3331728 0 1 1 -12.66634,0 6.3331728,6.3331728 0 1 1 12.66634,0 z"
+         d="m -482.37664,215.32787 c 0,3.49771 -2.83545,6.33317 -6.33317,6.33317 -3.49771,0 -6.33317,-2.83546 -6.33317,-6.33317 0,-3.49772 2.83546,-6.33318 6.33317,-6.33318 3.49772,0 6.33317,2.83546 6.33317,6.33318 z"
          sodipodi:ry="6.3331728"
          sodipodi:rx="6.3331728"
          sodipodi:cy="215.32787"
@@ -405,7 +408,7 @@
          style="color:#000000;fill:#999999;fill-opacity:1;stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          sodipodi:type="arc" />
       <path
-         d="m -482.37664,215.32787 a 6.3331728,6.3331728 0 1 1 -12.66634,0 6.3331728,6.3331728 0 1 1 12.66634,0 z"
+         d="m -482.37664,215.32787 c 0,3.49771 -2.83545,6.33317 -6.33317,6.33317 -3.49771,0 -6.33317,-2.83546 -6.33317,-6.33317 0,-3.49772 2.83546,-6.33318 6.33317,-6.33318 3.49772,0 6.33317,2.83546 6.33317,6.33318 z"
          sodipodi:ry="6.3331728"
          sodipodi:rx="6.3331728"
          sodipodi:cy="215.32787"
@@ -415,7 +418,7 @@
          sodipodi:type="arc"
          transform="translate(1002.7524,593.20717)" />
       <path
-         d="m -482.37664,215.32787 a 6.3331728,6.3331728 0 1 1 -12.66634,0 6.3331728,6.3331728 0 1 1 12.66634,0 z"
+         d="m -482.37664,215.32787 c 0,3.49771 -2.83545,6.33317 -6.33317,6.33317 -3.49771,0 -6.33317,-2.83546 -6.33317,-6.33317 0,-3.49772 2.83546,-6.33318 6.33317,-6.33318 3.49772,0 6.33317,2.83546 6.33317,6.33318 z"
          sodipodi:ry="6.3331728"
          sodipodi:rx="6.3331728"
          sodipodi:cy="215.32787"
@@ -430,7 +433,7 @@
        transform="matrix(0.69282032,-0.4,0.4,0.69282032,-320.97029,258.56663)">
       <path
          transform="translate(923.58767,593.20717)"
-         d="m -482.37664,215.32787 a 6.3331728,6.3331728 0 1 1 -12.66634,0 6.3331728,6.3331728 0 1 1 12.66634,0 z"
+         d="m -482.37664,215.32787 c 0,3.49771 -2.83545,6.33317 -6.33317,6.33317 -3.49771,0 -6.33317,-2.83546 -6.33317,-6.33317 0,-3.49772 2.83546,-6.33318 6.33317,-6.33318 3.49772,0 6.33317,2.83546 6.33317,6.33318 z"
          sodipodi:ry="6.3331728"
          sodipodi:rx="6.3331728"
          sodipodi:cy="215.32787"
@@ -439,7 +442,7 @@
          style="color:#000000;fill:#999999;fill-opacity:1;stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          sodipodi:type="arc" />
       <path
-         d="m -482.37664,215.32787 a 6.3331728,6.3331728 0 1 1 -12.66634,0 6.3331728,6.3331728 0 1 1 12.66634,0 z"
+         d="m -482.37664,215.32787 c 0,3.49771 -2.83545,6.33317 -6.33317,6.33317 -3.49771,0 -6.33317,-2.83546 -6.33317,-6.33317 0,-3.49772 2.83546,-6.33318 6.33317,-6.33318 3.49772,0 6.33317,2.83546 6.33317,6.33318 z"
          sodipodi:ry="6.3331728"
          sodipodi:rx="6.3331728"
          sodipodi:cy="215.32787"
@@ -449,7 +452,7 @@
          sodipodi:type="arc"
          transform="translate(1002.7524,593.20717)" />
       <path
-         d="m -482.37664,215.32787 a 6.3331728,6.3331728 0 1 1 -12.66634,0 6.3331728,6.3331728 0 1 1 12.66634,0 z"
+         d="m -482.37664,215.32787 c 0,3.49771 -2.83545,6.33317 -6.33317,6.33317 -3.49771,0 -6.33317,-2.83546 -6.33317,-6.33317 0,-3.49772 2.83546,-6.33318 6.33317,-6.33318 3.49772,0 6.33317,2.83546 6.33317,6.33318 z"
          sodipodi:ry="6.3331728"
          sodipodi:rx="6.3331728"
          sodipodi:cy="215.32787"

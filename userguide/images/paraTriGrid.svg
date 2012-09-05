@@ -14,7 +14,10 @@
    id="svg3060"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
-   sodipodi:docname="paraTriGrid.svg">
+   sodipodi:docname="paraTriGrid.svg"
+   inkscape:export-filename="/home/amy/nosync/src/grid/userguide/images/paraTriGrid.png"
+   inkscape:export-xdpi="70"
+   inkscape:export-ydpi="70">
   <defs
      id="defs3062" />
   <sodipodi:namedview
@@ -47,7 +50,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
