@@ -8,8 +8,8 @@ module Math.Geometry.GridQC
 
 import Math.Geometry.GridInternal 
 
-import Data.Eq.Unicode ((≡))
-import Data.List (sort)
+import Data.Eq.Unicode ((≡), (≠))
+import Data.List (nub, sort)
 import Data.Ord.Unicode ((≤))
 import Test.Framework as TF (Test, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
@@ -41,13 +41,31 @@ prop_distance_symmetric g i j = nonEmpty g ==> distance a b g ≡ distance b a g
         b = j `pointIn` g
 
 -- "cw" = "consistent with"
-prop_neighbours_cw_viewpoint ∷ 
-  (Grid g s x, Ord x) ⇒ g → Int → Property
+
+prop_neighbours_cw_viewpoint ∷ (Grid g s x, Ord x) ⇒ g → Int → Property
 prop_neighbours_cw_viewpoint g i = n > 0 ==> 
   sort (a `neighbours` g) ≡ sort expected
     where n = (length . indices) g
           a = indices g !! (i `mod` n) -- make sure point is in grid
           expected = map fst $ filter (\p → 1 ≡ snd p) $ a `viewpoint` g
+
+prop_edges_cw_neighbours ∷ (Grid g s x, Ord x) ⇒ g → Int → Property
+prop_edges_cw_neighbours g i = n > 0 ==> 
+  sort (a `neighbours` g) ≡ sort expected
+    where n = (length . indices) g
+          a = indices g !! (i `mod` n) -- make sure point is in grid
+          nEdges = filter (`involves` a) $ edges g
+          expected = filter (≠ a) $ nub $ map fst nEdges ++ map snd nEdges
+
+involves ∷ Eq a ⇒ (a, a) → a → Bool
+involves (a, b) c = c ≡ a || c ≡ b
+
+prop_edges_are_adjacent ∷ (Grid g s x, Ord x) ⇒ g → Property
+prop_edges_are_adjacent g = property $ and $ map f $ edges g
+  where f (a, b) = isAdjacent a b g
+
+isAdjacent :: Grid g s x => x -> x -> g -> Bool
+isAdjacent a b g = (distance a b g) ≡ 1
 
 --
 -- Triangular grids with triangular tiles
@@ -116,8 +134,8 @@ prop_ParaTriGrid_distance_in_bounds g i j = nonEmpty g ==>
           b = j `pointIn` g
 
 -- If the ordering produced by paraTriGrid is ever changed, this
--- property may need to be changed too. It relies on the first and last elements
--- being at corners.
+-- property may need to be changed too. It relies on the first and last 
+-- elements being at corners.
 prop_ParaTriGrid_distance_corner_to_corner ∷ ParaTriGrid → Property
 prop_ParaTriGrid_distance_corner_to_corner g = r > 0 && c > 0 ==> 
   distance a b g ≡ 2*(r+c) - 3
@@ -160,8 +178,8 @@ prop_RectSquareGrid_distance_in_bounds g i j = nonEmpty g ==>
           b = j `pointIn` g
 
 -- If the ordering produced by rectSquareGrid is ever changed, this
--- property may need to be changed too. It relies on the first and last elements
--- being at opposite corners.
+-- property may need to be changed too. It relies on the first and last 
+-- elements being at opposite corners.
 prop_RectSquareGrid_distance_corner_to_corner ∷ RectSquareGrid → Property
 prop_RectSquareGrid_distance_corner_to_corner g = r > 0 && c > 0 ==> 
   distance a b g ≡ r + c - 2
@@ -170,7 +188,8 @@ prop_RectSquareGrid_distance_corner_to_corner g = r > 0 && c > 0 ==>
           a = head ps
           b = last ps
 
-prop_RectSquareGrid_neighbour_count_in_bounds ∷ RectSquareGrid → Int → Property
+prop_RectSquareGrid_neighbour_count_in_bounds ∷ 
+  RectSquareGrid → Int → Property
 prop_RectSquareGrid_neighbour_count_in_bounds g i = nonEmpty g ==> f
   where x = i `pointIn` g
         neighbourCount = length (x `neighbours` g)
@@ -317,6 +336,7 @@ prop_ParaHexGrid_neighbour_count_in_bounds g i = nonEmpty g ==> f
 test ∷ Test
 test = testGroup "Math.Geometry.GridQC"
   [
+    -- TriTriGrid tests
     testProperty "prop_TriTriGrid_tile_count_correct"
       prop_TriTriGrid_tile_count_correct,
     testProperty "prop_distance_reflexive - TriTriGrid"
@@ -331,6 +351,11 @@ test = testGroup "Math.Geometry.GridQC"
       prop_TriTriGrid_neighbour_count_in_bounds,
     testProperty "prop_neighbours_cw_viewpoint - TriTriGrid"
       (prop_neighbours_cw_viewpoint ∷ TriTriGrid → Int → Property),
+    testProperty "prop_edges_cw_neighbours - TriTriGrid"
+      ( prop_edges_cw_neighbours ∷ TriTriGrid → Int → Property),
+    testProperty "prop_edges_are_adjacent - TriTriGrid"
+      ( prop_edges_are_adjacent ∷ TriTriGrid → Property),
+    -- ParaTriGrid tests
     testProperty "prop_ParaTriGrid_tile_count_correct"
       prop_ParaTriGrid_tile_count_correct,
     testProperty "prop_distance_reflexive - ParaTriGrid"
@@ -345,6 +370,11 @@ test = testGroup "Math.Geometry.GridQC"
       prop_ParaTriGrid_neighbour_count_in_bounds,
     testProperty "prop_neighbours_cw_viewpoint - ParaTriGrid"
       (prop_neighbours_cw_viewpoint ∷ ParaTriGrid → Int → Property),
+    testProperty "prop_edges_cw_neighbours - ParaTriGrid"
+      ( prop_edges_cw_neighbours ∷ ParaTriGrid → Int → Property),
+    testProperty "prop_edges_are_adjacent - ParaTriGrid"
+      ( prop_edges_are_adjacent ∷ ParaTriGrid → Property),
+    -- RectSquareGrid tests
     testProperty "prop_RectSquareGrid_tile_count_correct"
       prop_RectSquareGrid_tile_count_correct,
     testProperty "prop_distance_reflexive - RectTriGrid"
@@ -359,6 +389,11 @@ test = testGroup "Math.Geometry.GridQC"
       prop_RectSquareGrid_neighbour_count_in_bounds,
     testProperty "prop_neighbours_cw_viewpoint - RectSquareGrid"
       (prop_neighbours_cw_viewpoint ∷ RectSquareGrid → Int → Property),
+    testProperty "prop_edges_cw_neighbours - RectSquareGrid"
+      ( prop_edges_cw_neighbours ∷ RectSquareGrid → Int → Property),
+    testProperty "prop_edges_are_adjacent - RectSquareGrid"
+      ( prop_edges_are_adjacent ∷ RectSquareGrid → Property),
+    -- TorSquareGrid tests
     testProperty "prop_TorSquareGrid_tile_count_correct"
       prop_TorSquareGrid_tile_count_correct,
     testProperty "prop_distance_reflexive - TorSquareGrid"
@@ -373,6 +408,11 @@ test = testGroup "Math.Geometry.GridQC"
       prop_TorSquareGrid_neighbour_count_in_bounds,
     testProperty "prop_neighbours_cw_viewpoint - TorSquareGrid"
       (prop_neighbours_cw_viewpoint ∷ TorSquareGrid → Int → Property),
+    testProperty "prop_edges_cw_neighbours - TorSquareGrid"
+      ( prop_edges_cw_neighbours ∷ TorSquareGrid → Int → Property),
+    testProperty "prop_edges_are_adjacent - TorSquareGrid"
+      ( prop_edges_are_adjacent ∷ TorSquareGrid → Property),
+    -- HexHexGrid tests
     testProperty "prop_HexHexGrid_tile_count_correct"
       prop_HexHexGrid_tile_count_correct,
     testProperty "prop_distance_reflexive - HexHexGrid"
@@ -387,6 +427,11 @@ test = testGroup "Math.Geometry.GridQC"
       prop_HexHexGrid_neighbour_count_in_bounds,
     testProperty "prop_neighbours_cw_viewpoint - HexHexGrid"
       (prop_neighbours_cw_viewpoint ∷ HexHexGrid → Int → Property),
+    testProperty "prop_edges_cw_neighbours - HexHexGrid"
+      ( prop_edges_cw_neighbours ∷ HexHexGrid → Int → Property),
+    testProperty "prop_edges_are_adjacent - HexHexGrid"
+      ( prop_edges_are_adjacent ∷ HexHexGrid → Property),
+    -- ParaHexGrid tests
     testProperty "prop_ParaHexGrid_tile_count_correct"
       prop_ParaHexGrid_tile_count_correct,
     testProperty "prop_distance_reflexive - HexHexGrid"
@@ -400,5 +445,10 @@ test = testGroup "Math.Geometry.GridQC"
     testProperty "prop_ParaHexGrid_neighbour_count_in_bounds"
       prop_ParaHexGrid_neighbour_count_in_bounds,
     testProperty "prop_neighbours_cw_viewpoint - ParaHexGrid"
-      (prop_neighbours_cw_viewpoint ∷ ParaHexGrid → Int → Property)
-  ]
+      (prop_neighbours_cw_viewpoint ∷ ParaHexGrid → Int → Property),
+    testProperty "prop_edges_cw_neighbours - ParaHexGrid"
+      ( prop_edges_cw_neighbours ∷ ParaHexGrid → Int → Property),
+    testProperty "prop_edges_are_adjacent - ParaHexGrid"
+      ( prop_edges_are_adjacent ∷ ParaHexGrid → Property)
+ ]
+

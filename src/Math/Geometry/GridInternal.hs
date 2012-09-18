@@ -36,7 +36,7 @@ module Math.Geometry.GridInternal
   ) where
 
 import Data.Eq.Unicode ((≡))
-import Data.List (nub)
+import Data.List (nub, nubBy)
 import Data.Ord.Unicode ((≤), (≥))
 
 -- | A regular arrangement of tiles.
@@ -44,10 +44,10 @@ import Data.Ord.Unicode ((≤), (≥))
 class Eq x ⇒ Grid g s x | g → s, g → x where
   -- | Returns the indices of all tiles in a grid.
   indices ∷ g → [x]
-  -- | @'distance' a b@ returns the minimum number of moves required to get from
-  --   @a@ to @b@, moving between adjacent tiles at each step. (Two tiles are 
-  --   adjacent if they share an edge.) If @a@ or @b@ are not contained within
-  --   @g@, the result is undefined.
+  -- | @'distance' a b@ returns the minimum number of moves required to get
+  --   from @a@ to @b@, moving between adjacent tiles at each step. (Two tiles
+  --   are adjacent if they share an edge.) If @a@ or @b@ are not contained
+  --   within @g@, the result is undefined.
   distance ∷ x → x → g → Int
   -- | Returns the dimensions of the grid. 
   --   For example, if @g@ is a 4x3 rectangular grid, @'size' g@ would return 
@@ -68,15 +68,27 @@ class Eq x ⇒ Grid g s x | g → s, g → x where
   viewpoint p g = map f (indices g)
     where f x = (x, distance p x g)
   -- | Returns the number of tiles in a grid. Compare with @'size'@.
-  tileCount ∷ Grid g s x ⇒ g → Int
+  tileCount ∷ g → Int
   tileCount = length . indices
-  -- | Returns @True@ if the number of tiles in a grid is zero, @False@ otherwise.
-  empty ∷ Grid g s x ⇒ g → Bool
+  -- | Returns @True@ if the number of tiles in a grid is zero, @False@ 
+  --   otherwise.
+  empty ∷ g → Bool
   empty g = tileCount g ≡ 0
-  -- | Returns @False@ if the number of tiles in a grid is zero, @True@ otherwise.
-  nonEmpty ∷ Grid g s x ⇒ g → Bool
+  -- | Returns @False@ if the number of tiles in a grid is zero, @True@ 
+  --   otherwise.
+  nonEmpty ∷ g → Bool
   nonEmpty = not . empty
-  
+  -- | A list of all edges in a Grid, where the edges are represented by a
+  --   pair of adjacent tiles.
+  edges ∷ g → [(x,x)]
+  edges g = nubBy sameEdge $ concatMap (`adjacentEdges` g) $ indices g
+
+sameEdge :: Eq t => (t, t) -> (t, t) -> Bool
+sameEdge (a,b) (c,d) = (a,b) == (c,d) || (a,b) == (d,c)
+
+adjacentEdges :: Grid g s t => t -> g -> [(t, t)]
+adjacentEdges i g = map (\j -> (i,j)) $ i `neighbours` g
+
 --
 -- Triangular tiles
 --
@@ -105,8 +117,8 @@ triNeighbours (x,y) g = filter (`inGrid` g) xs
 
 -- | A triangular grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
---   available at https://github.com/mhwombat/grid/wiki.
-data TriTriGrid = TriTriGrid Int [(Int, Int)]
+--   available at <https://github.com/mhwombat/grid/wiki>.
+data TriTriGrid = TriTriGrid Int [(Int, Int)] deriving Eq
 
 instance Show TriTriGrid where show (TriTriGrid s _) = "triTriGrid " ++ show s
 
@@ -137,8 +149,8 @@ triTriGrid s =
 
 -- | A Parallelogrammatical grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
---   available at https://github.com/mhwombat/grid/wiki.
-data ParaTriGrid = ParaTriGrid (Int, Int) [(Int, Int)]
+--   available at <https://github.com/mhwombat/grid/wiki>.
+data ParaTriGrid = ParaTriGrid (Int, Int) [(Int, Int)] deriving Eq
 
 instance Show ParaTriGrid where 
   show (ParaTriGrid (r,c) _) = "paraTriGrid " ++ show r ++ " " ++ show c
@@ -164,8 +176,8 @@ paraTriGrid r c =
 
 -- | A rectangular grid with square tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
---   available at https://github.com/mhwombat/grid/wiki.
-data RectSquareGrid = RectSquareGrid (Int, Int) [(Int, Int)]
+--   available at <https://github.com/mhwombat/grid/wiki>.
+data RectSquareGrid = RectSquareGrid (Int, Int) [(Int, Int)] deriving Eq
 
 instance Show RectSquareGrid where 
   show (RectSquareGrid (r,c) _) = "rectSquareGrid " ++ show r ++ " " ++ show c
@@ -192,8 +204,8 @@ rectSquareGrid r c = RectSquareGrid (r,c) [(x,y) | x ← [0..c-1], y ← [0..r-1
 
 -- | A toroidal grid with square tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
---   available at https://github.com/mhwombat/grid/wiki.
-data TorSquareGrid = TorSquareGrid (Int, Int) [(Int, Int)]
+--   available at <https://github.com/mhwombat/grid/wiki>.
+data TorSquareGrid = TorSquareGrid (Int, Int) [(Int, Int)] deriving Eq
 
 instance Show TorSquareGrid where 
   show (TorSquareGrid (r,c) _) = "torSquareGrid " ++ show r ++ " " ++ show c
@@ -237,8 +249,8 @@ hexDistance (x1, y1) (x2, y2) g =
 
 -- | A hexagonal grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
---   available at https://github.com/mhwombat/grid/wiki.
-data HexHexGrid = HexHexGrid Int [(Int, Int)]
+--   available at <https://github.com/mhwombat/grid/wiki>.
+data HexHexGrid = HexHexGrid Int [(Int, Int)] deriving Eq
 
 instance Show HexHexGrid where show (HexHexGrid s _) = "hexHexGrid " ++ show s
 
@@ -249,7 +261,8 @@ instance Grid HexHexGrid Int (Int, Int) where
   distance = hexDistance
   size (HexHexGrid s _) = s
 
--- | @'hexHexGrid' s@ returns a grid of hexagonal shape, with--   sides of length @s@, using hexagonal tiles. If @s@ is nonnegative, the 
+-- | @'hexHexGrid' s@ returns a grid of hexagonal shape, with
+--   sides of length @s@, using hexagonal tiles. If @s@ is nonnegative, the 
 --   resulting grid will have @3*s*(s-1) + 1@ tiles. Otherwise, the resulting 
 --   grid will be empty and the list of indices will be null.
 hexHexGrid ∷ Int → HexHexGrid
@@ -262,8 +275,8 @@ hexHexGrid r = HexHexGrid r [(x, y) | x ← [-r+1..r-1], y ← f x]
 
 -- | A parallelogramatical grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
---   available at https://github.com/mhwombat/grid/wiki.
-data ParaHexGrid = ParaHexGrid (Int, Int) [(Int, Int)]
+--   available at <https://github.com/mhwombat/grid/wiki>.
+data ParaHexGrid = ParaHexGrid (Int, Int) [(Int, Int)] deriving Eq
 
 instance Show ParaHexGrid where 
   show (ParaHexGrid (r,c) _) = "paraHexGrid " ++ show r ++ " " ++ show c
@@ -283,3 +296,4 @@ instance Grid ParaHexGrid (Int, Int) (Int, Int) where
 paraHexGrid ∷ Int → Int → ParaHexGrid
 paraHexGrid r c = 
   ParaHexGrid (r,c) [(x, y) | x ← [0..c-1], y ← [0..r-1]]
+
