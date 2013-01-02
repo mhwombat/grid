@@ -21,7 +21,7 @@ library
   build-depends:   base ==4.*,
                    base-unicode-symbols ==0.2.*,
                    containers ==0.4.2.*
-  ghc-options:     -Wall -Werror -rtsopts
+  ghc-options:     -Wall -rtsopts
   exposed-modules: Math.Geometry.Grid,
                    Math.Geometry.GridInternal,
                    Math.Geometry.GridMap
@@ -36,7 +36,7 @@ test-suite grid-tests
                    grid,
                    base-unicode-symbols ==0.2.*
   hs-source-dirs:  test
-  ghc-options:     -Wall -Werror -rtsopts
+  ghc-options:     -Wall -rtsopts
   main-is:         Main.hs
   other-modules: Math.Geometry.GridQC
 
