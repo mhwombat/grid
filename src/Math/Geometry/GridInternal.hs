@@ -35,7 +35,7 @@ module Math.Geometry.GridInternal
     paraHexGrid
   ) where
 
-import Data.Eq.Unicode ((≡))
+import Data.Eq.Unicode ((≡), (≠))
 import Data.List (nub, nubBy)
 import Data.Ord.Unicode ((≤), (≥))
 
@@ -56,8 +56,8 @@ class Eq x ⇒ Grid g s x | g → s, g → x where
   -- | @'neighbours' x g@ returns the indices of the tiles in the grid @g@
   --   which are adjacent to the tile at @x@.
   neighbours ∷ x → g → [x]
-  neighbours x g = filter (\a -> distance x a g ≡ 1 ) $ indices g
-  -- | @x `'inGrid'` g@ returns true if the index @x@ is contained within @g@,
+  neighbours x g = filter (\a → distance x a g ≡ 1 ) $ indices g
+  -- | @x 'inGrid' g@ returns true if the index @x@ is contained within @g@,
   --   otherwise it returns false.
   inGrid ∷ x → g → Bool
   inGrid x g = x `elem` indices g
@@ -82,12 +82,24 @@ class Eq x ⇒ Grid g s x | g → s, g → x where
   --   pair of adjacent tiles.
   edges ∷ g → [(x,x)]
   edges g = nubBy sameEdge $ concatMap (`adjacentEdges` g) $ indices g
+  -- | @'minimalPaths' a b@ returns a list of all minimal paths from 
+  --   @a@ to @b@. A path is a sequence of tiles, where each tile in the
+  --   sequence is adjacent to the previous one. (Two tiles are adjacent
+  --   if they share an edge.) If @a@ or @b@ are not contained
+  --   within @g@, the result is undefined.
+  minimalPaths ∷ x → x → g → [[x]]
+  minimalPaths a b g | a ≡ b              = [[a]]
+                     | distance a b g ≡ 1 = [[a,b]]
+                     | otherwise          = map (a:) xs
+    where xs = concatMap (\x → minimalPaths x b g) ys
+          ys = filter f $ neighbours a g
+          f x = distance x b g ≡ distance a b g - 1
 
-sameEdge :: Eq t => (t, t) -> (t, t) -> Bool
-sameEdge (a,b) (c,d) = (a,b) == (c,d) || (a,b) == (d,c)
+sameEdge ∷ Eq t ⇒ (t, t) → (t, t) → Bool
+sameEdge (a,b) (c,d) = (a,b) ≡ (c,d) || (a,b) ≡ (d,c)
 
-adjacentEdges :: Grid g s t => t -> g -> [(t, t)]
-adjacentEdges i g = map (\j -> (i,j)) $ i `neighbours` g
+adjacentEdges ∷ Grid g s t ⇒ t → g → [(t, t)]
+adjacentEdges i g = map (\j → (i,j)) $ i `neighbours` g
 
 --
 -- Triangular tiles
@@ -106,7 +118,7 @@ triDistance (x1, y1) (x2, y2) g =
         where z1 = triZ x1 y1
               z2 = triZ x2 y2
 
-triNeighbours :: Grid g s (Int, Int) ⇒ (Int, Int) → g → [(Int, Int)]
+triNeighbours ∷ Grid g s (Int, Int) ⇒ (Int, Int) → g → [(Int, Int)]
 triNeighbours (x,y) g = filter (`inGrid` g) xs
     where xs | even y    = [(x-1,y+1), (x+1,y+1), (x+1,y-1)]
              | otherwise = [(x-1,y-1), (x-1,y+1), (x+1,y-1)]
@@ -213,7 +225,7 @@ instance Show TorSquareGrid where
 instance Grid TorSquareGrid (Int, Int) (Int, Int) where
   indices (TorSquareGrid _ xs) = xs
   neighbours (x,y) (TorSquareGrid (r,c) _) = 
-    nub $ filter (\(xx,yy) → xx /= x || yy /= y) 
+    nub $ filter (\(xx,yy) → xx ≠ x || yy ≠ y) 
       [((x-1) `mod` c,y), (x,(y+1) `mod` r), ((x+1) `mod` c,y), 
         (x,(y-1) `mod` r)]
   distance (x1, y1) (x2, y2) g@(TorSquareGrid (r,c) _) =

@@ -11,6 +11,7 @@ import Math.Geometry.GridInternal
 import Data.Eq.Unicode ((≡), (≠))
 import Data.List (nub, sort)
 import Data.Ord.Unicode ((≤))
+import qualified Math.Combinatorics.Exact.Binomial as M (choose)
 import Test.Framework as TF (Test, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.QuickCheck 
@@ -64,8 +65,27 @@ prop_edges_are_adjacent ∷ (Grid g s x, Ord x) ⇒ g → Property
 prop_edges_are_adjacent g = property $ and $ map f $ edges g
   where f (a, b) = isAdjacent a b g
 
-isAdjacent :: Grid g s x => x -> x -> g -> Bool
+isAdjacent ∷ Grid g s x ⇒ x → x → g → Bool
 isAdjacent a b g = (distance a b g) ≡ 1
+
+prop_minimal_paths_have_min_length ∷ Grid g s x ⇒ g → Int → Int → Property
+prop_minimal_paths_have_min_length g i j = nonEmpty g ==> ns ≡ [d+1]
+  where a = i `pointIn` g
+        b = j `pointIn` g
+        d = distance a b g
+        ns = nub $ map length $ minimalPaths a b g
+
+prop_minimal_paths_are_valid ∷ Grid g s x ⇒ g → Int → Int → Property
+prop_minimal_paths_are_valid g i j = nonEmpty g ==> 
+    and $ map (subsequentTilesInPathAreAdjacent g) $ minimalPaths a b g
+  where a = i `pointIn` g
+        b = j `pointIn` g
+
+subsequentTilesInPathAreAdjacent ∷ Grid g s x ⇒ g → [x] → Bool
+subsequentTilesInPathAreAdjacent _ [] = True
+subsequentTilesInPathAreAdjacent g [x] = x `elem` (indices g)
+subsequentTilesInPathAreAdjacent g (a:b:xs) = 
+  isAdjacent a b g && subsequentTilesInPathAreAdjacent g (b:xs)
 
 --
 -- Triangular grids with triangular tiles
@@ -197,6 +217,15 @@ prop_RectSquareGrid_neighbour_count_in_bounds g i = nonEmpty g ==> f
         f | tileCount g ≡ 1 = neighbourCount ≡ 0
           | r ≡ 1 || c ≡ 1  = neighbourCount `elem` [1,2]
           | otherwise       = neighbourCount `elem` [2,3,4]
+
+prop_RectSquareGrid_num_min_paths_correct ∷ 
+  RectSquareGrid → Int → Int → Property
+prop_RectSquareGrid_num_min_paths_correct g i j = nonEmpty g ==>
+  length (minimalPaths a b g) ≡ M.choose (deltaX+deltaY) deltaX
+    where a = i `pointIn` g
+          b = j `pointIn` g
+          deltaX = abs $ fst b - fst a
+          deltaY = abs $ snd b - snd a
 
 --
 -- Toroidal grids with square-ish tiles
@@ -355,6 +384,11 @@ test = testGroup "Math.Geometry.GridQC"
       ( prop_edges_cw_neighbours ∷ TriTriGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - TriTriGrid"
       ( prop_edges_are_adjacent ∷ TriTriGrid → Property),
+    testProperty "prop_minimal_paths_have_min_length - TriTriGrid"
+      ( prop_minimal_paths_have_min_length ∷ 
+          TriTriGrid → Int → Int → Property),
+    testProperty "prop_minimal_paths_are_valid - TriTriGrid"
+      ( prop_minimal_paths_are_valid ∷ TriTriGrid → Int → Int → Property),
     -- ParaTriGrid tests
     testProperty "prop_ParaTriGrid_tile_count_correct"
       prop_ParaTriGrid_tile_count_correct,
@@ -374,6 +408,11 @@ test = testGroup "Math.Geometry.GridQC"
       ( prop_edges_cw_neighbours ∷ ParaTriGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - ParaTriGrid"
       ( prop_edges_are_adjacent ∷ ParaTriGrid → Property),
+    testProperty "prop_minimal_paths_have_min_length - ParaTriGrid"
+      ( prop_minimal_paths_have_min_length ∷ 
+          ParaTriGrid → Int → Int → Property),
+    testProperty "prop_minimal_paths_are_valid - ParaTriGrid"
+      ( prop_minimal_paths_are_valid ∷ ParaTriGrid → Int → Int → Property),
     -- RectSquareGrid tests
     testProperty "prop_RectSquareGrid_tile_count_correct"
       prop_RectSquareGrid_tile_count_correct,
@@ -393,6 +432,13 @@ test = testGroup "Math.Geometry.GridQC"
       ( prop_edges_cw_neighbours ∷ RectSquareGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - RectSquareGrid"
       ( prop_edges_are_adjacent ∷ RectSquareGrid → Property),
+    testProperty "prop_minimal_paths_have_min_length - RectSquareGrid"
+      ( prop_minimal_paths_have_min_length ∷ 
+          RectSquareGrid → Int → Int → Property),
+    testProperty "prop_minimal_paths_are_valid - RectSquareGrid"
+      ( prop_minimal_paths_are_valid ∷ RectSquareGrid → Int → Int → Property),
+    testProperty "prop_RectSquareGrid_num_min_paths_correct"
+      prop_RectSquareGrid_num_min_paths_correct,
     -- TorSquareGrid tests
     testProperty "prop_TorSquareGrid_tile_count_correct"
       prop_TorSquareGrid_tile_count_correct,
@@ -412,6 +458,11 @@ test = testGroup "Math.Geometry.GridQC"
       ( prop_edges_cw_neighbours ∷ TorSquareGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - TorSquareGrid"
       ( prop_edges_are_adjacent ∷ TorSquareGrid → Property),
+    testProperty "prop_minimal_paths_have_min_length - TorSquareGrid"
+      ( prop_minimal_paths_have_min_length ∷ 
+          TorSquareGrid → Int → Int → Property),
+    testProperty "prop_minimal_paths_are_valid - TorSquareGrid"
+      ( prop_minimal_paths_are_valid ∷ TorSquareGrid → Int → Int → Property),
     -- HexHexGrid tests
     testProperty "prop_HexHexGrid_tile_count_correct"
       prop_HexHexGrid_tile_count_correct,
@@ -431,6 +482,11 @@ test = testGroup "Math.Geometry.GridQC"
       ( prop_edges_cw_neighbours ∷ HexHexGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - HexHexGrid"
       ( prop_edges_are_adjacent ∷ HexHexGrid → Property),
+    testProperty "prop_minimal_paths_have_min_length - HexHexGrid"
+      ( prop_minimal_paths_have_min_length ∷ 
+          HexHexGrid → Int → Int → Property),
+    testProperty "prop_minimal_paths_are_valid - HexHexGrid"
+      ( prop_minimal_paths_are_valid ∷ HexHexGrid → Int → Int → Property),
     -- ParaHexGrid tests
     testProperty "prop_ParaHexGrid_tile_count_correct"
       prop_ParaHexGrid_tile_count_correct,
@@ -449,6 +505,11 @@ test = testGroup "Math.Geometry.GridQC"
     testProperty "prop_edges_cw_neighbours - ParaHexGrid"
       ( prop_edges_cw_neighbours ∷ ParaHexGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - ParaHexGrid"
-      ( prop_edges_are_adjacent ∷ ParaHexGrid → Property)
+      ( prop_edges_are_adjacent ∷ ParaHexGrid → Property),
+    testProperty "prop_minimal_paths_have_min_length - ParaHexGrid"
+      ( prop_minimal_paths_have_min_length ∷ 
+          ParaHexGrid → Int → Int → Property),
+    testProperty "prop_minimal_paths_are_valid - ParaHexGrid"
+      ( prop_minimal_paths_are_valid ∷ ParaHexGrid → Int → Int → Property)
  ]
 

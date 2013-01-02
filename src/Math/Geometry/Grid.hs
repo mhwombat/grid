@@ -89,4 +89,10 @@ import Math.Geometry.GridInternal (Grid(..), TriTriGrid, triTriGrid,
 >ghci> nonEmpty g
 >True
 
+   Find all of the minimal paths between two points.
+
+ghci> let g = hexHexGrid 3
+ghci> minimalPaths (0,0) (2,-1) g
+[[(0,0),(1,0),(2,-1)],[(0,0),(1,-1),(2,-1)]]
+
 -}
