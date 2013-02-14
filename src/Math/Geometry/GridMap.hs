@@ -31,7 +31,7 @@ module Math.Geometry.GridMap
     distance,
     size,
     neighbours,
-    inGrid,
+    contains,
     viewpoint,
     tileCount,
     empty,
@@ -94,11 +94,11 @@ lazyGridMap g vs = LGridMap g (M.fromList kvs)
 
 instance (Eq k, Grid g s k) ⇒ Grid (GridMap g k v) s k where
   indices = indices . toGrid
-  distance x y = distance x y . toGrid
+  distance g = distance (toGrid g)
   size = size . toGrid
-  neighbours k = (k `neighbours`) . toGrid
-  inGrid k = (k `inGrid`) . toGrid
-  viewpoint k = (k `viewpoint`) . toGrid
+  neighbours g k = toGrid g `neighbours` k
+  contains g k = toGrid g `contains` k
+  viewpoint g k = toGrid g `viewpoint` k
   tileCount  = tileCount . toGrid
   empty = empty . toGrid
   nonEmpty = nonEmpty . toGrid
