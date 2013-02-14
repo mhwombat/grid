@@ -9,6 +9,8 @@
 --
 -- A regular arrangement of tiles. Grids have a variety of uses,
 -- including games and self-organising maps.
+-- The userguide is available at 
+-- <https://github.com/mhwombat/grid/wiki>.
 --
 -- NOTE: Version 3.0 changed the order of parameters for many functions.
 -- This makes it easier for the user to write mapping and folding

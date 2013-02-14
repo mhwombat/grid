@@ -1,11 +1,14 @@
 name:           grid
-version:        3.0.1
+version:        3.0.2
 synopsis:       Tools for working with regular grids (graphs, lattices).
 description:    Provides tools for working with regular arrangements
                 of tiles, such as might be used in a board game or some
                 other type of grid map. Currently supports triangular,
                 square, and hexagonal tiles, with various 2D and 
                 toroidal layouts.
+                The userguide is available at 
+                <https://github.com/mhwombat/grid/wiki>.
+
                 NOTE: Version 3.0 changed the order of parameters
                 for many functions. This makes it easier for the user
                 to write mapping and folding operations.
