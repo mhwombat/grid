@@ -10,13 +10,13 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="360.82202"
-   height="280.78049"
+   width="540.39099"
+   height="421.42224"
    id="svg6765"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="UnboundedSquareGrid.svg"
-   inkscape:export-filename="/home/amy/nosync/src/grid/userguide/images/rectSquareGrid.png"
+   inkscape:export-filename="/home/amy/nosync/src/grid/userguide/images/UnboundedSquareGrid.png"
    inkscape:export-xdpi="70"
    inkscape:export-ydpi="70">
   <defs
@@ -63,8 +63,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1"
-     inkscape:cx="76.899893"
-     inkscape:cy="202.12836"
+     inkscape:cx="128.57631"
+     inkscape:cy="249.83602"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -93,7 +93,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-68.088996,-261.34694)">
+     transform="translate(68.587418,-168.41284)">
     <g
        id="g9206">
       <rect
