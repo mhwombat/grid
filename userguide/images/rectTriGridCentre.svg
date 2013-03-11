@@ -9,13 +9,13 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="251.65625"
-   height="245.875"
+   width="371.65625"
+   height="245.90625"
    id="svg3060"
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="rectTriGridCentre.svg"
-   inkscape:export-filename="/home/amy/Dropbox/grid/userguide/images/paraTriGridCentre.png"
+   inkscape:export-filename="/home/amy/Dropbox/grid/userguide/images/rectTriGridCentre.png"
    inkscape:export-xdpi="70"
    inkscape:export-ydpi="70">
   <defs
@@ -28,8 +28,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2"
-     inkscape:cx="-627.41701"
-     inkscape:cy="-141.30441"
+     inkscape:cx="337.34715"
+     inkscape:cy="105.31835"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -50,7 +50,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -58,7 +58,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-131.125,-327.5625)">
+     transform="translate(708.5,-495.8125)">
     <path
        inkscape:tile-y0="401.11983"
        inkscape:tile-x0="-588.41012"
