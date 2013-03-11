@@ -1,5 +1,5 @@
 name:           grid
-version:        3.0.2
+version:        4.0
 synopsis:       Tools for working with regular grids (graphs, lattices).
 description:    Provides tools for working with regular arrangements
                 of tiles, such as might be used in a board game or some
@@ -8,7 +8,10 @@ description:    Provides tools for working with regular arrangements
                 toroidal layouts.
                 The userguide is available at 
                 <https://github.com/mhwombat/grid/wiki>.
-
+                .
+                NOTE: Version 4.0 uses associated (type) synonyms
+                instead of multi-parameter type classes.
+                .
                 NOTE: Version 3.0 changed the order of parameters
                 for many functions. This makes it easier for the user
                 to write mapping and folding operations.
@@ -26,23 +29,25 @@ library
   hs-source-dirs:  src
   build-depends:   base ==4.*,
                    base-unicode-symbols ==0.2.*,
-                   containers ==0.4.2.*
-  ghc-options:     -Wall -Werror -rtsopts
+                   cereal ==0.3.*,
+                   containers ==0.4.2.* || ==0.5.*
+  ghc-options:     -Wall
   exposed-modules: Math.Geometry.Grid,
                    Math.Geometry.GridInternal,
-                   Math.Geometry.GridMap
+                   Math.Geometry.GridMap,
+                   Math.Geometry.GridMap.Lazy
 
 test-suite grid-tests
   type:            exitcode-stdio-1.0
   build-depends:   base ==4.*,
                    exact-combinatorics ==0.2.*,
-                   test-framework-quickcheck2 == 0.3.*,
-                   QuickCheck == 2.4.*,
-                   test-framework == 0.*,
+                   test-framework-quickcheck2 ==0.3.*,
+                   QuickCheck ==2.4.* || ==2.5.*,
+                   test-framework ==0.8.*,
                    grid,
                    base-unicode-symbols ==0.2.*
   hs-source-dirs:  test
-  ghc-options:     -Wall -Werror -rtsopts
+  ghc-options:     -Wall
   main-is:         Main.hs
   other-modules: Math.Geometry.GridQC
 
