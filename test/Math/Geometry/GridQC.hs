@@ -31,6 +31,17 @@ pointAt ∷ Grid g ⇒ g → Int → Index g
 pointAt g i = indices g !! (i `mod` n)
   where n = (length . indices) g
 
+minPathCount
+  ∷ (Eq (Index g), Grid g) ⇒ g → Index g → Index g → Int
+minPathCount g a b = length . minimalPaths g a $ b
+
+minPathCount2
+  ∷ (Eq (Index g), Grid g) ⇒ g → [Index g] → Index g → Int
+minPathCount2 g as b = sum . map (\x → minPathCount g x b) $ as
+
+neighbourCount ∷ ∀ g. Grid g ⇒ g → Index g → Int
+neighbourCount g x = length . neighbours g $ x
+
 --
 -- Tests that should apply to and are identical for all grids
 --
@@ -61,10 +72,10 @@ prop_neighbours_cw_viewpoint g i = nonNull g ==>
   sort (delete a (neighbours g a)) ≡ sort expected
     where a = g `pointAt` i
           expected = map fst $ filter (\p → 1 ≡ snd p) $ viewpoint g a
--- Note: In a small grid, a tile can be its own neighbour. However, when
--- we calculate the distance between a tile and itself, we get 0, not 1.
--- That's why we have to delete the tile from its list before comparing 
--- to the result from the neighbours function.
+-- Note: In a small but unbounded grid, a tile can be its own neighbour.
+-- However, when we calculate the distance between a tile and itself, we
+-- get 0, not 1. That's why we have to delete the tile from its list 
+-- before comparing to the result from the neighbours function.
 
 prop_edges_cw_neighbours ∷ (Grid g, Ord (Index g)) ⇒ g → Int → Property
 prop_edges_cw_neighbours g i = nonNull g ==> 
@@ -182,9 +193,7 @@ prop_TriTriGrid_distance_edge_to_edge g = s > 0 ==> distance g a b ≡ 2*(s-1)
 
 prop_TriTriGrid_neighbour_count_in_bounds ∷ TriTriGrid → Int → Property
 prop_TriTriGrid_neighbour_count_in_bounds g i = nonNull g ==>
-  if tileCount g ≡ 1
-    then length (neighbours g x) ≡ 0
-    else length (neighbours g x) `elem` [1,2,3]
+  neighbourCount g x ≤ 3
   where x = g `pointAt` i
 
 prop_TriTriGrid_boundary_count_correct ∷ TriTriGrid → Property
@@ -237,9 +246,7 @@ prop_ParaTriGrid_distance_corner_to_corner g = r > 0 && c > 0 ==>
 
 prop_ParaTriGrid_neighbour_count_in_bounds ∷ ParaTriGrid → Int → Property
 prop_ParaTriGrid_neighbour_count_in_bounds g i = nonNull g ==>
-  if tileCount g ≡ 1
-    then length (neighbours g x) ≡ 0
-    else length (neighbours g x) `elem` [1,2,3]
+  neighbourCount g x ≤ 3
   where x = g `pointAt` i
 
 prop_ParaTriGrid_boundary_count_correct ∷ ParaTriGrid → Property
@@ -283,9 +290,7 @@ prop_RectTriGrid_distance_in_bounds g i j = nonNull g ==>
 
 prop_RectTriGrid_neighbour_count_in_bounds ∷ RectTriGrid → Int → Property
 prop_RectTriGrid_neighbour_count_in_bounds g i = nonNull g ==>
-  if tileCount g ≡ 1
-    then length (neighbours g x) ≡ 0
-    else length (neighbours g x) `elem` [1,2,3]
+  neighbourCount g x ≤ 3
   where x = g `pointAt` i
 
 prop_RectTriGrid_boundary_count_correct ∷ RectTriGrid → Property
@@ -330,9 +335,7 @@ prop_TorTriGrid_distance_in_bounds g i j = nonNull g ==>
 
 prop_TorTriGrid_neighbour_count_in_bounds ∷ TorTriGrid → Int → Property
 prop_TorTriGrid_neighbour_count_in_bounds g i = nonNull g ==>
-  if tileCount g ≡ 1
-    then length (neighbours g x) ≡ 0
-    else length (neighbours g x) `elem` [1,2,3]
+  neighbourCount g x ≤ 3
   where x = g `pointAt` i
 
 --
@@ -374,18 +377,14 @@ prop_RectSquareGrid_distance_corner_to_corner g = r > 0 && c > 0 ==>
 
 prop_RectSquareGrid_neighbour_count_in_bounds ∷ 
   RectSquareGrid → Int → Property
-prop_RectSquareGrid_neighbour_count_in_bounds g i = nonNull g ==> f
+prop_RectSquareGrid_neighbour_count_in_bounds g i = nonNull g ==> 
+  neighbourCount g x ≤ 4
   where x = g `pointAt` i
-        neighbourCount = length (neighbours g x)
-        (r, c) = size g
-        f | tileCount g ≡ 1 = neighbourCount ≡ 0
-          | r ≡ 1 || c ≡ 1  = neighbourCount `elem` [1,2]
-          | otherwise       = neighbourCount `elem` [2,3,4]
 
 prop_RectSquareGrid_num_min_paths_correct ∷ 
   RectSquareGrid → Int → Int → Property
 prop_RectSquareGrid_num_min_paths_correct g i j = nonNull g ==>
-  length (minimalPaths g a b) ≡ M.choose (deltaX+deltaY) deltaX
+  minPathCount g a b ≡ M.choose (deltaX+deltaY) deltaX
     where a = g `pointAt` i
           b = g `pointAt` j
           deltaX = abs $ fst b - fst a
@@ -408,7 +407,7 @@ prop_RectSquareGrid_boundary_tiles_have_fewer_neighbours g = property $
 
 
 --
--- Toroidal grids with square-ish tiles
+-- Toroidal grids with square tiles
 --
 
 -- We want the number of tiles in a test grid to be O(n)
@@ -442,21 +441,14 @@ prop_TorSquareGrid_distance_corner_to_corner g = r > 0 && c > 0 ==>
           ps = indices g
           a = head ps
           b = last ps
-          f | r ≡ 1 && c ≡ 1 = 0 -- zero-size torus
+          f | r ≡ 1 && c ≡ 1 = 0 -- single-tile torus
             | r ≡ 1 || c ≡ 1 = 1 -- a and b are the same
             | otherwise      = 2
 
 prop_TorSquareGrid_neighbour_count_in_bounds ∷ TorSquareGrid → Int → Property
-prop_TorSquareGrid_neighbour_count_in_bounds g i = nonNull g ==> f
+prop_TorSquareGrid_neighbour_count_in_bounds g i = nonNull g ==>
+  neighbourCount g x ≤ 4
   where x = g `pointAt` i
-        neighbourCount = length . neighbours g $ x
-        (r, c) = size g
-        f | tileCount g ≡ 1                = neighbourCount ≡ 1
-          | (r,c) ≡ (1,2) || (r,c) ≡ (2,1) = neighbourCount ≡ 2
-          | (r,c) ≡ (2,2)                  = neighbourCount ≡ 2
-          | r ≡ 1 || c ≡ 1                 = neighbourCount ≡ 3
-          | r ≡ 2 || c ≡ 2                 = neighbourCount ≡ 3
-          | otherwise                      = neighbourCount ≡ 4
 
 --
 -- Circular hexagonal grids   
@@ -494,9 +486,7 @@ prop_HexHexGrid_distance_edge_to_edge g = s > 0 ==> distance g a b ≡ 2*s - 2
 
 prop_HexHexGrid_neighbour_count_in_bounds ∷ HexHexGrid → Int → Property
 prop_HexHexGrid_neighbour_count_in_bounds g i = nonNull g ==> 
-  if tileCount g ≡ 1
-    then length (neighbours g x) ≡ 0
-    else length (neighbours g x) `elem` [2,3,4,5,6]
+  neighbourCount g x ≤ 6
   where x = g `pointAt` i
 
 prop_HexHexGrid_boundary_count_correct ∷ HexHexGrid → Property
@@ -549,13 +539,9 @@ prop_ParaHexGrid_distance_corner_to_corner g = r > 0 && c > 0 ==>
           (r, c) = size g
 
 prop_ParaHexGrid_neighbour_count_in_bounds ∷ ParaHexGrid → Int → Property
-prop_ParaHexGrid_neighbour_count_in_bounds g i = nonNull g ==> f
+prop_ParaHexGrid_neighbour_count_in_bounds g i = nonNull g ==>
+  neighbourCount g x ≤ 6
   where x = g `pointAt` i
-        neighbourCount = length (neighbours g x)
-        (r, c) = size g
-        f | tileCount g ≡ 1 = neighbourCount ≡ 0
-          | r ≡ 1 || c ≡ 1  = neighbourCount `elem` [1,2]
-          | otherwise       = neighbourCount `elem` [2,3,4,5,6]
 
 prop_ParaHexGrid_boundary_count_correct ∷ ParaHexGrid → Property
 prop_ParaHexGrid_boundary_count_correct g = property $
@@ -564,6 +550,109 @@ prop_ParaHexGrid_boundary_count_correct g = property $
 prop_ParaHexGrid_boundary_tiles_have_fewer_neighbours ∷ HexHexGrid → Property
 prop_ParaHexGrid_boundary_tiles_have_fewer_neighbours g = property $
   all (5>) . map (numNeighbours g) . boundary $ g
+
+--
+-- Rectangular grids with octagonal tiles
+--
+
+-- We want the number of tiles in a test grid to be O(n)
+sizedRectOctGrid ∷ Int → Gen RectOctGrid
+sizedRectOctGrid n = do
+  let n' = min n 12 -- calculation time for these grids grows quickly!
+  r ← choose (0,n')
+  let c = n' `div` (r+1)
+  return $ rectOctGrid r c
+
+instance Arbitrary RectOctGrid where
+  arbitrary = sized sizedRectOctGrid
+
+prop_RectOctGrid_tile_count_correct ∷ RectOctGrid → Property
+prop_RectOctGrid_tile_count_correct g = property $ 
+  tileCount g ≡ if r ≤ 0 || c ≤ 0 then 0 else r*c
+    where (r, c) = size g
+
+prop_RectOctGrid_distance_in_bounds ∷ RectOctGrid → Int → Int → Property
+prop_RectOctGrid_distance_in_bounds g i j = nonNull g ==>
+  distance g a b ≤ max r c
+    where (r, c) = size g
+          a = g `pointAt` i
+          b = g `pointAt` j
+
+-- If the ordering produced by rectOctGrid is ever changed, this
+-- property may need to be changed too. It relies on the first and last 
+-- elements being at opposite corners.
+prop_RectOctGrid_distance_corner_to_corner ∷ RectOctGrid → Property
+prop_RectOctGrid_distance_corner_to_corner g = r > 0 && c > 0 ==> 
+  a ≡ b || distance g a b ≡ (max r c) - 1
+    where (r, c) = size g
+          ps = indices g
+          a = head ps
+          b = last ps
+
+prop_RectOctGrid_neighbour_count_in_bounds ∷ 
+  RectOctGrid → Int → Property
+prop_RectOctGrid_neighbour_count_in_bounds g i = nonNull g ==>
+  neighbourCount g x ≤ 8
+  where x = g `pointAt` i
+
+prop_RectOctGrid_num_min_paths_correct ∷ 
+  RectOctGrid → Int → Int → Property
+prop_RectOctGrid_num_min_paths_correct g i j = nonNull g ==>
+  minPathCount g a b ≡
+    if a ≡ b then 1 else minPathCount2 g att b
+    where a = g `pointAt` i
+          b = g `pointAt` j
+          att = adjacentTilesToward g a b
+
+prop_RectOctGrid_boundary_count_correct ∷ RectOctGrid → Property
+prop_RectOctGrid_boundary_count_correct g = property $
+  (length . boundary) g ≡ (cartesianBoundaryCount . size) g
+
+prop_RectOctGrid_boundary_tiles_have_fewer_neighbours ∷ RectOctGrid → Property
+prop_RectOctGrid_boundary_tiles_have_fewer_neighbours g = property $
+  all (6>) . map (numNeighbours g) . boundary $ g
+
+
+--
+-- Toroidal grids with octagonal tiles
+--
+
+-- We want the number of tiles in a test grid to be O(n)
+sizedTorOctGrid ∷ Int → Gen TorOctGrid
+sizedTorOctGrid n = do
+  r ← choose (0,n)
+  let c = n `div` (r+1)
+  return $ torOctGrid r c
+
+instance Arbitrary TorOctGrid where
+  arbitrary = sized sizedTorOctGrid
+
+prop_TorOctGrid_tile_count_correct ∷ TorOctGrid → Property
+prop_TorOctGrid_tile_count_correct g = property $  
+  tileCount g ≡ if r ≤ 0 || c ≤ 0 then 0 else r*c
+    where (r, c) = size g
+
+prop_TorOctGrid_distance_in_bounds ∷ TorOctGrid → Int → Int → Property
+prop_TorOctGrid_distance_in_bounds g i j = nonNull g ==>
+  distance g a b ≤ min r c + abs (r-c)
+    where (r, c) = size g
+          a = g `pointAt` i
+          b = g `pointAt` j
+
+-- If the ordering produced by torOctGrid is ever changed, this property
+-- may need to be changed too.
+prop_TorOctGrid_distance_corner_to_corner ∷ TorOctGrid → Property
+prop_TorOctGrid_distance_corner_to_corner g = r > 0 && c > 0 ==> 
+  distance g a b ≡ if tileCount g ≡ 1 then 0 else 1
+    where (r, c) = size g
+          ps = indices g
+          a = head ps
+          b = last ps
+
+prop_TorOctGrid_neighbour_count_in_bounds ∷ TorOctGrid → Int → Property
+prop_TorOctGrid_neighbour_count_in_bounds g i = nonNull g ==>
+  neighbourCount g x ≤ 8
+  where x = g `pointAt` i
 
 
 test ∷ Test
@@ -601,17 +690,17 @@ test = testGroup "Math.Geometry.GridQC"
     testProperty "prop_neighbours_cw_viewpoint - TriTriGrid"
       (prop_neighbours_cw_viewpoint ∷ TriTriGrid → Int → Property),
     testProperty "prop_edges_cw_neighbours - TriTriGrid"
-      ( prop_edges_cw_neighbours ∷ TriTriGrid → Int → Property),
+      (prop_edges_cw_neighbours ∷ TriTriGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - TriTriGrid"
-      ( prop_edges_are_adjacent ∷ TriTriGrid → Property),
+      (prop_edges_are_adjacent ∷ TriTriGrid → Property),
     testProperty "prop_adjacentTilesToward_moves_closer - TriTriGrid"
-      ( prop_adjacentTilesToward_moves_closer ∷ 
+      (prop_adjacentTilesToward_moves_closer ∷ 
           TriTriGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_have_min_length - TriTriGrid"
-      ( prop_minimal_paths_have_min_length ∷ 
+      (prop_minimal_paths_have_min_length ∷ 
           TriTriGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_are_valid - TriTriGrid"
-      ( prop_minimal_paths_are_valid ∷ TriTriGrid → Int → Int → Property),
+      (prop_minimal_paths_are_valid ∷ TriTriGrid → Int → Int → Property),
 
     -- ParaTriGrid tests
     testProperty "prop_ParaTriGrid_tile_count_correct"
@@ -645,17 +734,17 @@ test = testGroup "Math.Geometry.GridQC"
     testProperty "prop_neighbours_cw_viewpoint - ParaTriGrid"
       (prop_neighbours_cw_viewpoint ∷ ParaTriGrid → Int → Property),
     testProperty "prop_edges_cw_neighbours - ParaTriGrid"
-      ( prop_edges_cw_neighbours ∷ ParaTriGrid → Int → Property),
+      (prop_edges_cw_neighbours ∷ ParaTriGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - ParaTriGrid"
-      ( prop_edges_are_adjacent ∷ ParaTriGrid → Property),
+      (prop_edges_are_adjacent ∷ ParaTriGrid → Property),
     testProperty "prop_adjacentTilesToward_moves_closer - ParaTriGrid"
-      ( prop_adjacentTilesToward_moves_closer ∷ 
+      (prop_adjacentTilesToward_moves_closer ∷ 
           ParaTriGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_have_min_length - ParaTriGrid"
-      ( prop_minimal_paths_have_min_length ∷ 
+      (prop_minimal_paths_have_min_length ∷ 
           ParaTriGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_are_valid - ParaTriGrid"
-      ( prop_minimal_paths_are_valid ∷ ParaTriGrid → Int → Int → Property),
+      (prop_minimal_paths_are_valid ∷ ParaTriGrid → Int → Int → Property),
 
     -- RectTriGrid tests
     testProperty "prop_RectTriGrid_tile_count_correct"
@@ -687,17 +776,17 @@ test = testGroup "Math.Geometry.GridQC"
     testProperty "prop_neighbours_cw_viewpoint - RectTriGrid"
       (prop_neighbours_cw_viewpoint ∷ RectTriGrid → Int → Property),
     testProperty "prop_edges_cw_neighbours - RectTriGrid"
-      ( prop_edges_cw_neighbours ∷ RectTriGrid → Int → Property),
+      (prop_edges_cw_neighbours ∷ RectTriGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - RectTriGrid"
-      ( prop_edges_are_adjacent ∷ RectTriGrid → Property),
+      (prop_edges_are_adjacent ∷ RectTriGrid → Property),
     testProperty "prop_adjacentTilesToward_moves_closer - RectTriGrid"
-      ( prop_adjacentTilesToward_moves_closer ∷ 
+      (prop_adjacentTilesToward_moves_closer ∷ 
           RectTriGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_have_min_length - RectTriGrid"
-      ( prop_minimal_paths_have_min_length ∷ 
+      (prop_minimal_paths_have_min_length ∷ 
           RectTriGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_are_valid - RectTriGrid"
-      ( prop_minimal_paths_are_valid ∷ RectTriGrid → Int → Int → Property),
+      (prop_minimal_paths_are_valid ∷ RectTriGrid → Int → Int → Property),
 
     -- TorTriGrid tests
     testProperty "prop_TorTriGrid_tile_count_correct"
@@ -715,17 +804,17 @@ test = testGroup "Math.Geometry.GridQC"
     testProperty "prop_neighbours_cw_viewpoint - TorTriGrid"
       (prop_neighbours_cw_viewpoint ∷ TorTriGrid → Int → Property),
     testProperty "prop_edges_cw_neighbours - TorTriGrid"
-      ( prop_edges_cw_neighbours ∷ TorTriGrid → Int → Property),
+      (prop_edges_cw_neighbours ∷ TorTriGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - TorTriGrid"
-      ( prop_edges_are_adjacent ∷ TorTriGrid → Property),
+      (prop_edges_are_adjacent ∷ TorTriGrid → Property),
     testProperty "prop_adjacentTilesToward_moves_closer - TorTriGrid"
-      ( prop_adjacentTilesToward_moves_closer ∷ 
+      (prop_adjacentTilesToward_moves_closer ∷ 
           TorTriGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_have_min_length - TorTriGrid"
-      ( prop_minimal_paths_have_min_length ∷ 
+      (prop_minimal_paths_have_min_length ∷ 
           TorTriGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_are_valid - TorTriGrid"
-      ( prop_minimal_paths_are_valid ∷ TorTriGrid → Int → Int → Property),
+      (prop_minimal_paths_are_valid ∷ TorTriGrid → Int → Int → Property),
 
     -- RectSquareGrid tests
     testProperty "prop_RectSquareGrid_tile_count_correct"
@@ -759,17 +848,17 @@ test = testGroup "Math.Geometry.GridQC"
     testProperty "prop_neighbours_cw_viewpoint - RectSquareGrid"
       (prop_neighbours_cw_viewpoint ∷ RectSquareGrid → Int → Property),
     testProperty "prop_edges_cw_neighbours - RectSquareGrid"
-      ( prop_edges_cw_neighbours ∷ RectSquareGrid → Int → Property),
+      (prop_edges_cw_neighbours ∷ RectSquareGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - RectSquareGrid"
-      ( prop_edges_are_adjacent ∷ RectSquareGrid → Property),
+      (prop_edges_are_adjacent ∷ RectSquareGrid → Property),
     testProperty "prop_adjacentTilesToward_moves_closer - RectSquareGrid"
-      ( prop_adjacentTilesToward_moves_closer ∷ 
+      (prop_adjacentTilesToward_moves_closer ∷ 
           RectSquareGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_have_min_length - RectSquareGrid"
-      ( prop_minimal_paths_have_min_length ∷ 
+      (prop_minimal_paths_have_min_length ∷ 
           RectSquareGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_are_valid - RectSquareGrid"
-      ( prop_minimal_paths_are_valid ∷ RectSquareGrid → Int → Int → Property),
+      (prop_minimal_paths_are_valid ∷ RectSquareGrid → Int → Int → Property),
     testProperty "prop_RectSquareGrid_num_min_paths_correct"
       prop_RectSquareGrid_num_min_paths_correct,
 
@@ -791,17 +880,17 @@ test = testGroup "Math.Geometry.GridQC"
     testProperty "prop_neighbours_cw_viewpoint - TorSquareGrid"
       (prop_neighbours_cw_viewpoint ∷ TorSquareGrid → Int → Property),
     testProperty "prop_edges_cw_neighbours - TorSquareGrid"
-      ( prop_edges_cw_neighbours ∷ TorSquareGrid → Int → Property),
+      (prop_edges_cw_neighbours ∷ TorSquareGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - TorSquareGrid"
-      ( prop_edges_are_adjacent ∷ TorSquareGrid → Property),
+      (prop_edges_are_adjacent ∷ TorSquareGrid → Property),
     testProperty "prop_adjacentTilesToward_moves_closer - TorSquareGrid"
-      ( prop_adjacentTilesToward_moves_closer ∷ 
+      (prop_adjacentTilesToward_moves_closer ∷ 
           TorSquareGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_have_min_length - TorSquareGrid"
-      ( prop_minimal_paths_have_min_length ∷ 
+      (prop_minimal_paths_have_min_length ∷ 
           TorSquareGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_are_valid - TorSquareGrid"
-      ( prop_minimal_paths_are_valid ∷ TorSquareGrid → Int → Int → Property),
+      (prop_minimal_paths_are_valid ∷ TorSquareGrid → Int → Int → Property),
 
     -- HexHexGrid tests
     testProperty "prop_HexHexGrid_tile_count_correct"
@@ -835,17 +924,17 @@ test = testGroup "Math.Geometry.GridQC"
     testProperty "prop_neighbours_cw_viewpoint - HexHexGrid"
       (prop_neighbours_cw_viewpoint ∷ HexHexGrid → Int → Property),
     testProperty "prop_edges_cw_neighbours - HexHexGrid"
-      ( prop_edges_cw_neighbours ∷ HexHexGrid → Int → Property),
+      (prop_edges_cw_neighbours ∷ HexHexGrid → Int → Property),
     testProperty "prop_edges_are_adjacent - HexHexGrid"
-      ( prop_edges_are_adjacent ∷ HexHexGrid → Property),
+      (prop_edges_are_adjacent ∷ HexHexGrid → Property),
     testProperty "prop_adjacentTilesToward_moves_closer - HexHexGrid"
-      ( prop_adjacentTilesToward_moves_closer ∷ 
+      (prop_adjacentTilesToward_moves_closer ∷ 
           HexHexGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_have_min_length - HexHexGrid"
-      ( prop_minimal_paths_have_min_length ∷ 
+      (prop_minimal_paths_have_min_length ∷ 
           HexHexGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_are_valid - HexHexGrid"
-      ( prop_minimal_paths_are_valid ∷ HexHexGrid → Int → Int → Property),
+      (prop_minimal_paths_are_valid ∷ HexHexGrid → Int → Int → Property),
 
     -- ParaHexGrid tests
     testProperty "prop_ParaHexGrid_tile_count_correct"
@@ -879,16 +968,92 @@ test = testGroup "Math.Geometry.GridQC"
     testProperty "prop_neighbours_cw_viewpoint - ParaHexGrid"
       (prop_neighbours_cw_viewpoint ∷ ParaHexGrid → Int → Property),
     testProperty "prop_edges_cw_neighbours - ParaHexGrid"
-      ( prop_edges_cw_neighbours ∷ ParaHexGrid → Int → Property),
+      (prop_edges_cw_neighbours ∷ ParaHexGrid → Int → Property),
     testProperty "prop_adjacentTilesToward_moves_closer - ParaHexGrid"
-      ( prop_adjacentTilesToward_moves_closer ∷ 
+      (prop_adjacentTilesToward_moves_closer ∷ 
           ParaHexGrid → Int → Int → Property),
     testProperty "prop_edges_are_adjacent - ParaHexGrid"
-      ( prop_edges_are_adjacent ∷ ParaHexGrid → Property),
+      (prop_edges_are_adjacent ∷ ParaHexGrid → Property),
     testProperty "prop_minimal_paths_have_min_length - ParaHexGrid"
-      ( prop_minimal_paths_have_min_length ∷ 
+      (prop_minimal_paths_have_min_length ∷ 
           ParaHexGrid → Int → Int → Property),
     testProperty "prop_minimal_paths_are_valid - ParaHexGrid"
-      ( prop_minimal_paths_are_valid ∷ ParaHexGrid → Int → Int → Property)
+      (prop_minimal_paths_are_valid ∷ ParaHexGrid → Int → Int → Property),
+
+    -- RectOctGrid tests
+    testProperty "prop_RectOctGrid_tile_count_correct"
+      prop_RectOctGrid_tile_count_correct,
+    testProperty "prop_distance_reflexive - RectOctGrid"
+      (prop_distance_reflexive ∷ RectOctGrid → Int → Property),
+    testProperty "prop_distance_symmetric - RectOctGrid"
+      (prop_distance_symmetric ∷ RectOctGrid → Int → Int → Property),
+    testProperty "prop_minDistance_cw_distance - RectOctGrid"
+      (prop_minDistance_cw_distance ∷ RectOctGrid → Int → [Int] → Property),
+    testProperty "prop_grid_and_boundary_are_both_null_or_not - RectOctGrid"
+      (prop_grid_and_boundary_are_both_null_or_not ∷ RectOctGrid → Property),
+    testProperty "prop_boundary_in_grid - RectOctGrid"
+      (prop_boundary_in_grid ∷ RectOctGrid → Property),
+    testProperty "prop_boundary_tiles_have_fewer_neighbours - RectOctGrid"
+      (prop_boundary_tiles_have_fewer_neighbours ∷ RectOctGrid → Int → Property),
+    testProperty "prop_RectOctGrid_boundary_count_correct"
+      prop_RectOctGrid_boundary_count_correct,
+    testProperty "prop_RectOctGrid_boundary_tiles_have_fewer_neighbours"
+      prop_RectOctGrid_boundary_tiles_have_fewer_neighbours,
+    testProperty "prop_centres_equidistant_from_boundary - RectOctGrid"
+      (prop_centres_equidistant_from_boundary ∷ RectOctGrid → Property),
+    testProperty "prop_centres_farthest_from_boundary - RectOctGrid"
+      (prop_centres_farthest_from_boundary ∷ RectOctGrid → Int → Property),
+    testProperty "prop_RectOctGrid_distance_in_bounds"
+      prop_RectOctGrid_distance_in_bounds,
+    testProperty "prop_RectOctGrid_distance_corner_to_corner"
+      prop_RectOctGrid_distance_corner_to_corner,
+    testProperty "prop_RectOctGrid_neighbour_count_in_bounds"
+      prop_RectOctGrid_neighbour_count_in_bounds,
+    testProperty "prop_neighbours_cw_viewpoint - RectOctGrid"
+      (prop_neighbours_cw_viewpoint ∷ RectOctGrid → Int → Property),
+    testProperty "prop_edges_cw_neighbours - RectOctGrid"
+      (prop_edges_cw_neighbours ∷ RectOctGrid → Int → Property),
+    testProperty "prop_edges_are_adjacent - RectOctGrid"
+      (prop_edges_are_adjacent ∷ RectOctGrid → Property),
+    testProperty "prop_adjacentTilesToward_moves_closer - RectOctGrid"
+      (prop_adjacentTilesToward_moves_closer ∷ 
+          RectOctGrid → Int → Int → Property),
+    testProperty "prop_minimal_paths_have_min_length - RectOctGrid"
+      (prop_minimal_paths_have_min_length ∷ 
+          RectOctGrid → Int → Int → Property),
+    testProperty "prop_minimal_paths_are_valid - RectOctGrid"
+      (prop_minimal_paths_are_valid ∷ RectOctGrid → Int → Int → Property),
+    testProperty "prop_RectOctGrid_num_min_paths_correct"
+      prop_RectOctGrid_num_min_paths_correct,
+
+    -- TorOctGrid tests
+    testProperty "prop_TorOctGrid_tile_count_correct"
+      prop_TorOctGrid_tile_count_correct,
+    testProperty "prop_distance_reflexive - TorOctGrid"
+      (prop_distance_reflexive ∷ TorOctGrid → Int → Property),
+    testProperty "prop_distance_symmetric - TorOctGrid"
+      (prop_distance_symmetric ∷ TorOctGrid → Int → Int → Property),
+    testProperty "prop_minDistance_cw_distance - TorOctGrid"
+      (prop_minDistance_cw_distance ∷ TorOctGrid → Int → [Int] → Property),
+    testProperty "prop_TorOctGrid_distance_in_bounds"
+      prop_TorOctGrid_distance_in_bounds,
+    testProperty "prop_TorOctGrid_distance_corner_to_corner"
+      prop_TorOctGrid_distance_corner_to_corner,
+    testProperty "prop_TorOctGrid_neighbour_count_in_bounds"
+      prop_TorOctGrid_neighbour_count_in_bounds,
+    testProperty "prop_neighbours_cw_viewpoint - TorOctGrid"
+      (prop_neighbours_cw_viewpoint ∷ TorOctGrid → Int → Property),
+    testProperty "prop_edges_cw_neighbours - TorOctGrid"
+      (prop_edges_cw_neighbours ∷ TorOctGrid → Int → Property),
+    testProperty "prop_edges_are_adjacent - TorOctGrid"
+      (prop_edges_are_adjacent ∷ TorOctGrid → Property),
+    testProperty "prop_adjacentTilesToward_moves_closer - TorOctGrid"
+      (prop_adjacentTilesToward_moves_closer ∷ 
+          TorOctGrid → Int → Int → Property),
+    testProperty "prop_minimal_paths_have_min_length - TorOctGrid"
+      (prop_minimal_paths_have_min_length ∷ 
+          TorOctGrid → Int → Int → Property),
+    testProperty "prop_minimal_paths_are_valid - TorOctGrid"
+      (prop_minimal_paths_are_valid ∷ TorOctGrid → Int → Int → Property)
  ]
 

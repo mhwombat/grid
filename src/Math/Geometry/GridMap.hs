@@ -18,67 +18,17 @@
 
 module Math.Geometry.GridMap
   (
-    -- * Differences between @GridMap@ and @Map@.
-    -- $Compare
-
     -- * Map classes and types
-    GridMap,
-    BaseGrid,
-    G.Index,
-    G.Grid,
+    GridMap(..),
 
-    -- * Deconstruction
-    toMap,
-    toGrid,
-    toList,
-
-    -- * Grid functions
-    G.indices,
-    G.distance,
-    G.minDistance,
-    G.neighbours,
-    G.numNeighbours,
-    G.contains,
-    G.viewpoint,
-    G.tileCount,
-    G.null,
-    G.nonNull,
-    G.edges,
-    G.isAdjacent,
-    G.adjacentTilesToward,
-    G.minimalPaths,
-    G.size,
-    G.boundary,
-    G.isBoundary,
-    G.centre,
-    G.isCentre,    
-
-    -- * Map functions
-    -- ** Operators
-    (!),
-
-    -- ** Query
-    lookup,
-    findWithDefault,
-
-    -- ** Update
-    adjust,
-    adjustWithKey,
-
-    -- ** Traversal
-    map,
-    mapWithKey,
-
-    -- ** Folds
---    fold,
---    foldMap,
+    -- * Folds
     M.foldr,
     M.foldr',
     M.foldl,
     M.foldl',
 
-    -- ** Conversion
-    elems
+    -- * Differences between @GridMap@ and @Map@.
+    -- $Compare
   ) where
 
 import Prelude hiding (lookup, map, foldr, foldl, foldr1, foldl1, null)
@@ -92,7 +42,7 @@ import qualified Math.Geometry.Grid as G
 -- | A regular arrangement of tiles, having a value associated with
 --   each tile.
 --   Minimal complete definition: @toMap@, @toGrid@, @adjustWithKey@,
---   @mapWithKey.
+--   @mapWithKey@.
 --
 --   Note: Some of the methods have an @Ord@ constraint on the grid 
 --   index. This is purely to make it easier to write implementations.
@@ -151,12 +101,16 @@ class (G.Grid (BaseGrid gm v), Foldable gm) ⇒
   elems = M.elems . toMap
 
   -- | Map a function over all values in the map.
-  map ∷ GridMap gm b ⇒ (v → b) → gm v → gm b
+  map 
+    ∷ (GridMap gm v2, 
+        G.Index (BaseGrid gm v) ~ G.Index (BaseGrid gm v2)) ⇒ 
+    (v → v2) → gm v → gm v2
   map f = mapWithKey (\_ v → f v)
 
   -- | Map a function over all values in the map.
   mapWithKey 
-    ∷ (k ~ G.Index (BaseGrid gm v), GridMap gm v2) ⇒ 
+    ∷ (k ~ G.Index (BaseGrid gm v), k ~ G.Index (BaseGrid gm v2), 
+        GridMap gm v2) ⇒ 
       (k → v → v2) → gm v → gm v2
 
 {- $Compare
@@ -167,8 +121,8 @@ These changes are listed in the table below.
 Map function        | corresponding GridMap function
 --------------------+----------------------------------------------
 !                   | !
-\\                  | See note 1
-empty               | 'lazyGridMap' g []
+\\\\                  | See note 1
+empty               | 'Math.Geometry.GridMap.Lazy.lazyGridMap' g []
 findWithDefault     | 'findWithDefault'
 insert              | See notes 1, 2
 lookup              | 'lookup'
@@ -176,11 +130,11 @@ lookupLE            | See notes 1, 3
 lookupLT            | See notes 1, 3
 lookupGE            | See notes 1, 3
 lookupGT            | See notes 1, 3
-member              | 'inGrid'
-notMember           | not 'inGrid'
-null                | 'null'
+member              | 'Math.Geometry.Grid.contains'
+notMember           | not 'Math.Geometry.Grid.contains'
+null                | 'Math.Geometry.Grid.null'
 singleton           | 'lazyGridMap' g [v]
-size                | 'size', 'tileCount'*
+size                | 'Math.Geometry.Grid.size', 'Math.Geometry.Grid.tileCount'
 insert              | See notes 1, 2
 insertWith          | See notes 1, 2
 insertWithKey       | See notes 1, 2
@@ -204,7 +158,7 @@ intersection        | See notes 1, 2
 intersectionWith    | See notes 1, 2
 intersectionWithKey | See notes 1, 2
 mergeWithKey        | See notes 1, 2
-M.map               | fmap, or see note 1
+M.map               | 'Math.Geometry.GridMap.Lazy.fmap', or see note 1
 mapWithKey          | See note 1
 traverseWithKey     | See notes 1, 2
 mapAccum            | See note 1
@@ -225,11 +179,11 @@ elems               | 'elems'
 keys                | 'indices'
 assocs              | See note 1
 keysSet             | See note 1
-fromSet             | 'lazyGridMap' (constructor)
+fromSet             | 'Math.Geometry.GridMap.Lazy.lazyGridMap'
 toList              | See note 1
-fromList            | 'lazyGridMap' (constructor)
-fromListWithKey     | 'lazyGridMap' (constructor)
-fromListWith        | 'lazyGridMap' (constructor)
+fromList            | 'Math.Geometry.GridMap.Lazy.lazyGridMap'
+fromListWithKey     | 'Math.Geometry.GridMap.Lazy.lazyGridMap'
+fromListWith        | 'Math.Geometry.GridMap.Lazy.lazyGridMap'
 toAscList           | See notes 1, 3
 toDescList          | See notes 1, 3
 fromAscList         | See notes 1, 3
@@ -275,6 +229,7 @@ valid               | See note 1
 @
 
 Notes:
+
 1. You can extract the map using @'toMap'@ and apply the function from
 @Data.Map@ to the result.
 

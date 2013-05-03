@@ -12,9 +12,34 @@
 -- The userguide is available at 
 -- <https://github.com/mhwombat/grid/wiki>.
 --
+-- In this package, tiles are called \"triangular\", \"square\", etc.,
+-- based on the number of /neighbours/ they have.
+-- For example, a square tile has four neighbours, and a hexagonal
+-- tile has six.
+-- There are only three regular polygons that can tile a plane:
+-- triangles, squares, and hexagons.
+-- Of course, other plane tilings are possible if you use irregular 
+-- polygons, or curved shapes, or if you combine tiles of different 
+-- shapes.
+--
+-- When you tile other surfaces, things get very interesting.
+-- Octagons will tile a /hyperbolic/ plane.
+-- (Alternatively, you can think of these as squares on a board game
+-- where diagonal moves are allowed.)
+--
+-- For a board game, you probably want to choose the grid type based
+-- on the number of /directions/ a player can move, rather than the
+-- number of sides the tile will have when you display it.
+-- For example, for a game that uses square tiles and allows the user
+-- to move diagonally as well as horizontally and vertically,
+-- consider using one of the grids with /octagonal/ tiles to model the
+-- board.
+-- You can still /display/ the tiles as squares, but for internal
+-- calculations they are octagons.
+--
 -- NOTE: Version 4.0 uses associated (type) synonyms instead of 
 -- multi-parameter type classes.
-
+--
 -- NOTE: Version 3.0 changed the order of parameters for many functions.
 -- This makes it easier for the user to write mapping and folding
 -- operations.
@@ -25,34 +50,54 @@
 
 module Math.Geometry.Grid
   (
+    -- * Example
+    -- $Example
     -- * The Grid class
     Grid(..),
     FiniteGrid(..),
     BoundedGrid(..),
     -- * Grids with triangular tiles
+    -- ** Unbounded grid with triangular tiles
     UnboundedTriGrid,
+    -- ** Triangular grid with triangular tiles
     TriTriGrid,
     triTriGrid,
+    -- ** Parallelogram-shaped grid with triangular tiles
     ParaTriGrid,
     paraTriGrid,
+    -- ** Rectangular grid with triangular tiles
     RectTriGrid,
     rectTriGrid,
+    -- ** Toroidal grid with triangular tiles
     TorTriGrid,
     torTriGrid,
     -- * Grids with square tiles
+    -- ** Unbounded grid with square tiles
     UnboundedSquareGrid,
+    -- ** Rectangular grid with square tiles
     RectSquareGrid,
     rectSquareGrid,
+    -- ** Toroidal grid with square tiles
     TorSquareGrid,
     torSquareGrid,
     -- * Grids with hexagonal tiles
+    -- ** Unbounded grid with hexagonal tiles
     UnboundedHexGrid,
+    -- ** Hexagonal grid with hexagonal tiles
     HexHexGrid,
     hexHexGrid,
+    -- ** Parallelogram-shaped grid with hexagonal tiles
     ParaHexGrid,
-    paraHexGrid
-    -- * Example
-    -- $Example
+    paraHexGrid,
+    -- * Grids with octagonal tiles
+    -- ** Unbounded grid with octagonal tiles
+    UnboundedOctGrid,
+    -- ** Rectangular grid with octagonal tiles
+    RectOctGrid,
+    rectOctGrid,
+    -- ** Toroidal grid with octagonal tiles
+    TorOctGrid,
+    torOctGrid
   ) where
 
 import Math.Geometry.GridInternal (Grid(..), FiniteGrid(..), 
@@ -60,7 +105,9 @@ import Math.Geometry.GridInternal (Grid(..), FiniteGrid(..),
   ParaTriGrid, paraTriGrid, RectTriGrid, rectTriGrid, 
   TorTriGrid, torTriGrid, UnboundedSquareGrid, 
   RectSquareGrid, rectSquareGrid, TorSquareGrid, torSquareGrid, 
-  UnboundedHexGrid, HexHexGrid, hexHexGrid, ParaHexGrid, paraHexGrid)
+  UnboundedHexGrid, HexHexGrid, hexHexGrid, ParaHexGrid, paraHexGrid, 
+  UnboundedOctGrid, RectOctGrid, rectOctGrid, TorOctGrid, torOctGrid)
+
 
 {- $Example
    Create a grid.

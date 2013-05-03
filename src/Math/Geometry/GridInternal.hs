@@ -15,12 +15,10 @@
 
 module Math.Geometry.GridInternal
   (
-    -- * Generic
     Grid(..),
     FiniteGrid(..),
     BoundedGrid(..),
     WrappedGrid(..),
-    -- * Grids with triangular tiles
     UnboundedTriGrid,
     TriTriGrid,
     triTriGrid,
@@ -30,18 +28,21 @@ module Math.Geometry.GridInternal
     rectTriGrid,
     TorTriGrid,
     torTriGrid,
-    -- * Grids with square tiles
     UnboundedSquareGrid,
     RectSquareGrid,
     rectSquareGrid,
     TorSquareGrid,
     torSquareGrid,
-    -- * Grids with hexagonal tiles
     UnboundedHexGrid,
     HexHexGrid,
     hexHexGrid,
     ParaHexGrid,
-    paraHexGrid
+    paraHexGrid,
+    UnboundedOctGrid,
+    RectOctGrid,
+    rectOctGrid,
+    TorOctGrid,
+    torOctGrid,
   ) where
 
 import Prelude hiding (null)
@@ -53,7 +54,7 @@ import Data.Ord (comparing)
 import Data.Ord.Unicode ((≤), (≥))
 
 -- | A regular arrangement of tiles.
---   Minimal complete definition: @indices@ and @distance@.
+--   Minimal complete definition: @Index@, @indices@ and @distance@.
 class Grid g where
   type Index g
 
@@ -229,6 +230,9 @@ distanceBasedOn u g a b =
 -- Triangular tiles
 --
 
+-- | An unbounded grid with triangular tiles.
+--   The grid and its indexing scheme are illustrated in the user guide,
+--   available at <https://github.com/mhwombat/grid/wiki>.
 data UnboundedTriGrid = UnboundedTriGrid deriving Show
 
 instance Grid UnboundedTriGrid where
@@ -457,6 +461,9 @@ torTriGrid r c =
 -- Square tiles
 --
 
+-- | An unbounde grid with square tiles.
+--   The grid and its indexing scheme are illustrated in the user guide,
+--   available at <https://github.com/mhwombat/grid/wiki>.
 data UnboundedSquareGrid = UnboundedSquareGrid deriving Show
 
 instance Grid UnboundedSquareGrid where
@@ -544,7 +551,7 @@ instance Grid TorSquareGrid where
 --      [((x-1) `mod` c,y), (x,(y+1) `mod` r), ((x+1) `mod` c,y), 
 --        (x,(y-1) `mod` r)]
   neighbours g = nub . map (normalise g) . neighbours UnboundedSquareGrid
-  distance g@(TorSquareGrid (r,c) _) (x1, y1) (x2, y2) =
+  distance g@(TorSquareGrid (r,c) _) (x1, y1) (x2, y2) = -- TODO redo
     if g `contains` (x1, y1) && g `contains` (x2, y2)
       then min adx (abs (c-adx)) + min ady (abs (r-ady))
       else undefined 
@@ -559,6 +566,18 @@ instance WrappedGrid TorSquareGrid where
   normalise g (x,y) = (x `mod` c, y `mod` r)
     where (r, c) = size g
 
+denormaliseTor
+  :: (FiniteGrid g, Index g ~ (Int, Int), (Int, Int) ~ Size g) =>
+     g -> Index g -> [Index g]
+denormaliseTor g (x,y) = nub [(x2,y1), (x,y1), (x1,y1), 
+                              (x2,y),  (x,y),  (x1,y),
+                              (x2,y2), (x,y2), (x1,y2)]
+  where (r, c) = size g
+        x1 = x + c
+        y1 = y + r
+        x2 = x - c
+        y2 = y - r
+
 -- | @'torSquareGrid' r c@ returns a toroidal grid with @r@ 
 --   rows and @c@ columns, using square tiles. If @r@ and @c@ are 
 --   both nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
@@ -570,6 +589,9 @@ torSquareGrid r c = TorSquareGrid (r,c) [(x, y) | x ← [0..c-1], y ← [0..r-1]
 -- Hexagonal tiles
 --
 
+-- | An unbounded grid with hexagonal tiles
+--   The grid and its indexing scheme are illustrated in the user guide,
+--   available at <https://github.com/mhwombat/grid/wiki>.
 data UnboundedHexGrid = UnboundedHexGrid deriving Show
 
 instance Grid UnboundedHexGrid where
@@ -660,4 +682,93 @@ instance BoundedGrid ParaHexGrid where
 paraHexGrid ∷ Int → Int → ParaHexGrid
 paraHexGrid r c = 
   ParaHexGrid (r,c) [(x, y) | x ← [0..c-1], y ← [0..r-1]]
+
+
+--
+-- Octagonal tiles
+--
+
+-- | An unbounded grid with octagonal tiles.
+--   The grid and its indexing scheme are illustrated in the user guide,
+--   available at <https://github.com/mhwombat/grid/wiki>.
+data UnboundedOctGrid = UnboundedOctGrid deriving Show
+
+instance Grid UnboundedOctGrid where
+  type Index UnboundedOctGrid = (Int, Int)
+  indices _ = undefined
+  neighbours _ (x,y) = [(x-1,y+1), (x,y+1), (x+1,y+1), (x+1,y), 
+                        (x+1,y-1), (x,y-1), (x-1,y-1), (x-1,y)]
+  distance _ (x1, y1) (x2, y2) = max (abs (x2-x1)) (abs (y2-y1))
+  contains _ _ = True
+
+--
+-- Rectangular grids with octagonal tiles
+--
+
+-- | A rectangular grid with octagonal tiles.
+--   The grid and its indexing scheme are illustrated in the user guide,
+--   available at <https://github.com/mhwombat/grid/wiki>.
+data RectOctGrid = RectOctGrid (Int, Int) [(Int, Int)] deriving Eq
+
+instance Show RectOctGrid where 
+  show (RectOctGrid (r,c) _) = 
+    "rectOctGrid " ++ show r ++ " " ++ show c
+
+instance Grid RectOctGrid where
+  type Index RectOctGrid = (Int, Int)
+  indices (RectOctGrid _ xs) = xs
+  neighbours = neighboursBasedOn UnboundedOctGrid
+  distance = distanceBasedOn UnboundedOctGrid
+
+instance FiniteGrid RectOctGrid where
+  type Size RectOctGrid = (Int, Int)
+  size (RectOctGrid s _) = s
+
+instance BoundedGrid RectOctGrid where
+  tileSideCount _ = 4
+  boundary g = cartesianIndices . size $ g
+  centre g = cartesianCentre . size $ g
+
+-- | @'rectOctGrid' r c@ produces a rectangular grid with @r@ rows
+--   and @c@ columns, using octagonal tiles. If @r@ and @c@ are both 
+--   nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
+--   the resulting grid will be null and the list of indices will be 
+--   null.
+rectOctGrid ∷ Int → Int → RectOctGrid
+rectOctGrid r c = 
+  RectOctGrid (r,c) [(x,y) | x ← [0..c-1], y ← [0..r-1]]
+
+--
+-- Toroidal grids with octagonal tiles.
+--
+
+-- | A toroidal grid with octagonal tiles.
+--   The grid and its indexing scheme are illustrated in the user guide,
+--   available at <https://github.com/mhwombat/grid/wiki>.
+data TorOctGrid = TorOctGrid (Int, Int) [(Int, Int)] deriving Eq
+
+instance Show TorOctGrid where 
+  show (TorOctGrid (r,c) _) = "torOctGrid " ++ show r ++ " " ++ show c
+
+instance Grid TorOctGrid where
+  type Index TorOctGrid = (Int, Int)
+  indices (TorOctGrid _ xs) = xs
+  neighbours g = nub . map (normalise g) . neighbours UnboundedOctGrid
+  distance g a b = minimum . map (distance UnboundedOctGrid a) $ bs
+    where bs = denormaliseTor g b
+
+instance FiniteGrid TorOctGrid where
+  type Size TorOctGrid = (Int, Int)
+  size (TorOctGrid s _) = s
+
+instance WrappedGrid TorOctGrid where
+  normalise g (x,y) = (x `mod` c, y `mod` r)
+    where (r, c) = size g
+
+-- | @'torOctGrid' r c@ returns a toroidal grid with @r@ 
+--   rows and @c@ columns, using octagonal tiles. If @r@ and @c@ are 
+--   both nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
+--   the resulting grid will be null and the list of indices will be null.
+torOctGrid ∷ Int → Int → TorOctGrid
+torOctGrid r c = TorOctGrid (r,c) [(x, y) | x ← [0..c-1], y ← [0..r-1]]
 
