@@ -1,5 +1,5 @@
 name:           grid
-version:        5.1
+version:        6.0
 synopsis:       Tools for working with regular grids (graphs, lattices).
 description:    Provides tools for working with regular arrangements
                 of tiles, such as might be used in a board game or some
@@ -33,7 +33,15 @@ library
                    containers ==0.4.2.* || ==0.5.*
   ghc-options:     -Wall
   exposed-modules: Math.Geometry.Grid,
+                   Math.Geometry.Grid.Triangular,
+                   Math.Geometry.Grid.Square,
+                   Math.Geometry.Grid.Hexagonal,
+                   Math.Geometry.Grid.Octagonal,
                    Math.Geometry.GridInternal,
+                   Math.Geometry.Grid.TriangularInternal,
+                   Math.Geometry.Grid.SquareInternal,
+                   Math.Geometry.Grid.HexagonalInternal,
+                   Math.Geometry.Grid.OctagonalInternal,
                    Math.Geometry.GridMap,
                    Math.Geometry.GridMap.Lazy
 

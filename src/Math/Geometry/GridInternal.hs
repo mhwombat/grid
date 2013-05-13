@@ -13,50 +13,21 @@
 ------------------------------------------------------------------------
 {-# LANGUAGE UnicodeSyntax, TypeFamilies, FlexibleContexts #-}
 
-module Math.Geometry.GridInternal
-  (
-    Grid(..),
-    FiniteGrid(..),
-    BoundedGrid(..),
-    WrappedGrid(..),
-    UnboundedTriGrid,
-    TriTriGrid,
-    triTriGrid,
-    ParaTriGrid,
-    paraTriGrid,
-    RectTriGrid,
-    rectTriGrid,
-    TorTriGrid,
-    torTriGrid,
-    UnboundedSquareGrid,
-    RectSquareGrid,
-    rectSquareGrid,
-    TorSquareGrid,
-    torSquareGrid,
-    UnboundedHexGrid,
-    HexHexGrid,
-    hexHexGrid,
-    ParaHexGrid,
-    paraHexGrid,
-    UnboundedOctGrid,
-    RectOctGrid,
-    rectOctGrid,
-    TorOctGrid,
-    torOctGrid,
-  ) where
+module Math.Geometry.GridInternal where
 
 import Prelude hiding (null)
 
-import Data.Eq.Unicode ((≡), (≠))
+import Data.Eq.Unicode ((≡))
 import Data.Function (on)
 import Data.List (groupBy, nub, nubBy, sortBy)
 import Data.Ord (comparing)
-import Data.Ord.Unicode ((≤), (≥))
 
 -- | A regular arrangement of tiles.
---   Minimal complete definition: @Index@, @indices@ and @distance@.
+--   Minimal complete definition: @Index@, @Direction@, @indices@, 
+--   @distance@, @directionTo@.
 class Grid g where
   type Index g
+  type Direction g
 
   -- | Returns the indices of all tiles in a grid.
   indices ∷ g → [Index g]
@@ -75,29 +46,28 @@ class Grid g where
   --   any of @bs@ are not contained within @g@, the result is 
   --   undefined.
   minDistance ∷ g → [Index g] → Index g → Int
-  minDistance g xs x = minimum . map (distance g x) $ xs
+  minDistance = defaultMinDistance
 
-  -- | @'neighbours' g x@ returns the indices of the tiles in the grid
-  --   @g@ which are adjacent to the tile with index @x@.
+  -- | @'neighbours' g a@ returns the indices of the tiles in the grid
+  --   @g@ which are adjacent to the tile with index @a@.
   neighbours ∷ g → Index g → [Index g]
-  neighbours g x = filter (\a → distance g x a ≡ 1 ) $ indices g
+  neighbours = defaultNeighbours
 
-  -- | @'numNeighbours' g x@ returns the number of tiles in the grid
-  --   @g@ which are adjacent to the tile with index @x@.
+  -- | @'neighbour' g d a@ returns the indices of the tile in the grid
+  --   @g@ which is adjacent to the tile with index @a@, in the 
+  --   direction @d@.
+  neighbour ∷ Eq (Direction g) ⇒ g → Index g → Direction g → Index g
+  neighbour = defaultNeighbour
+
+  -- | @'numNeighbours' g a@ returns the number of tiles in the grid
+  --   @g@ which are adjacent to the tile with index @a@.
   numNeighbours ∷ g → Index g → Int
   numNeighbours g = length . neighbours g
 
-  -- | @g `'contains'` x@ returns @True@ if the index @x@ is contained 
+  -- | @g `'contains'` a@ returns @True@ if the index @a@ is contained 
   --   within the grid @g@, otherwise it returns false.
   contains ∷ Eq (Index g) ⇒ g → Index g → Bool
-  contains g x = x `elem` indices g
-
-  -- | @'viewpoint' g x@ returns a list of pairs associating the index
-  --   of each tile in @g@ with its distance to the tile with index @x@.
-  --   If @x@ is not contained within @g@, the result is undefined.
-  viewpoint ∷ g → Index g → [(Index g, Int)]
-  viewpoint g p = map f (indices g)
-    where f x = (x, distance g p x)
+  contains g a = a `elem` indices g
 
   -- | Returns the number of tiles in a grid. Compare with @'size'@.
   tileCount ∷ g → Int
@@ -116,14 +86,21 @@ class Grid g where
   -- | A list of all edges in a grid, where the edges are represented by
   --   a pair of indices of adjacent tiles.
   edges ∷ Eq (Index g) ⇒ g → [(Index g,Index g)]
-  edges g = nubBy sameEdge $ concatMap (`adjacentEdges` g) $ indices g
+  edges = defaultEdges
+
+  -- | @'viewpoint' g a@ returns a list of pairs associating the index
+  --   of each tile in @g@ with its distance to the tile with index @a@.
+  --   If @a@ is not contained within @g@, the result is undefined.
+  viewpoint ∷ g → Index g → [(Index g, Int)]
+  viewpoint g p = map f (indices g)
+    where f a = (a, distance g p a)
 
   -- | @'isAdjacent' g a b@ returns @True@ if the tile at index @a@ is
   --   adjacent to the tile at index @b@ in @g@. (Two tiles are adjacent
   --   if they share an edge.) If @a@ or @b@ are not contained within
   --   @g@, the result is undefined.
-  isAdjacent ∷ Eq (Index g) ⇒ g → Index g → Index g → Bool
-  isAdjacent g a b = a `elem` (neighbours g b)
+  isAdjacent ∷ g → Index g → Index g → Bool
+  isAdjacent = defaultIsAdjacent
 
   -- | @'adjacentTilesToward' g a b@ returns the indices of all tiles
   --   which are neighbours of the tile at index @a@, and which are
@@ -132,8 +109,7 @@ class Grid g where
   --   or @b@ are not contained within @g@, or if there is no path from 
   --   @a@ to @b@ (e.g., a disconnected grid), the result is undefined.
   adjacentTilesToward ∷ g → Index g → Index g → [Index g]
-  adjacentTilesToward g a b = filter f $ neighbours g a
-    where f x = distance g x b ≡ distance g a b - 1
+  adjacentTilesToward = defaultAdjacentTilesToward
 
   -- | @'minimalPaths' g a b@ returns a list of all minimal paths from 
   --   the tile at index @a@ to the tile at index @b@ in grid @g@. A
@@ -147,17 +123,77 @@ class Grid g where
   --   consider modifying @'adjacentTilesToward'@ instead of 
   --   @'minimalPaths'@.
   minimalPaths ∷ Eq (Index g) ⇒ g → Index g → Index g → [[Index g]]
-  minimalPaths g a b | a ≡ b              = [[a]]
-                     | distance g a b ≡ 1 = [[a,b]]
-                     | otherwise          = map (a:) xs
-    where xs = concatMap (\x → minimalPaths g x b) ys
+  minimalPaths = defaultMinimalPaths
+
+  -- | @'directionTo' g a b@ returns the direction(s) of the next 
+  --   tile(s) in a /minimal/ path from the tile at index @a@ to the 
+  --   tile at index @b@ in grid @g@.
+  directionTo ∷ g → Index g → Index g → [Direction g]
+
+  --
+  -- These default implementations are broken out to make it easier to
+  -- compare the results with custom implementations (for testing).
+  --
+
+  defaultMinDistance ∷ g → [Index g] → Index g → Int
+  defaultMinDistance g xs a = minimum . map (distance g a) $ xs
+
+  defaultNeighbours ∷ g → Index g → [Index g]
+  defaultNeighbours g a = filter (\b → distance g a b ≡ 1 ) $ indices g
+
+  defaultNeighbour ∷ Eq (Direction g) 
+    ⇒ g → Index g → Direction g → Index g
+  defaultNeighbour g a d =
+    head . filter (\b → [d] ≡ directionTo g a b) . neighbours g $ a
+
+  defaultTileCount ∷ g → Int
+  defaultTileCount = length . indices
+
+  defaultEdges ∷ Eq (Index g) ⇒ g → [(Index g,Index g)]
+  defaultEdges g = nubBy sameEdge $ concatMap (`adjacentEdges` g) $ indices g
+
+  defaultIsAdjacent ∷ g → Index g → Index g → Bool
+  defaultIsAdjacent g a b = distance g a b ≡ 1
+
+  defaultAdjacentTilesToward ∷ g → Index g → Index g → [Index g]
+  defaultAdjacentTilesToward g a b = filter f $ neighbours g a
+    where f c = distance g c b ≡ distance g a b - 1
+
+  defaultMinimalPaths ∷ Eq (Index g)
+    ⇒ g → Index g → Index g → [[Index g]]
+  defaultMinimalPaths g a b 
+    | a ≡ b              = [[a]]
+    | distance g a b ≡ 1 = [[a,b]]
+    | otherwise          = map (a:) xs
+    where xs = concatMap (\c → minimalPaths g c b) ys
           ys = adjacentTilesToward g a b
+
+--
+-- Helper functions
+--
 
 sameEdge ∷ Eq t ⇒ (t, t) → (t, t) → Bool
 sameEdge (a,b) (c,d) = (a,b) ≡ (c,d) || (a,b) ≡ (d,c)
 
 adjacentEdges ∷ Grid g ⇒ Index g → g → [(Index g, Index g)]
 adjacentEdges i g = map (\j → (i,j)) $ neighbours g i
+
+cartesianIndices
+  ∷ (Enum r, Enum c, Num r, Num c, Ord r, Ord c) ⇒
+     (r, c) → [(c, r)]
+cartesianIndices (r, c) = west ++ north ++ east ++ south
+  where west = [(0,k) | k ← [0,1..r-1], c>0]
+        north = [(k,r-1) | k ← [1,2..c-1], r>0]
+        east = [(c-1,k) | k ← [r-2,r-3..0], c>1]
+        south = [(k,0) | k ← [c-2,c-3..1], r>1]
+
+cartesianCentre ∷ (Int, Int) → [(Int, Int)]
+cartesianCentre (r,c) = [(i,j) | i ← cartesianMidpoints c, j ← cartesianMidpoints r]
+
+cartesianMidpoints ∷ Int → [Int]
+cartesianMidpoints k = if even k then [m-1,m] else [m]
+  where m = floor (k'/2.0)
+        k' = fromIntegral k ∷ Double
 
 
 -- | A regular arrangement of tiles where the number of tiles is finite.
@@ -179,596 +215,105 @@ class Grid g ⇒ BoundedGrid g where
   -- | Returns a the indices of all the tiles at the boundary of a grid.
   boundary ∷ g → [Index g]
   boundary g = map fst . filter f $ xds
-    where xds = map (\y → (y, numNeighbours g y)) $ indices g
+    where xds = map (\b → (b, numNeighbours g b)) $ indices g
           f (_,n) = n < tileSideCount g 
 
 
-  -- | @'isBoundary' g x@' returns @True@ if the tile with index @x@ is
+  -- | @'isBoundary' g a@' returns @True@ if the tile with index @a@ is
   --   on a boundary of @g@, @False@ otherwise. (Corner tiles are also
   --   boundary tiles.)
   isBoundary ∷ Eq (Index g) ⇒ g → Index g → Bool
-  isBoundary g x = x `elem` boundary g
+  isBoundary g a = a `elem` boundary g
 
   -- | Returns the index of the tile(s) that require the maximum number 
   --   of moves to reach the nearest boundary tile. A grid may have more
   --   than one central tile (e.g., a rectangular grid with an even 
   --   number of rows and columns will have four central tiles).
   centre ∷ g → [Index g]
-  centre g = map fst . head . reverse . groupBy ((≡) `on` snd) . 
+  centre g = map fst . last . groupBy ((≡) `on` snd) . 
                 sortBy (comparing snd) $ xds
-    where xds = map (\y → (y, minDistance g bs y)) $ indices g
+    where xds = map (\b → (b, minDistance g bs b)) $ indices g
           bs = boundary g
 
 
-  -- | @'isCentre' g x@' returns @True@ if the tile with index @x@ is
+  -- | @'isCentre' g a@' returns @True@ if the tile with index @a@ is
   --   a centre tile of @g@, @False@ otherwise.
   isCentre ∷ Eq (Index g) ⇒ g → Index g → Bool
-  isCentre g x = x `elem` centre g
+  isCentre g a = a `elem` centre g
 
+-- | A regular arrangement of tiles where the boundaries are joined.
+--   Minimal complete definition: @normalise@.
 class (Grid g) ⇒ WrappedGrid g where
+  -- | @'normalise' g a@ returns the "normal" indices for @a@.
+  --   TODO: need a clearer description and an illustration.
   normalise ∷ g → Index g → Index g
+  -- | @'denormalise' g a@ returns all of the indices in @a@'s
+  --   translation group. In other words, it returns @a@ plus the 
+  --   indices obtained by translating @a@ in each direction by the
+  --   extent of the grid along that direction.
+  --   TODO: need a clearer description and an illustration.
+  denormalise ∷ g → Index g → [Index g]
 
--- Calculate the neighbours of a tile in a bounded grid by as we would 
--- in an unbounded grid, but then filter out the tiles that are not in
--- bounds.
 neighboursBasedOn
-  ∷ (Eq (Index g), Grid u, Grid g, Index u ~ Index g) ⇒
-     g → u → Index g → [Index g]
+  ∷ (Eq (Index u), Grid g, Grid u, Index g ~ Index u) ⇒
+    u → g → Index g → [Index g]
 neighboursBasedOn u g = filter (g `contains`) . neighbours u
 
--- Calculate the distance between two tiles in a bounded grid by as we 
--- would in an unbounded grid, but only if both tiles are in bounds.
 distanceBasedOn
-  ∷ (Eq (Index g), Grid u, Grid g, Index u ~ Index g) ⇒
-     g → u → Index g → Index g → Int
+  ∷ (Eq (Index g), Grid g, Grid u, Index g ~ Index u) ⇒
+    u → g → Index g → Index g → Int
 distanceBasedOn u g a b = 
   if g `contains` a && g `contains` b
     then distance u a b
     else undefined
 
---
--- Triangular tiles
---
-
--- | An unbounded grid with triangular tiles.
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedTriGrid = UnboundedTriGrid deriving Show
-
-instance Grid UnboundedTriGrid where
-  type Index UnboundedTriGrid = (Int, Int)
-  indices _ = undefined
-  neighbours _ (x,y) = if even y
-                         then [(x-1,y+1), (x+1,y+1), (x+1,y-1)]
-                         else [(x-1,y-1), (x-1,y+1), (x+1,y-1)]
-  distance _ (x1, y1) (x2, y2) = 
-    maximum [abs (x2-x1), abs (y2-y1), abs(z2-z1)]
-      where z1 = triZ x1 y1
-            z2 = triZ x2 y2
-  contains _ _ = True
-
--- | For triangular tiles, it is convenient to define a third component 
---   z.
-triZ ∷ Int → Int → Int            
-triZ x y = if even y then -x - y else -x - y + 1
-
---
--- Triangular grids with triangular tiles
---
-
--- | A triangular grid with triangular tiles.
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data TriTriGrid = TriTriGrid Int [(Int, Int)] deriving Eq
-
-instance Show TriTriGrid where 
-  show (TriTriGrid s _) = "triTriGrid " ++ show s
-
-instance Grid TriTriGrid where
-  type Index TriTriGrid = (Int, Int)
-  indices (TriTriGrid _ xs) = xs
-  neighbours = neighboursBasedOn UnboundedTriGrid
-  distance = distanceBasedOn UnboundedTriGrid
-  contains (TriTriGrid s _) (x, y) = inTriTriGrid (x,y) s
-
-inTriTriGrid ∷ (Int, Int) → Int → Bool
-inTriTriGrid (x, y) s = x ≥ 0 && y ≥ 0 && even (x+y) && abs z ≤ 2*s-2
-  where z = triZ x y
-
-instance FiniteGrid TriTriGrid where
-  type Size TriTriGrid = Int
-  size (TriTriGrid s _) = s
-
-instance BoundedGrid TriTriGrid where
-  tileSideCount _ = 3
-  boundary g = west ++ east ++ south
-    where s = size g
-          west = [(0,k) | k ← [0,2..2*s-2]]
-          east = [(k,2*s-2-k) | k ← [2,4..2*s-2]]
-          south = [(k,0) | k ← [2*s-4,2*s-6..2]]
-  centre g = case s `mod` 3 of
-    0 → trefoilWithTop (k-1,k+1) where k = (2*s) `div` 3
-    1 → [(k,k)] where k = (2*(s-1)) `div` 3
-    2 → [(k+1,k+1)] where k = (2*(s-2)) `div` 3
-    _ → error "This will never happen."
-    where s = size g
-          trefoilWithTop (i,j) = [(i,j), (i+2, j-2), (i,j-2)]
-
--- | @'triTriGrid' s@ returns a triangular grid with sides of 
---   length @s@, using triangular tiles. If @s@ is nonnegative, the 
---   resulting grid will have @s^2@ tiles. Otherwise, the resulting grid
---   will be null and the list of indices will be null.
-triTriGrid ∷ Int → TriTriGrid
-triTriGrid s = 
-  TriTriGrid s [(xx,yy) | xx ← [0..2*(s-1)], 
-                          yy ← [0..2*(s-1)], 
-                          (xx,yy) `inTriTriGrid` s]
-
---
--- Parallelogrammatical grids with triangular tiles
---
-
--- | A Parallelogrammatical grid with triangular tiles.
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data ParaTriGrid = ParaTriGrid (Int, Int) [(Int, Int)] deriving Eq
-
-instance Show ParaTriGrid where 
-  show (ParaTriGrid (r,c) _) = "paraTriGrid " ++ show r ++ " " ++ show c
-
-instance Grid ParaTriGrid where
-  type Index ParaTriGrid = (Int, Int)
-  indices (ParaTriGrid _ xs) = xs
-  neighbours = neighboursBasedOn UnboundedTriGrid
-  distance = distanceBasedOn UnboundedTriGrid
-
-instance FiniteGrid ParaTriGrid where
-  type Size ParaTriGrid = (Int, Int)
-  size (ParaTriGrid s _) = s
-
-instance BoundedGrid ParaTriGrid where
-  tileSideCount _ = 3
-  boundary g = west ++ north ++ east ++ south
-    where (r,c) = size g
-          west = [(0,k) | k ← [0,2..2*r-2], c>0]
-          north = [(k,2*r-1) | k ← [1,3..2*c-1], r>0]
-          east = [(2*c-1,k) | k ← [2*r-3,2*r-5..1], c>0]
-          south = [(k,0) | k ← [2*c-2,2*c-4..2], r>0]
-  centre g = f . size $ g
-    where f (r,c)
-            | odd r && odd c             
-                = [(c-1,r-1), (c,r)]
-            | even r && even c && r ≡ c 
-                = bowtie (c-1,r-1)
-            | even r && even c && r > c  
-                = bowtie (c-1,r-3) ++ bowtie (c-1,r-1) ++ bowtie (c-1,r+1)
-            | even r && even c && r < c  
-                = bowtie (c-3,r-1) ++ bowtie (c-1,r-1) ++ bowtie (c+1,r-1)
-            | otherwise                  
-                = [(c-1,r), (c,r-1)]
-          bowtie (i,j) = [(i,j), (i+1,j+1)]
-
--- | @'paraTriGrid' r c@ returns a grid in the shape of a 
---   parallelogram with @r@ rows and @c@ columns, using triangular 
---   tiles. If @r@ and @c@ are both nonnegative, the resulting grid will
---   have @2*r*c@ tiles. Otherwise, the resulting grid will be null and
---   the list of indices will be null.
-paraTriGrid ∷ Int → Int → ParaTriGrid
-paraTriGrid r c = 
-  ParaTriGrid (r,c) [(x,y) | x ← [0..2*c-1], y ← [0..2*r-1], even (x+y)]
-
-
---
--- Rectangular grids with triangular tiles
---
-
--- | A rectangular grid with triangular tiles.
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data RectTriGrid = RectTriGrid (Int, Int) [(Int, Int)] deriving Eq
-
-instance Show RectTriGrid where 
-  show (RectTriGrid (r,c) _) = "rectTriGrid " ++ show r ++ " " ++ show c
-
-instance Grid RectTriGrid where
-  type Index RectTriGrid = (Int, Int)
-  indices (RectTriGrid _ xs) = xs
-  neighbours = neighboursBasedOn UnboundedTriGrid
-  distance = distanceBasedOn UnboundedTriGrid
-
-instance FiniteGrid RectTriGrid where
-  type Size RectTriGrid = (Int, Int)
-  size (RectTriGrid s _) = s
-
-instance BoundedGrid RectTriGrid where
-  tileSideCount _ = 3
-
--- | @'rectTriGrid' r c@ returns a grid in the shape of a 
---   rectangle (with jagged edges) that has @r@ rows and @c@ columns, 
---   using triangular tiles. If @r@ and @c@ are both nonnegative, the 
---   resulting grid will have @2*r*c@ tiles. Otherwise, the resulting grid will be null and
---   the list of indices will be null.
-rectTriGrid ∷ Int → Int → RectTriGrid
-rectTriGrid r c = RectTriGrid (r,c) [(x,y) | y ← [0..2*r-1], x ← [xMin y .. xMax c y], even (x+y)]
-  where xMin y = if even y then w else w+1
-          where w = -2*((y+1) `div` 4)
-        xMax c2 y = xMin y + 2*(c2-1)
-
-
---
--- Toroidal grids with triangular tiles
---
-
--- | A toroidal grid with triangular tiles.
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data TorTriGrid = TorTriGrid (Int, Int) [(Int, Int)] deriving Eq
-
-instance Show TorTriGrid where 
-  show (TorTriGrid (r,c) _) = "torTriGrid " ++ show r ++ " " ++ show c
-
-instance Grid TorTriGrid where
-  type Index TorTriGrid = (Int, Int)
-  indices (TorTriGrid _ xs) = xs
-  neighbours g = nub . map (normalise g) . neighbours UnboundedTriGrid
-  distance g (xa, ya) (xb, yb) = 
-    if g `contains` (xa, ya) && g `contains` (xb, yb)
-      then minimum [distance UnboundedTriGrid (xa, ya) (xb, yb),
-                    distance UnboundedTriGrid (xa, ya) (xb + 2*c, yb),
-                    distance UnboundedTriGrid (xa, ya) (xb - r, yb + 2*r),
-                    distance UnboundedTriGrid (xa, ya) (xb, yb),
-                    distance UnboundedTriGrid (xa + 2*c, ya) (xb, yb),
-                    distance UnboundedTriGrid (xa - r, ya + 2*r) (xb, yb)]
-      else undefined
-    where (r,c) = size g
-
-xMinTorTri ∷ Int → Int
-xMinTorTri y = if even y then w else w+1
-  where w = -2*((y+1) `div` 4)
-
-
-instance FiniteGrid TorTriGrid where
-  type Size TorTriGrid = (Int, Int)
-  size (TorTriGrid s _) = s
-
-instance WrappedGrid TorTriGrid where
-  normalise g (x,y)
-    | y < 0            = normalise g (x-r,y+2*r)
-    | y > 2*r-1        = normalise g (x+r,y-2*r)
-    | x < xMin         = normalise g (x+2*c,y)
-    | x > xMin + 2*c-1 = normalise g (x-2*c,y)
-    | otherwise        = (x,y)
-    where xMin = xMinTorTri y
-          (r, c) = size g
-
--- | @'torTriGrid' r c@ returns a toroidal grid with @r@ rows and @c@ 
---   columns, using triangular tiles. If @r@ is odd, the result is
---   undefined because the grid edges would overlap. If @r@ and @c@  
---   are both nonnegative, the resulting grid will have @2*r*c@ tiles. 
---   Otherwise, the resulting grid will be null and the list of indices
---   will be null.
-torTriGrid ∷ Int → Int → TorTriGrid
-torTriGrid r c = 
-  if even r
-    then TorTriGrid (r,c) [(x,y) | y ← [0..2*r-1], 
-                                   x ← [xMinTorTri y .. xMax c y], 
-                                   even (x+y)]
+directionToBasedOn
+  ∷ (Eq (Index g), Eq (Direction g), Grid g, Grid u, Index g ~ Index u, 
+    Direction g ~ Direction u) ⇒
+    u → g → Index g → Index g → [Direction g]
+directionToBasedOn u g a b = 
+  if g `contains` a && g `contains` b
+    then nub . concatMap (directionTo u a) . adjacentTilesToward g a $ b
     else undefined
-  where xMax c2 y = xMinTorTri y + 2*(c2-1)
+
+neighboursWrappedBasedOn
+  ∷ (Eq (Index g), WrappedGrid g, Grid u, Index g ~ Index u) ⇒
+    u → g → Index g → [Index g]
+neighboursWrappedBasedOn u g = 
+  filter (g `contains`) . nub . map (normalise g) . neighbours u
+
+neighbourWrappedBasedOn
+  ∷ (Eq (Index g), Eq (Direction g), WrappedGrid g, Grid u, 
+    Index g ~ Index u, Direction g ~ Direction u) ⇒
+    u → g → Index g → Direction g → Index g
+neighbourWrappedBasedOn u g a d =
+  if g `contains` a
+    then normalise g . neighbour u a $ d
+    else undefined
+
+distanceWrappedBasedOn
+  ∷ (Eq (Index g), WrappedGrid g, Grid u, Index g ~ Index u) ⇒
+    u → g → Index g → Index g → Int
+distanceWrappedBasedOn u g a b = 
+  if g `contains` a && g `contains` b
+    then minimum . map (distance u a') $ bs
+    else undefined
+  where a' = normalise g a
+        bs = denormalise g b
+
+directionToWrappedBasedOn
+  ∷ (Eq (Index g), Eq (Direction g), WrappedGrid g, Grid u, 
+    Index g ~ Index u, Direction g ~ Direction u) ⇒
+    u → g → Index g → Index g → [Direction g]
+directionToWrappedBasedOn u g a b =
+  if g `contains` a && g `contains` b
+    then nub . concatMap (directionTo u a') $ ys'
+    else undefined
+  where a' = normalise g a
+        ys = denormalise g b
+        minD = distance g a b
+        ys' = filter (\c -> distance u a' c == minD) ys
 
 
---
--- Square tiles
---
 
--- | An unbounde grid with square tiles.
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedSquareGrid = UnboundedSquareGrid deriving Show
-
-instance Grid UnboundedSquareGrid where
-  type Index UnboundedSquareGrid = (Int, Int)
-  indices _ = undefined
-  neighbours _ (x,y) = [(x,y+1), (x,y-1), (x+1,y), (x-1,y)]
-  distance _ (x1, y1) (x2, y2) = abs (x2-x1) + abs (y2-y1)
-  contains _ _ = True
-
---
--- Rectangular grids with square tiles
---
-
--- | A rectangular grid with square tiles.
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data RectSquareGrid = RectSquareGrid (Int, Int) [(Int, Int)] deriving Eq
-
-instance Show RectSquareGrid where 
-  show (RectSquareGrid (r,c) _) = 
-    "rectSquareGrid " ++ show r ++ " " ++ show c
-
-instance Grid RectSquareGrid where
-  type Index RectSquareGrid = (Int, Int)
-  indices (RectSquareGrid _ xs) = xs
-  neighbours = neighboursBasedOn UnboundedSquareGrid
-  distance = distanceBasedOn UnboundedSquareGrid
-  adjacentTilesToward g a@(x1, y1) (x2, y2) = 
-    filter (\i → g `contains` i && i ≠ a) $ nub [(x1,y1+dy),(x1+dx,y1)]
-      where dx = signum (x2-x1)
-            dy = signum (y2-y1)
-
-instance FiniteGrid RectSquareGrid where
-  type Size RectSquareGrid = (Int, Int)
-  size (RectSquareGrid s _) = s
-
-instance BoundedGrid RectSquareGrid where
-  tileSideCount _ = 4
-  boundary g = cartesianIndices . size $ g
-  centre g = cartesianCentre . size $ g
-
-cartesianIndices
-  ∷ (Enum r, Enum c, Num r, Num c, Ord r, Ord c) ⇒
-     (r, c) → [(c, r)]
-cartesianIndices (r, c) = west ++ north ++ east ++ south
-  where west = [(0,k) | k ← [0,1..r-1], c>0]
-        north = [(k,r-1) | k ← [1,2..c-1], r>0]
-        east = [(c-1,k) | k ← [r-2,r-3..0], c>1]
-        south = [(k,0) | k ← [c-2,c-3..1], r>1]
-
-cartesianCentre ∷ (Int, Int) → [(Int, Int)]
-cartesianCentre (r,c) = [(i,j) | i ← midpoints c, j ← midpoints r]
-
-midpoints ∷ Int → [Int]
-midpoints k = if even k then [m-1,m] else [m]
-  where m = floor (k'/2.0)
-        k' = fromIntegral k ∷ Double
-
--- | @'rectSquareGrid' r c@ produces a rectangular grid with @r@ rows
---   and @c@ columns, using square tiles. If @r@ and @c@ are both 
---   nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
---   the resulting grid will be null and the list of indices will be 
---   null.
-rectSquareGrid ∷ Int → Int → RectSquareGrid
-rectSquareGrid r c = 
-  RectSquareGrid (r,c) [(x,y) | x ← [0..c-1], y ← [0..r-1]]
-
---
--- Toroidal grids with square tiles.
---
-
--- | A toroidal grid with square tiles.
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data TorSquareGrid = TorSquareGrid (Int, Int) [(Int, Int)] deriving Eq
-
-instance Show TorSquareGrid where 
-  show (TorSquareGrid (r,c) _) = "torSquareGrid " ++ show r ++ " " ++ show c
-
-instance Grid TorSquareGrid where
-  type Index TorSquareGrid = (Int, Int)
-  indices (TorSquareGrid _ xs) = xs
---  neighbours (TorSquareGrid (r,c) _) (x,y) = 
---    nub $ filter (\(xx,yy) → xx ≠ x || yy ≠ y) 
---      [((x-1) `mod` c,y), (x,(y+1) `mod` r), ((x+1) `mod` c,y), 
---        (x,(y-1) `mod` r)]
-  neighbours g = nub . map (normalise g) . neighbours UnboundedSquareGrid
-  distance g@(TorSquareGrid (r,c) _) (x1, y1) (x2, y2) = -- TODO redo
-    if g `contains` (x1, y1) && g `contains` (x2, y2)
-      then min adx (abs (c-adx)) + min ady (abs (r-ady))
-      else undefined 
-    where adx = abs (x2 - x1)
-          ady = abs (y2 - y1)
-
-instance FiniteGrid TorSquareGrid where
-  type Size TorSquareGrid = (Int, Int)
-  size (TorSquareGrid s _) = s
-
-instance WrappedGrid TorSquareGrid where
-  normalise g (x,y) = (x `mod` c, y `mod` r)
-    where (r, c) = size g
-
-denormaliseTor
-  :: (FiniteGrid g, Index g ~ (Int, Int), (Int, Int) ~ Size g) =>
-     g -> Index g -> [Index g]
-denormaliseTor g (x,y) = nub [(x2,y1), (x,y1), (x1,y1), 
-                              (x2,y),  (x,y),  (x1,y),
-                              (x2,y2), (x,y2), (x1,y2)]
-  where (r, c) = size g
-        x1 = x + c
-        y1 = y + r
-        x2 = x - c
-        y2 = y - r
-
--- | @'torSquareGrid' r c@ returns a toroidal grid with @r@ 
---   rows and @c@ columns, using square tiles. If @r@ and @c@ are 
---   both nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
---   the resulting grid will be null and the list of indices will be null.
-torSquareGrid ∷ Int → Int → TorSquareGrid
-torSquareGrid r c = TorSquareGrid (r,c) [(x, y) | x ← [0..c-1], y ← [0..r-1]]
-
---
--- Hexagonal tiles
---
-
--- | An unbounded grid with hexagonal tiles
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedHexGrid = UnboundedHexGrid deriving Show
-
-instance Grid UnboundedHexGrid where
-  type Index UnboundedHexGrid = (Int, Int)
-  indices _ = undefined
-  neighbours _ (x,y) = 
-    [(x-1,y), (x-1,y+1), (x,y+1), (x+1,y), (x+1,y-1), (x,y-1)]
-  distance _ (x1, y1) (x2, y2) = 
-    maximum [abs (x2-x1), abs (y2-y1), abs(z2-z1)]
-    where z1 = -x1 - y1
-          z2 = -x2 - y2
-  contains _ _ = True
-
---
--- Hexagonal grids with hexagonal tiles
---
-
--- | A hexagonal grid with hexagonal tiles
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data HexHexGrid = HexHexGrid Int [(Int, Int)] deriving Eq
-
-instance Show HexHexGrid where show (HexHexGrid s _) = "hexHexGrid " ++ show s
-
-instance Grid HexHexGrid where
-  type Index HexHexGrid = (Int, Int)
-  indices (HexHexGrid _ xs) = xs
-  neighbours = neighboursBasedOn UnboundedHexGrid
-  distance = distanceBasedOn UnboundedHexGrid
-
-instance FiniteGrid HexHexGrid where
-  type Size HexHexGrid = Int
-  size (HexHexGrid s _) = s
-
-instance BoundedGrid HexHexGrid where
-  tileSideCount _ = 6
-  boundary g = 
-    north ++ northeast ++ southeast ++ south ++ southwest ++ northwest
-    where s = size g
-          north = [(k,s-1) | k ← [-s+1,-s+2..0]]
-          northeast = [(k,s-1-k) | k ← [1,2..s-1]]
-          southeast = [(s-1,k) | k ← [-1,-2..(-s)+1]]
-          south = [(k,(-s)+1) | k ← [s-2,s-3..0]]
-          southwest = [(k,(-s)+1-k) | k ← [-1,-2..(-s)+1]]
-          northwest = [(-s+1,k) | k ← [1,2..s-2]]
-  centre _ = [(0,0)]
-
--- | @'hexHexGrid' s@ returns a grid of hexagonal shape, with
---   sides of length @s@, using hexagonal tiles. If @s@ is nonnegative, the 
---   resulting grid will have @3*s*(s-1) + 1@ tiles. Otherwise, the resulting 
---   grid will be null and the list of indices will be null.
-hexHexGrid ∷ Int → HexHexGrid
-hexHexGrid r = HexHexGrid r [(x, y) | x ← [-r+1..r-1], y ← f x]
-  where f x = if x < 0 then [1-r-x .. r-1] else [1-r .. r-1-x]
-
---
--- Parallelogrammatical grids with hexagonal tiles
---
-
--- | A parallelogramatical grid with hexagonal tiles
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data ParaHexGrid = ParaHexGrid (Int, Int) [(Int, Int)] deriving Eq
-
-instance Show ParaHexGrid where 
-  show (ParaHexGrid (r,c) _) = "paraHexGrid " ++ show r ++ " " ++ show c
-
-instance Grid ParaHexGrid where
-  type Index ParaHexGrid = (Int, Int)
-  indices (ParaHexGrid _ xs) = xs
-  neighbours = neighboursBasedOn UnboundedHexGrid
-  distance = distanceBasedOn UnboundedHexGrid
-
-instance FiniteGrid ParaHexGrid where
-  type Size ParaHexGrid = (Int, Int)
-  size (ParaHexGrid s _) = s
-
-instance BoundedGrid ParaHexGrid where
-  tileSideCount _ = 6
-  boundary g = cartesianIndices . size $ g
-  centre g = cartesianCentre . size $ g
-
--- | @'paraHexGrid' r c@ returns a grid in the shape of a 
---   parallelogram with @r@ rows and @c@ columns, using hexagonal tiles. If 
---   @r@ and @c@ are both nonnegative, the resulting grid will have @r*c@ tiles.
---   Otherwise, the resulting grid will be null and the list of indices will 
---   be null.
-paraHexGrid ∷ Int → Int → ParaHexGrid
-paraHexGrid r c = 
-  ParaHexGrid (r,c) [(x, y) | x ← [0..c-1], y ← [0..r-1]]
-
-
---
--- Octagonal tiles
---
-
--- | An unbounded grid with octagonal tiles.
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedOctGrid = UnboundedOctGrid deriving Show
-
-instance Grid UnboundedOctGrid where
-  type Index UnboundedOctGrid = (Int, Int)
-  indices _ = undefined
-  neighbours _ (x,y) = [(x-1,y+1), (x,y+1), (x+1,y+1), (x+1,y), 
-                        (x+1,y-1), (x,y-1), (x-1,y-1), (x-1,y)]
-  distance _ (x1, y1) (x2, y2) = max (abs (x2-x1)) (abs (y2-y1))
-  contains _ _ = True
-
---
--- Rectangular grids with octagonal tiles
---
-
--- | A rectangular grid with octagonal tiles.
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data RectOctGrid = RectOctGrid (Int, Int) [(Int, Int)] deriving Eq
-
-instance Show RectOctGrid where 
-  show (RectOctGrid (r,c) _) = 
-    "rectOctGrid " ++ show r ++ " " ++ show c
-
-instance Grid RectOctGrid where
-  type Index RectOctGrid = (Int, Int)
-  indices (RectOctGrid _ xs) = xs
-  neighbours = neighboursBasedOn UnboundedOctGrid
-  distance = distanceBasedOn UnboundedOctGrid
-
-instance FiniteGrid RectOctGrid where
-  type Size RectOctGrid = (Int, Int)
-  size (RectOctGrid s _) = s
-
-instance BoundedGrid RectOctGrid where
-  tileSideCount _ = 4
-  boundary g = cartesianIndices . size $ g
-  centre g = cartesianCentre . size $ g
-
--- | @'rectOctGrid' r c@ produces a rectangular grid with @r@ rows
---   and @c@ columns, using octagonal tiles. If @r@ and @c@ are both 
---   nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
---   the resulting grid will be null and the list of indices will be 
---   null.
-rectOctGrid ∷ Int → Int → RectOctGrid
-rectOctGrid r c = 
-  RectOctGrid (r,c) [(x,y) | x ← [0..c-1], y ← [0..r-1]]
-
---
--- Toroidal grids with octagonal tiles.
---
-
--- | A toroidal grid with octagonal tiles.
---   The grid and its indexing scheme are illustrated in the user guide,
---   available at <https://github.com/mhwombat/grid/wiki>.
-data TorOctGrid = TorOctGrid (Int, Int) [(Int, Int)] deriving Eq
-
-instance Show TorOctGrid where 
-  show (TorOctGrid (r,c) _) = "torOctGrid " ++ show r ++ " " ++ show c
-
-instance Grid TorOctGrid where
-  type Index TorOctGrid = (Int, Int)
-  indices (TorOctGrid _ xs) = xs
-  neighbours g = nub . map (normalise g) . neighbours UnboundedOctGrid
-  distance g a b = minimum . map (distance UnboundedOctGrid a) $ bs
-    where bs = denormaliseTor g b
-
-instance FiniteGrid TorOctGrid where
-  type Size TorOctGrid = (Int, Int)
-  size (TorOctGrid s _) = s
-
-instance WrappedGrid TorOctGrid where
-  normalise g (x,y) = (x `mod` c, y `mod` r)
-    where (r, c) = size g
-
--- | @'torOctGrid' r c@ returns a toroidal grid with @r@ 
---   rows and @c@ columns, using octagonal tiles. If @r@ and @c@ are 
---   both nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
---   the resulting grid will be null and the list of indices will be null.
-torOctGrid ∷ Int → Int → TorOctGrid
-torOctGrid r c = TorOctGrid (r,c) [(x, y) | x ← [0..c-1], y ← [0..r-1]]
 

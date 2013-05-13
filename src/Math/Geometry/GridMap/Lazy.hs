@@ -60,11 +60,13 @@ instance F.Foldable (LGridMap g) where
 
 instance G.Grid g ⇒ G.Grid (LGridMap g v) where
   type Index (LGridMap g v) = G.Index g
+  type Direction (LGridMap g v) = G.Direction g
   indices = G.indices . lgmGrid
   distance g = G.distance (lgmGrid g)
+  directionTo g = G.directionTo (lgmGrid g)
   neighbours g k = lgmGrid g `G.neighbours` k
   contains g k = lgmGrid g `G.contains` k
-  viewpoint g k = lgmGrid g `G.viewpoint` k
+--  viewpoint g k = lgmGrid g `G.viewpoint` k
   tileCount  = G.tileCount . lgmGrid
   null = G.null . lgmGrid
   nonNull = G.nonNull . lgmGrid

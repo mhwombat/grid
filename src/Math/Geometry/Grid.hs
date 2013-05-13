@@ -37,6 +37,8 @@
 -- You can still /display/ the tiles as squares, but for internal
 -- calculations they are octagons.
 --
+-- NOTE: Version 6.0 moved the various grid flavours to sub-modules.
+--
 -- NOTE: Version 4.0 uses associated (type) synonyms instead of 
 -- multi-parameter type classes.
 --
@@ -52,61 +54,23 @@ module Math.Geometry.Grid
   (
     -- * Example
     -- $Example
-    -- * The Grid class
-    Grid(..),
+
+    -- * Grids
+    Grid(indices, distance, minDistance, neighbours, neighbour, 
+      contains, tileCount, null, nonNull, edges, isAdjacent,
+      adjacentTilesToward, minimalPaths, directionTo),
+    Index,
+    Direction,
+
+    -- * Finite grids
     FiniteGrid(..),
-    BoundedGrid(..),
-    -- * Grids with triangular tiles
-    -- ** Unbounded grid with triangular tiles
-    UnboundedTriGrid,
-    -- ** Triangular grid with triangular tiles
-    TriTriGrid,
-    triTriGrid,
-    -- ** Parallelogram-shaped grid with triangular tiles
-    ParaTriGrid,
-    paraTriGrid,
-    -- ** Rectangular grid with triangular tiles
-    RectTriGrid,
-    rectTriGrid,
-    -- ** Toroidal grid with triangular tiles
-    TorTriGrid,
-    torTriGrid,
-    -- * Grids with square tiles
-    -- ** Unbounded grid with square tiles
-    UnboundedSquareGrid,
-    -- ** Rectangular grid with square tiles
-    RectSquareGrid,
-    rectSquareGrid,
-    -- ** Toroidal grid with square tiles
-    TorSquareGrid,
-    torSquareGrid,
-    -- * Grids with hexagonal tiles
-    -- ** Unbounded grid with hexagonal tiles
-    UnboundedHexGrid,
-    -- ** Hexagonal grid with hexagonal tiles
-    HexHexGrid,
-    hexHexGrid,
-    -- ** Parallelogram-shaped grid with hexagonal tiles
-    ParaHexGrid,
-    paraHexGrid,
-    -- * Grids with octagonal tiles
-    -- ** Unbounded grid with octagonal tiles
-    UnboundedOctGrid,
-    -- ** Rectangular grid with octagonal tiles
-    RectOctGrid,
-    rectOctGrid,
-    -- ** Toroidal grid with octagonal tiles
-    TorOctGrid,
-    torOctGrid
+
+    -- * Bounded grids
+    BoundedGrid(..)
   ) where
 
 import Math.Geometry.GridInternal (Grid(..), FiniteGrid(..), 
-  BoundedGrid(..), UnboundedTriGrid, TriTriGrid, triTriGrid, 
-  ParaTriGrid, paraTriGrid, RectTriGrid, rectTriGrid, 
-  TorTriGrid, torTriGrid, UnboundedSquareGrid, 
-  RectSquareGrid, rectSquareGrid, TorSquareGrid, torSquareGrid, 
-  UnboundedHexGrid, HexHexGrid, hexHexGrid, ParaHexGrid, paraHexGrid, 
-  UnboundedOctGrid, RectOctGrid, rectOctGrid, TorOctGrid, torOctGrid)
+  BoundedGrid(..))
 
 
 {- $Example
