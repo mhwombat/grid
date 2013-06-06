@@ -23,7 +23,7 @@ import Data.List (groupBy, nub, nubBy, sortBy)
 import Data.Ord (comparing)
 
 -- | A regular arrangement of tiles.
---   Minimal complete definition: @Index@, @Direction@, @indices@, 
+--   Minimal complete definition: @Index@, @Direction@, @indices@,
 --   @distance@, @directionTo@.
 class Grid g where
   type Index g
@@ -39,11 +39,11 @@ class Grid g where
   --   contained within @g@, the result is undefined.
   distance ∷ g → Index g → Index g → Int
 
-  -- | @'minDistance' g bs a@ returns the minimum number of moves 
+  -- | @'minDistance' g bs a@ returns the minimum number of moves
   --   required to get from any of the tiles at indices @bs@ to the tile
   --   at index @a@ in grid @g@, moving between adjacent tiles at each
   --   step. (Two tiles are adjacent if they share an edge.) If @a@ or
-  --   any of @bs@ are not contained within @g@, the result is 
+  --   any of @bs@ are not contained within @g@, the result is
   --   undefined.
   minDistance ∷ g → [Index g] → Index g → Int
   minDistance = defaultMinDistance
@@ -54,7 +54,7 @@ class Grid g where
   neighbours = defaultNeighbours
 
   -- | @'neighbour' g d a@ returns the indices of the tile in the grid
-  --   @g@ which is adjacent to the tile with index @a@, in the 
+  --   @g@ which is adjacent to the tile with index @a@, in the
   --   direction @d@.
   neighbour ∷ Eq (Direction g) ⇒ g → Index g → Direction g → Index g
   neighbour = defaultNeighbour
@@ -64,7 +64,7 @@ class Grid g where
   numNeighbours ∷ g → Index g → Int
   numNeighbours g = length . neighbours g
 
-  -- | @g `'contains'` a@ returns @True@ if the index @a@ is contained 
+  -- | @g `'contains'` a@ returns @True@ if the index @a@ is contained
   --   within the grid @g@, otherwise it returns false.
   contains ∷ Eq (Index g) ⇒ g → Index g → Bool
   contains g a = a `elem` indices g
@@ -73,12 +73,12 @@ class Grid g where
   tileCount ∷ g → Int
   tileCount = length . indices
 
-  -- | Returns @True@ if the number of tiles in a grid is zero, @False@ 
+  -- | Returns @True@ if the number of tiles in a grid is zero, @False@
   --   otherwise.
   null ∷ g → Bool
   null g = tileCount g ≡ 0
 
-  -- | Returns @False@ if the number of tiles in a grid is zero, @True@ 
+  -- | Returns @False@ if the number of tiles in a grid is zero, @True@
   --   otherwise.
   nonNull ∷ g → Bool
   nonNull = not . null
@@ -106,12 +106,12 @@ class Grid g where
   --   which are neighbours of the tile at index @a@, and which are
   --   closer to the tile at @b@ than @a@ is. In other words, it returns
   --   the possible next steps on a minimal path from @a@ to @b@. If @a@
-  --   or @b@ are not contained within @g@, or if there is no path from 
+  --   or @b@ are not contained within @g@, or if there is no path from
   --   @a@ to @b@ (e.g., a disconnected grid), the result is undefined.
   adjacentTilesToward ∷ g → Index g → Index g → [Index g]
   adjacentTilesToward = defaultAdjacentTilesToward
 
-  -- | @'minimalPaths' g a b@ returns a list of all minimal paths from 
+  -- | @'minimalPaths' g a b@ returns a list of all minimal paths from
   --   the tile at index @a@ to the tile at index @b@ in grid @g@. A
   --   path is a sequence of tiles where each tile in the sequence is
   --   adjacent to the previous one. (Two tiles are adjacent if they
@@ -120,13 +120,13 @@ class Grid g where
   --
   --   Tip: The default implementation of this function calls
   --   @'adjacentTilesToward'@. If you want to use a custom algorithm,
-  --   consider modifying @'adjacentTilesToward'@ instead of 
+  --   consider modifying @'adjacentTilesToward'@ instead of
   --   @'minimalPaths'@.
   minimalPaths ∷ Eq (Index g) ⇒ g → Index g → Index g → [[Index g]]
   minimalPaths = defaultMinimalPaths
 
-  -- | @'directionTo' g a b@ returns the direction(s) of the next 
-  --   tile(s) in a /minimal/ path from the tile at index @a@ to the 
+  -- | @'directionTo' g a b@ returns the direction(s) of the next
+  --   tile(s) in a /minimal/ path from the tile at index @a@ to the
   --   tile at index @b@ in grid @g@.
   directionTo ∷ g → Index g → Index g → [Direction g]
 
@@ -141,7 +141,7 @@ class Grid g where
   defaultNeighbours ∷ g → Index g → [Index g]
   defaultNeighbours g a = filter (\b → distance g a b ≡ 1 ) $ indices g
 
-  defaultNeighbour ∷ Eq (Direction g) 
+  defaultNeighbour ∷ Eq (Direction g)
     ⇒ g → Index g → Direction g → Index g
   defaultNeighbour g a d =
     head . filter (\b → [d] ≡ directionTo g a b) . neighbours g $ a
@@ -161,7 +161,7 @@ class Grid g where
 
   defaultMinimalPaths ∷ Eq (Index g)
     ⇒ g → Index g → Index g → [[Index g]]
-  defaultMinimalPaths g a b 
+  defaultMinimalPaths g a b
     | a ≡ b              = [[a]]
     | distance g a b ≡ 1 = [[a,b]]
     | otherwise          = map (a:) xs
@@ -200,7 +200,7 @@ cartesianMidpoints k = if even k then [m-1,m] else [m]
 --   Minimal complete definition: @size@.
 class Grid g ⇒ FiniteGrid g where
   type Size s
-  -- | Returns the dimensions of the grid. 
+  -- | Returns the dimensions of the grid.
   --   For example, if @g@ is a 4x3 rectangular grid, @'size' g@ would
   --   return @(4, 3)@, while @'tileCount' g@ would return @12@.
   size ∷ g → Size g
@@ -216,7 +216,7 @@ class Grid g ⇒ BoundedGrid g where
   boundary ∷ g → [Index g]
   boundary g = map fst . filter f $ xds
     where xds = map (\b → (b, numNeighbours g b)) $ indices g
-          f (_,n) = n < tileSideCount g 
+          f (_,n) = n < tileSideCount g
 
 
   -- | @'isBoundary' g a@' returns @True@ if the tile with index @a@ is
@@ -225,12 +225,12 @@ class Grid g ⇒ BoundedGrid g where
   isBoundary ∷ Eq (Index g) ⇒ g → Index g → Bool
   isBoundary g a = a `elem` boundary g
 
-  -- | Returns the index of the tile(s) that require the maximum number 
+  -- | Returns the index of the tile(s) that require the maximum number
   --   of moves to reach the nearest boundary tile. A grid may have more
-  --   than one central tile (e.g., a rectangular grid with an even 
+  --   than one central tile (e.g., a rectangular grid with an even
   --   number of rows and columns will have four central tiles).
   centre ∷ g → [Index g]
-  centre g = map fst . last . groupBy ((≡) `on` snd) . 
+  centre g = map fst . last . groupBy ((≡) `on` snd) .
                 sortBy (comparing snd) $ xds
     where xds = map (\b → (b, minDistance g bs b)) $ indices g
           bs = boundary g
@@ -248,7 +248,7 @@ class (Grid g) ⇒ WrappedGrid g where
   --   TODO: need a clearer description and an illustration.
   normalise ∷ g → Index g → Index g
   -- | @'denormalise' g a@ returns all of the indices in @a@'s
-  --   translation group. In other words, it returns @a@ plus the 
+  --   translation group. In other words, it returns @a@ plus the
   --   indices obtained by translating @a@ in each direction by the
   --   extent of the grid along that direction.
   --   TODO: need a clearer description and an illustration.
@@ -262,16 +262,16 @@ neighboursBasedOn u g = filter (g `contains`) . neighbours u
 distanceBasedOn
   ∷ (Eq (Index g), Grid g, Grid u, Index g ~ Index u) ⇒
     u → g → Index g → Index g → Int
-distanceBasedOn u g a b = 
+distanceBasedOn u g a b =
   if g `contains` a && g `contains` b
     then distance u a b
     else undefined
 
 directionToBasedOn
-  ∷ (Eq (Index g), Eq (Direction g), Grid g, Grid u, Index g ~ Index u, 
+  ∷ (Eq (Index g), Eq (Direction g), Grid g, Grid u, Index g ~ Index u,
     Direction g ~ Direction u) ⇒
     u → g → Index g → Index g → [Direction g]
-directionToBasedOn u g a b = 
+directionToBasedOn u g a b =
   if g `contains` a && g `contains` b
     then nub . concatMap (directionTo u a) . adjacentTilesToward g a $ b
     else undefined
@@ -279,11 +279,11 @@ directionToBasedOn u g a b =
 neighboursWrappedBasedOn
   ∷ (Eq (Index g), WrappedGrid g, Grid u, Index g ~ Index u) ⇒
     u → g → Index g → [Index g]
-neighboursWrappedBasedOn u g = 
+neighboursWrappedBasedOn u g =
   filter (g `contains`) . nub . map (normalise g) . neighbours u
 
 neighbourWrappedBasedOn
-  ∷ (Eq (Index g), Eq (Direction g), WrappedGrid g, Grid u, 
+  ∷ (Eq (Index g), Eq (Direction g), WrappedGrid g, Grid u,
     Index g ~ Index u, Direction g ~ Direction u) ⇒
     u → g → Index g → Direction g → Index g
 neighbourWrappedBasedOn u g a d =
@@ -294,7 +294,7 @@ neighbourWrappedBasedOn u g a d =
 distanceWrappedBasedOn
   ∷ (Eq (Index g), WrappedGrid g, Grid u, Index g ~ Index u) ⇒
     u → g → Index g → Index g → Int
-distanceWrappedBasedOn u g a b = 
+distanceWrappedBasedOn u g a b =
   if g `contains` a && g `contains` b
     then minimum . map (distance u a') $ bs
     else undefined
@@ -302,7 +302,7 @@ distanceWrappedBasedOn u g a b =
         bs = denormalise g b
 
 directionToWrappedBasedOn
-  ∷ (Eq (Index g), Eq (Direction g), WrappedGrid g, Grid u, 
+  ∷ (Eq (Index g), Eq (Direction g), WrappedGrid g, Grid u,
     Index g ~ Index u, Direction g ~ Direction u) ⇒
     u → g → Index g → Index g → [Direction g]
 directionToWrappedBasedOn u g a b =
@@ -313,7 +313,3 @@ directionToWrappedBasedOn u g a b =
         ys = denormalise g b
         minD = distance g a b
         ys' = filter (\c -> distance u a' c == minD) ys
-
-
-
-

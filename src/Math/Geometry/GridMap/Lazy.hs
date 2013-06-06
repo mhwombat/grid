@@ -8,7 +8,7 @@
 -- Portability :  portable
 --
 -- Ordered maps from tiles on a grid to values.
--- This module is a wrapper around @'Math.Geometry.Grid'@ and 
+-- This module is a wrapper around @'Math.Geometry.Grid'@ and
 -- @'Data.Map'@, in order to combine the functionality of grids and maps
 -- into a single type.
 --
@@ -33,8 +33,8 @@ import Data.Maybe (fromMaybe)
 import qualified Math.Geometry.Grid as G
 import Math.Geometry.GridMap
 
--- | A map from tile positions in a grid to values. 
-data LGridMap g v = 
+-- | A map from tile positions in a grid to values.
+data LGridMap g v =
   LGridMap { lgmGrid ∷ g, lgmMap ∷ M.Map (G.Index g) v }
 
 -- | Construct a grid map which is strict in the keys (tile positions), but
@@ -91,4 +91,3 @@ instance (Eq g, Eq (G.Index g), Eq v) ⇒ Eq (LGridMap g v) where
 
 instance (Show g, Show v) ⇒ Show (LGridMap g v) where
   show (LGridMap g m) = "lazyGridMap (" ++ show g ++ ") " ++ show (M.elems m)
-

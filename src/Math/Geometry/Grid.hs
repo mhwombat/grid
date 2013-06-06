@@ -57,8 +57,8 @@ module Math.Geometry.Grid
 
     -- * Grids
     Grid(indices, distance, minDistance, neighbours, neighbour, 
-      contains, tileCount, null, nonNull, edges, isAdjacent,
-      adjacentTilesToward, minimalPaths, directionTo),
+      contains, tileCount, null, nonNull, edges, viewpoint, 
+      isAdjacent, adjacentTilesToward, minimalPaths, directionTo),
     Index,
     Direction,
 

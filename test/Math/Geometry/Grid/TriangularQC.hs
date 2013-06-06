@@ -7,15 +7,15 @@ module Math.Geometry.Grid.TriangularQC
     test
   ) where
 
-import Math.Geometry.Grid.TriangularInternal 
-import Math.Geometry.GridInternal 
+import Math.Geometry.Grid.TriangularInternal
+import Math.Geometry.GridInternal
 import Math.Geometry.GridQC
 
 import Prelude hiding (null)
 import qualified Prelude as P (null)
 import Data.Ord.Unicode ((≤))
 import Test.Framework as TF (Test, testGroup)
-import Test.QuickCheck 
+import Test.QuickCheck
   (Gen, Arbitrary, arbitrary, sized, choose, Property,
     vectorOf, suchThat)
 
@@ -23,7 +23,7 @@ import Test.QuickCheck
 -- Unbounded grids with triangular tiles
 --
 
-data UnboundedTriGridTD = 
+data UnboundedTriGridTD =
   UnboundedTriGridTD [(Int,Int)] ((Int,Int),(Int,Int))
   deriving Show
 
@@ -61,14 +61,14 @@ unboundedTriGridTests = makeTests unboundedTriGridProperties
 -- Triangular grids with triangular tiles
 --
 
-data TriTriGridTD = 
+data TriTriGridTD =
   TriTriGridTD TriTriGrid [(Int,Int)] ((Int,Int),(Int,Int))
   deriving Show
 
 instance TestData TriTriGridTD where
   type BaseGrid TriTriGridTD = TriTriGrid
   grid (TriTriGridTD g _ _) = g
-  points (TriTriGridTD _ ps _) = ps 
+  points (TriTriGridTD _ ps _) = ps
   twoClosePoints (TriTriGridTD _ _ qs) = qs
   neighbourCountBounds _ = (0, 3)
 
@@ -107,14 +107,14 @@ triTriGridTests = makeTests triTriGridProperties
 -- Parallelogram-shaped grids with triangular tiles
 --
 
-data ParaTriGridTD = 
+data ParaTriGridTD =
   ParaTriGridTD ParaTriGrid [(Int,Int)] ((Int,Int),(Int,Int))
   deriving Show
 
 instance TestData ParaTriGridTD where
   type BaseGrid ParaTriGridTD = ParaTriGrid
   grid (ParaTriGridTD g _ _) = g
-  points (ParaTriGridTD _ ps _) = ps 
+  points (ParaTriGridTD _ ps _) = ps
   twoClosePoints (ParaTriGridTD _ _ qs) = qs
   neighbourCountBounds _ = (0, 3)
 
@@ -152,20 +152,20 @@ paraTriGridProperties = gridProperties "ParaTriGrid"
 
 paraTriGridTests ∷ [Test]
 paraTriGridTests = makeTests paraTriGridProperties
-  
+
 
 --
 -- Rectangular grids with triangular tiles
 --
 
-data RectTriGridTD = 
+data RectTriGridTD =
   RectTriGridTD RectTriGrid [(Int,Int)] ((Int,Int),(Int,Int))
   deriving Show
 
 instance TestData RectTriGridTD where
   type BaseGrid RectTriGridTD = RectTriGrid
   grid (RectTriGridTD g _ _) = g
-  points (RectTriGridTD _ ps _) = ps 
+  points (RectTriGridTD _ ps _) = ps
   twoClosePoints (RectTriGridTD _ _ qs) = qs
   neighbourCountBounds _ = (0, 3)
 
@@ -190,7 +190,7 @@ sizedRectTriGridTD n = do
   let c = n `div` (2*r + 1)
   let g = rectTriGrid r c
   ps ← chooseIndices g n
-  qs ← chooseClosePoints g `suchThat` 
+  qs ← chooseClosePoints g `suchThat`
     (\(a,b) → bothValid (a,b) && inRectBounds r c a && inRectBounds r c b)
   return $ RectTriGridTD g ps qs
 
@@ -210,20 +210,20 @@ rectTriGridProperties = gridProperties "RectTriGrid"
 
 rectTriGridTests ∷ [Test]
 rectTriGridTests = makeTests rectTriGridProperties
-  
+
 
 --
 -- Toroidal grids with triangular tiles
 --
 
-data TorTriGridTD = 
+data TorTriGridTD =
   TorTriGridTD TorTriGrid [(Int,Int)] ((Int,Int),(Int,Int))
   deriving Show
 
 instance TestData TorTriGridTD where
   type BaseGrid TorTriGridTD = TorTriGrid
   grid (TorTriGridTD g _ _) = g
-  points (TorTriGridTD _ ps _) = ps 
+  points (TorTriGridTD _ ps _) = ps
   twoClosePoints (TorTriGridTD _ _ qs) = qs
   neighbourCountBounds _ = (0, 3)
 
@@ -262,14 +262,14 @@ torTriGridTests = makeTests torTriGridProperties
 -- Toroidal grids with triangular tiles
 --
 
-data YCylTriGridTD = 
+data YCylTriGridTD =
   YCylTriGridTD YCylTriGrid [(Int,Int)] ((Int,Int),(Int,Int))
   deriving Show
 
 instance TestData YCylTriGridTD where
   type BaseGrid YCylTriGridTD = YCylTriGrid
   grid (YCylTriGridTD g _ _) = g
-  points (YCylTriGridTD _ ps _) = ps 
+  points (YCylTriGridTD _ ps _) = ps
   twoClosePoints (YCylTriGridTD _ _ qs) = qs
   neighbourCountBounds _ = (0, 3)
 
@@ -305,7 +305,6 @@ yCylTriGridTests = makeTests yCylTriGridProperties
 
 
 test ∷ Test
-test = testGroup "Math.Geometry.Grid.TriangularQC" 
+test = testGroup "Math.Geometry.Grid.TriangularQC"
   ( unboundedTriGridTests ++ triTriGridTests ++ paraTriGridTests
     ++ rectTriGridTests ++ torTriGridTests ++ yCylTriGridTests)
-
