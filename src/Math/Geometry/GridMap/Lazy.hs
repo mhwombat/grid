@@ -13,8 +13,8 @@
 -- into a single type.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE UnicodeSyntax, TypeFamilies, FlexibleContexts,
-    FlexibleInstances, MultiParamTypeClasses, UndecidableInstances #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts, FlexibleInstances,
+    MultiParamTypeClasses, UndecidableInstances #-}
 
 module Math.Geometry.GridMap.Lazy
   (
@@ -25,7 +25,6 @@ module Math.Geometry.GridMap.Lazy
 import Prelude hiding (lookup, map, foldr, foldl, foldr1, foldl1, null)
 
 import qualified Prelude as P (map)
-import Data.Eq.Unicode ((≡))
 import qualified Data.Foldable as F (Foldable(..))
 import qualified Data.Map as M
 --import qualified Data.Map.Strict as Strict (Map)
@@ -35,16 +34,16 @@ import Math.Geometry.GridMap
 
 -- | A map from tile positions in a grid to values.
 data LGridMap g v =
-  LGridMap { lgmGrid ∷ g, lgmMap ∷ M.Map (G.Index g) v }
+  LGridMap { lgmGrid :: g, lgmMap :: M.Map (G.Index g) v }
 
 -- | Construct a grid map which is strict in the keys (tile positions), but
 --   lazy in the values.
-lazyGridMap ∷ (Ord (G.Index g), G.Grid g) ⇒ g → [v] → LGridMap g v
+lazyGridMap :: (Ord (G.Index g), G.Grid g) => g -> [v] -> LGridMap g v
 lazyGridMap g vs = LGridMap g (M.fromList kvs)
   where kvs = zip ks vs
         ks = G.indices g
 
-instance (G.Grid g, Ord (G.Index g)) ⇒ Functor (LGridMap g) where
+instance (G.Grid g, Ord (G.Index g)) => Functor (LGridMap g) where
   fmap f gm = lazyGridMap (lgmGrid gm) (P.map f vs)
     where vs = M.elems (lgmMap gm)
 
@@ -58,7 +57,7 @@ instance F.Foldable (LGridMap g) where
 --  foldr1 f x g = foldr1 f x (lgmMap g)
 --  foldl1 f x g = foldl1 f x (lgmMap g)
 
-instance G.Grid g ⇒ G.Grid (LGridMap g v) where
+instance G.Grid g => G.Grid (LGridMap g v) where
   type Index (LGridMap g v) = G.Index g
   type Direction (LGridMap g v) = G.Direction g
   indices = G.indices . lgmGrid
@@ -71,11 +70,12 @@ instance G.Grid g ⇒ G.Grid (LGridMap g v) where
   null = G.null . lgmGrid
   nonNull = G.nonNull . lgmGrid
 
-instance G.FiniteGrid g ⇒ G.FiniteGrid (LGridMap g v) where
+instance G.FiniteGrid g => G.FiniteGrid (LGridMap g v) where
   type Size (LGridMap g v) = G.Size g
   size (LGridMap g _) = G.size g
+  maxPossibleDistance (LGridMap g _) = G.maxPossibleDistance g
 
-instance (G.Grid g) ⇒ GridMap (LGridMap g) v where
+instance (G.Grid g) => GridMap (LGridMap g) v where
   type BaseGrid (LGridMap g) v = g
   (!) gm k = toMap gm M.! k
   toMap = lgmMap
@@ -86,8 +86,8 @@ instance (G.Grid g) ⇒ GridMap (LGridMap g) v where
   map f (LGridMap g m) = LGridMap g (M.map f m)
   mapWithKey f (LGridMap g m) = LGridMap g (M.mapWithKey f m)
 
-instance (Eq g, Eq (G.Index g), Eq v) ⇒ Eq (LGridMap g v) where
-  (==) (LGridMap g1 gm1) (LGridMap g2 gm2) = g1 ≡ g2 && gm1 ≡ gm2
+instance (Eq g, Eq (G.Index g), Eq v) => Eq (LGridMap g v) where
+  (==) (LGridMap g1 gm1) (LGridMap g2 gm2) = g1 == g2 && gm1 == gm2
 
-instance (Show g, Show v) ⇒ Show (LGridMap g v) where
+instance (Show g, Show v) => Show (LGridMap g v) where
   show (LGridMap g m) = "lazyGridMap (" ++ show g ++ ") " ++ show (M.elems m)

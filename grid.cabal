@@ -1,5 +1,5 @@
 name:           grid
-version:        6.1
+version:        7.0
 synopsis:       Tools for working with regular grids (graphs, lattices).
 description:    Provides tools for working with regular arrangements
                 of tiles, such as might be used in a board game or some
@@ -8,13 +8,6 @@ description:    Provides tools for working with regular arrangements
                 toroidal layouts.
                 The userguide is available at 
                 <https://github.com/mhwombat/grid/wiki>.
-                .
-                NOTE: Version 4.0 uses associated (type) synonyms
-                instead of multi-parameter type classes.
-                .
-                NOTE: Version 3.0 changed the order of parameters
-                for many functions. This makes it easier for the user
-                to write mapping and folding operations.
 category:       Math
 cabal-version:  >=1.8
 build-type:     Simple
@@ -36,11 +29,13 @@ library
                    Math.Geometry.Grid.Triangular,
                    Math.Geometry.Grid.Square,
                    Math.Geometry.Grid.Hexagonal,
+                   Math.Geometry.Grid.Hexagonal2,
                    Math.Geometry.Grid.Octagonal,
                    Math.Geometry.GridInternal,
                    Math.Geometry.Grid.TriangularInternal,
                    Math.Geometry.Grid.SquareInternal,
                    Math.Geometry.Grid.HexagonalInternal,
+                   Math.Geometry.Grid.HexagonalInternal2,
                    Math.Geometry.Grid.OctagonalInternal,
                    Math.Geometry.GridMap,
                    Math.Geometry.GridMap.Lazy

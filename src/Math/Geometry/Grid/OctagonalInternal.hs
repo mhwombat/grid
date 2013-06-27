@@ -12,14 +12,13 @@
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE UnicodeSyntax, TypeFamilies, FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts #-}
 
 module Math.Geometry.Grid.OctagonalInternal where
 
 import Prelude hiding (null)
 
 import Data.List (nub)
-import Data.Ord.Unicode ((≤))
 import Math.Geometry.GridInternal
 
 data OctDirection = West | Northwest | North | Northeast | East | 
@@ -73,15 +72,17 @@ instance Grid RectOctGrid where
   neighbours = neighboursBasedOn UnboundedOctGrid
   distance = distanceBasedOn UnboundedOctGrid
   directionTo = directionToBasedOn UnboundedOctGrid
-  contains g (x,y) = 0 ≤ x && x < c && 0 ≤ y && y < r
+  contains g (x,y) = 0 <= x && x < c && 0 <= y && y < r
     where (r,c) = size g
 
 instance FiniteGrid RectOctGrid where
   type Size RectOctGrid = (Int, Int)
   size (RectOctGrid s _) = s
+  maxPossibleDistance g@(RectOctGrid (r,c) _) = 
+    distance g (0,0) (c-1,r-1)
 
 instance BoundedGrid RectOctGrid where
-  tileSideCount _ = 4
+  tileSideCount _ = 8
   boundary g = cartesianIndices . size $ g
   centre g = cartesianCentre . size $ g
 
@@ -90,9 +91,9 @@ instance BoundedGrid RectOctGrid where
 --   nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
 --   the resulting grid will be null and the list of indices will be 
 --   null.
-rectOctGrid ∷ Int → Int → RectOctGrid
+rectOctGrid :: Int -> Int -> RectOctGrid
 rectOctGrid r c = 
-  RectOctGrid (r,c) [(x,y) | x ← [0..c-1], y ← [0..r-1]]
+  RectOctGrid (r,c) [(x,y) | x <- [0..c-1], y <- [0..r-1]]
 
 --
 -- Toroidal grids with octagonal tiles.
@@ -114,12 +115,14 @@ instance Grid TorOctGrid where
   neighbour = neighbourWrappedBasedOn UnboundedOctGrid
   distance = distanceWrappedBasedOn UnboundedOctGrid
   directionTo = directionToWrappedBasedOn UnboundedOctGrid
-  isAdjacent g a b = distance g a b ≤ 1
+  isAdjacent g a b = distance g a b <= 1
   contains _ _ = True
 
 instance FiniteGrid TorOctGrid where
   type Size TorOctGrid = (Int, Int)
   size (TorOctGrid s _) = s
+  maxPossibleDistance g@(TorOctGrid (r,c) _) =
+    distance g (0,0) (c `div` 2, r `div` 2)
 
 instance WrappedGrid TorOctGrid where
   normalise g (x,y) = (x `mod` c, y `mod` r)
@@ -134,6 +137,6 @@ instance WrappedGrid TorOctGrid where
 --   rows and @c@ columns, using octagonal tiles. If @r@ and @c@ are 
 --   both nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
 --   the resulting grid will be null and the list of indices will be null.
-torOctGrid ∷ Int → Int → TorOctGrid
-torOctGrid r c = TorOctGrid (r,c) [(x, y) | x ← [0..c-1], y ← [0..r-1]]
+torOctGrid :: Int -> Int -> TorOctGrid
+torOctGrid r c = TorOctGrid (r,c) [(x, y) | x <- [0..c-1], y <- [0..r-1]]
 

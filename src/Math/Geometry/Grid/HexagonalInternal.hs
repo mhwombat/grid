@@ -12,12 +12,14 @@
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE UnicodeSyntax, TypeFamilies, FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts #-}
 
 module Math.Geometry.Grid.HexagonalInternal where
 
 import Prelude hiding (null)
-import Data.Ord.Unicode ((≤))
+import Data.Function (on)
+import Data.List (groupBy, sortBy)
+import Data.Ord (comparing)
 import Math.Geometry.GridInternal
 
 data HexDirection = West | Northwest | Northeast | East | Southeast | 
@@ -81,26 +83,27 @@ instance Grid HexHexGrid where
 instance FiniteGrid HexHexGrid where
   type Size HexHexGrid = Int
   size (HexHexGrid s _) = s
+  maxPossibleDistance g@(HexHexGrid s _) = distance g (-s+1,0) (s-1,0)
 
 instance BoundedGrid HexHexGrid where
   tileSideCount _ = 6
   boundary g = 
     north ++ northeast ++ southeast ++ south ++ southwest ++ northwest
     where s = size g
-          north = [(k,s-1) | k ← [-s+1,-s+2..0]]
-          northeast = [(k,s-1-k) | k ← [1,2..s-1]]
-          southeast = [(s-1,k) | k ← [-1,-2..(-s)+1]]
-          south = [(k,(-s)+1) | k ← [s-2,s-3..0]]
-          southwest = [(k,(-s)+1-k) | k ← [-1,-2..(-s)+1]]
-          northwest = [(-s+1,k) | k ← [1,2..s-2]]
+          north = [(k,s-1) | k <- [-s+1,-s+2..0]]
+          northeast = [(k,s-1-k) | k <- [1,2..s-1]]
+          southeast = [(s-1,k) | k <- [-1,-2..(-s)+1]]
+          south = [(k,(-s)+1) | k <- [s-2,s-3..0]]
+          southwest = [(k,(-s)+1-k) | k <- [-1,-2..(-s)+1]]
+          northwest = [(-s+1,k) | k <- [1,2..s-2]]
   centre _ = [(0,0)]
 
 -- | @'hexHexGrid' s@ returns a grid of hexagonal shape, with
 --   sides of length @s@, using hexagonal tiles. If @s@ is nonnegative, the 
 --   resulting grid will have @3*s*(s-1) + 1@ tiles. Otherwise, the resulting 
 --   grid will be null and the list of indices will be null.
-hexHexGrid ∷ Int → HexHexGrid
-hexHexGrid r = HexHexGrid r [(x, y) | x ← [-r+1..r-1], y ← f x]
+hexHexGrid :: Int -> HexHexGrid
+hexHexGrid r = HexHexGrid r [(x, y) | x <- [-r+1..r-1], y <- f x]
   where f x = if x < 0 then [1-r-x .. r-1] else [1-r .. r-1-x]
 
 --
@@ -122,24 +125,32 @@ instance Grid ParaHexGrid where
   neighbours = neighboursBasedOn UnboundedHexGrid
   distance = distanceBasedOn UnboundedHexGrid
   directionTo = directionToBasedOn UnboundedHexGrid
-  contains g (x,y) = 0 ≤ x && x < c && 0 ≤ y && y < r
+  contains g (x,y) = 0 <= x && x < c && 0 <= y && y < r
     where (r,c) = size g
 
 instance FiniteGrid ParaHexGrid where
   type Size ParaHexGrid = (Int, Int)
   size (ParaHexGrid s _) = s
+  maxPossibleDistance g@(ParaHexGrid (r,c) _) = 
+    distance g (0,0) (c-1,r-1)
 
 instance BoundedGrid ParaHexGrid where
   tileSideCount _ = 6
   boundary g = cartesianIndices . size $ g
-  centre g = cartesianCentre . size $ g
+  centre g | length xs == 1  = map fst . head $ xs
+           | length xs == 2  = map fst . concat $ xs
+           | length xs == 3  = map fst . head . drop 1 $ xs
+           | otherwise      = error "logic error"
+    where xs = groupBy ((==) `on` snd) . sortBy (comparing snd)
+                 . map (\a -> (a,fst a + snd a))
+                 . cartesianCentre . size $ g
 
 -- | @'paraHexGrid' r c@ returns a grid in the shape of a 
 --   parallelogram with @r@ rows and @c@ columns, using hexagonal tiles. If 
 --   @r@ and @c@ are both nonnegative, the resulting grid will have @r*c@ tiles.
 --   Otherwise, the resulting grid will be null and the list of indices will 
 --   be null.
-paraHexGrid ∷ Int → Int → ParaHexGrid
+paraHexGrid :: Int -> Int -> ParaHexGrid
 paraHexGrid r c = 
-  ParaHexGrid (r,c) [(x, y) | x ← [0..c-1], y ← [0..r-1]]
+  ParaHexGrid (r,c) [(x, y) | x <- [0..c-1], y <- [0..r-1]]
 

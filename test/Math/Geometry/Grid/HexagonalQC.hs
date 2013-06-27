@@ -1,4 +1,4 @@
-{-# LANGUAGE UnicodeSyntax, FlexibleContexts, ExistentialQuantification,
+{-# LANGUAGE FlexibleContexts, ExistentialQuantification,
     TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -15,29 +15,35 @@ import Prelude hiding (null)
 import qualified Prelude as P (null)
 import Test.Framework as TF (Test, testGroup)
 import Test.QuickCheck 
-  (Gen, Arbitrary, arbitrary, sized, choose, Property, vectorOf)
+  (Gen, Arbitrary, arbitrary, sized, elements, choose, Property, vectorOf)
+
+instance Arbitrary HexDirection where
+  arbitrary =
+    elements [West, Northwest, Northeast, East, Southeast, Southwest]
 
 --
 -- Unbounded grids with hexagonal tiles
 --
 
 data UnboundedHexGridTD = 
-  UnboundedHexGridTD [(Int,Int)] ((Int,Int),(Int,Int))
+  UnboundedHexGridTD [(Int,Int)] ((Int,Int),(Int,Int)) HexDirection
   deriving Show
 
 instance TestData UnboundedHexGridTD where
   type BaseGrid UnboundedHexGridTD = UnboundedHexGrid
   grid _ = UnboundedHexGrid
-  points (UnboundedHexGridTD ps _) = ps
-  twoClosePoints (UnboundedHexGridTD _ qs) = qs
+  points (UnboundedHexGridTD ps _ _) = ps
+  twoClosePoints (UnboundedHexGridTD _ qs _) = qs
   neighbourCountBounds _ = (6, 6)
+  direction (UnboundedHexGridTD _ _ d) = d
 
-sizedUnboundedHexGridTD ∷ Int → Gen UnboundedHexGridTD
+sizedUnboundedHexGridTD :: Int -> Gen UnboundedHexGridTD
 sizedUnboundedHexGridTD n = do
   k <- choose (0,n)
   ps <- vectorOf (k+2) arbitrary :: Gen [(Int,Int)]
   qs <- chooseClosePointsUnbounded
-  return $ UnboundedHexGridTD ps qs
+  d <- arbitrary
+  return $ UnboundedHexGridTD ps qs d
 
 instance Arbitrary UnboundedHexGridTD where
   arbitrary = sized sizedUnboundedHexGridTD
@@ -53,36 +59,38 @@ unboundedHexGridTests = makeTests unboundedHexGridProperties
 --
 
 data HexHexGridTD = 
-  HexHexGridTD HexHexGrid [(Int,Int)] ((Int,Int),(Int,Int))
+  HexHexGridTD HexHexGrid [(Int,Int)] ((Int,Int),(Int,Int)) HexDirection
   deriving Show
 
 instance TestData HexHexGridTD where
   type BaseGrid HexHexGridTD = HexHexGrid
-  grid (HexHexGridTD g _ _) = g
-  points (HexHexGridTD _ ps _) = ps
-  twoClosePoints (HexHexGridTD _ _ qs) = qs
+  grid (HexHexGridTD g _ _ _) = g
+  points (HexHexGridTD _ ps _ _) = ps
+  twoClosePoints (HexHexGridTD _ _ qs _) = qs
   neighbourCountBounds _ = (0, 6)
+  direction (HexHexGridTD _ _ _ d) = d
 
 instance TestDataF HexHexGridTD where
-  maxDistance (HexHexGridTD g _ _) = 2*s - 2
+  maxDistance (HexHexGridTD g _ _ _) = 2*s - 2
     where s = size g
-  expectedTileCount (HexHexGridTD g _ _) = 3*s*(s-1) + 1
+  expectedTileCount (HexHexGridTD g _ _ _) = 3*s*(s-1) + 1
     where s = size g
 
 instance TestDataB HexHexGridTD where
-  expectedBoundaryCount (HexHexGridTD g _ _) = (f . size) g
+  expectedBoundaryCount (HexHexGridTD g _ _ _) = (f . size) g
     where f 0 = 0
           f 1 = 1
           f s = 6*(s-1)
 
 -- We want the number of tiles in a test grid to be O(n)
-sizedHexHexGridTD ∷ Int → Gen HexHexGridTD
+sizedHexHexGridTD :: Int -> Gen HexHexGridTD
 sizedHexHexGridTD n = do
   let s = isqrt (n `div` 3)
   let g = hexHexGrid s
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
-  return $ HexHexGridTD g ps qs
+  d <- arbitrary
+  return $ HexHexGridTD g ps qs d
 
 instance Arbitrary HexHexGridTD where
   arbitrary = sized sizedHexHexGridTD
@@ -91,6 +99,7 @@ hexHexGridProperties :: [(String, HexHexGridTD -> Property)]
 hexHexGridProperties = gridProperties "HexHexGrid"
   ++ finiteGridProperties "HexHexGrid"
   ++ boundedGridProperties "HexHexGrid"
+  ++ boundedGridProperties2 "HexHexGrid"
 
 hexHexGridTests :: [Test]
 hexHexGridTests = makeTests hexHexGridProperties
@@ -100,35 +109,37 @@ hexHexGridTests = makeTests hexHexGridProperties
 --
 
 data ParaHexGridTD = 
-  ParaHexGridTD ParaHexGrid [(Int,Int)] ((Int,Int),(Int,Int))
+  ParaHexGridTD ParaHexGrid [(Int,Int)] ((Int,Int),(Int,Int)) HexDirection
   deriving Show
 
 instance TestData ParaHexGridTD where
   type BaseGrid ParaHexGridTD = ParaHexGrid
-  grid (ParaHexGridTD g _ _) = g
-  points (ParaHexGridTD _ ps _) = ps 
-  twoClosePoints (ParaHexGridTD _ _ qs) = qs
+  grid (ParaHexGridTD g _ _ _) = g
+  points (ParaHexGridTD _ ps _ _) = ps 
+  twoClosePoints (ParaHexGridTD _ _ qs _) = qs
   neighbourCountBounds _ = (0, 6)
+  direction (ParaHexGridTD _ _ _ d) = d
 
 instance TestDataF ParaHexGridTD where
-  maxDistance (ParaHexGridTD g _ _) = r+c-2
+  maxDistance (ParaHexGridTD g _ _ _) = r+c-2
     where (r, c) = size g
-  expectedTileCount (ParaHexGridTD g _ _) = r*c
+  expectedTileCount (ParaHexGridTD g _ _ _) = r*c
     where (r,c) = size g
 
 instance TestDataB ParaHexGridTD where
-  expectedBoundaryCount (ParaHexGridTD g _ _) = 
+  expectedBoundaryCount (ParaHexGridTD g _ _ _) = 
     (cartesianBoundaryCount . size) g
 
 -- We want the number of tiles in a test grid to be O(n)
-sizedParaHexGridTD ∷ Int → Gen ParaHexGridTD
+sizedParaHexGridTD :: Int -> Gen ParaHexGridTD
 sizedParaHexGridTD n = do
-  r ← choose (0,n)
+  r <- choose (0,n)
   let c = n `div` (r+1)
   let g = paraHexGrid r c
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
-  return $ ParaHexGridTD g ps qs
+  d <- arbitrary
+  return $ ParaHexGridTD g ps qs d
 
 instance Arbitrary ParaHexGridTD where
   arbitrary = sized sizedParaHexGridTD
@@ -137,11 +148,12 @@ paraHexGridProperties :: [(String, ParaHexGridTD -> Property)]
 paraHexGridProperties = gridProperties "ParaHexGrid"
   ++ finiteGridProperties "ParaHexGrid"
   ++ boundedGridProperties "ParaHexGrid"
+  ++ boundedGridProperties2 "ParaHexGrid"
 
 paraHexGridTests :: [Test]
 paraHexGridTests = makeTests paraHexGridProperties
 
-test ∷ Test
+test :: Test
 test = testGroup "Math.Geometry.Grid.HexagonalQC"
   (unboundedHexGridTests ++ hexHexGridTests ++ paraHexGridTests)
 

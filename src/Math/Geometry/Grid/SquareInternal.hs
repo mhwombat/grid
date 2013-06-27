@@ -12,15 +12,13 @@
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE UnicodeSyntax, TypeFamilies, FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts #-}
 
 module Math.Geometry.Grid.SquareInternal where
 
 import Prelude hiding (null)
 
-import Data.Eq.Unicode ((≠))
 import Data.List (nub)
-import Data.Ord.Unicode ((≤))
 import Math.Geometry.GridInternal
 
 data SquareDirection = North | East | South | West deriving (Show, Eq)
@@ -65,18 +63,20 @@ instance Grid RectSquareGrid where
   neighbours = neighboursBasedOn UnboundedSquareGrid
   distance = distanceBasedOn UnboundedSquareGrid
   adjacentTilesToward g a@(x1, y1) (x2, y2) = 
-    filter (\i → g `contains` i && i ≠ a) $ nub [(x1,y1+dy),(x1+dx,y1)]
+    filter (\i -> g `contains` i && i /= a) $ nub [(x1,y1+dy),(x1+dx,y1)]
       where dx = signum (x2-x1)
             dy = signum (y2-y1)
   directionTo g x y = if g `contains` x && g `contains` y
                         then directionTo UnboundedSquareGrid x y
                         else []
-  contains g (x,y) = 0 ≤ x && x < c && 0 ≤ y && y < r
+  contains g (x,y) = 0 <= x && x < c && 0 <= y && y < r
     where (r, c) = size g
 
 instance FiniteGrid RectSquareGrid where
   type Size RectSquareGrid = (Int, Int)
   size (RectSquareGrid s _) = s
+  maxPossibleDistance g@(RectSquareGrid (r,c) _) = 
+    distance g (0,0) (c-1,r-1)
 
 instance BoundedGrid RectSquareGrid where
   tileSideCount _ = 4
@@ -88,9 +88,9 @@ instance BoundedGrid RectSquareGrid where
 --   nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
 --   the resulting grid will be null and the list of indices will be 
 --   null.
-rectSquareGrid ∷ Int → Int → RectSquareGrid
+rectSquareGrid :: Int -> Int -> RectSquareGrid
 rectSquareGrid r c = 
-  RectSquareGrid (r,c) [(x,y) | x ← [0..c-1], y ← [0..r-1]]
+  RectSquareGrid (r,c) [(x,y) | x <- [0..c-1], y <- [0..r-1]]
 
 --
 -- Toroidal grids with square tiles.
@@ -112,12 +112,14 @@ instance Grid TorSquareGrid where
   neighbour = neighbourWrappedBasedOn UnboundedSquareGrid
   distance = distanceWrappedBasedOn UnboundedSquareGrid
   directionTo = directionToWrappedBasedOn UnboundedSquareGrid
-  isAdjacent g a b = distance g a b ≤ 1
+  isAdjacent g a b = distance g a b <= 1
   contains _ _ = True
 
 instance FiniteGrid TorSquareGrid where
   type Size TorSquareGrid = (Int, Int)
   size (TorSquareGrid s _) = s
+  maxPossibleDistance g@(TorSquareGrid (r,c) _) =
+    distance g (0,0) (c `div` 2, r `div` 2)
 
 instance WrappedGrid TorSquareGrid where
   normalise g (x,y) = (x `mod` c, y `mod` r)
@@ -132,6 +134,6 @@ instance WrappedGrid TorSquareGrid where
 --   rows and @c@ columns, using square tiles. If @r@ and @c@ are 
 --   both nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
 --   the resulting grid will be null and the list of indices will be null.
-torSquareGrid ∷ Int → Int → TorSquareGrid
-torSquareGrid r c = TorSquareGrid (r,c) [(x, y) | x ← [0..c-1], y ← [0..r-1]]
+torSquareGrid :: Int -> Int -> TorSquareGrid
+torSquareGrid r c = TorSquareGrid (r,c) [(x, y) | x <- [0..c-1], y <- [0..r-1]]
 

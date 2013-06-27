@@ -12,15 +12,13 @@
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE UnicodeSyntax, TypeFamilies, FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts #-}
 
 module Math.Geometry.Grid.TriangularInternal where
 
 import Prelude hiding (null)
 
-import Data.Eq.Unicode ((≡))
 import Data.List (nub)
-import Data.Ord.Unicode ((≤), (≥))
 import Math.Geometry.GridInternal
 
 data TriDirection = South | Northwest | Northeast | 
@@ -38,7 +36,7 @@ instance Grid UnboundedTriGrid where
   neighbours _ (x,y) = if even y
                          then [(x-1,y+1), (x+1,y+1), (x+1,y-1)]
                          else [(x-1,y-1), (x-1,y+1), (x+1,y-1)]
-  distance _ (x1, y1) (x2, y2) = 
+  distance _ (x1, y1) (x2, y2) =
     maximum [abs (x2-x1), abs (y2-y1), abs(z2-z1)]
       where z1 = triZ x1 y1
             z2 = triZ x2 y2
@@ -61,7 +59,7 @@ instance Grid UnboundedTriGrid where
 
 -- | For triangular tiles, it is convenient to define a third component 
 --   z.
-triZ ∷ Int → Int → Int            
+triZ :: Int -> Int -> Int            
 triZ x y = if even y then -x - y else -x - y + 1
 
 --
@@ -85,26 +83,27 @@ instance Grid TriTriGrid where
   contains (TriTriGrid s _) (x, y) = inTriTriGrid (x,y) s
   directionTo = directionToBasedOn UnboundedTriGrid
 
-inTriTriGrid ∷ (Int, Int) → Int → Bool
-inTriTriGrid (x, y) s = x ≥ 0 && y ≥ 0 && even (x+y) && abs z ≤ 2*s-2
+inTriTriGrid :: (Int, Int) -> Int -> Bool
+inTriTriGrid (x, y) s = x >= 0 && y >= 0 && even (x+y) && abs z <= 2*s-2
   where z = triZ x y
 
 instance FiniteGrid TriTriGrid where
   type Size TriTriGrid = Int
   size (TriTriGrid s _) = s
+  maxPossibleDistance g@(TriTriGrid s _) = distance g (0,0) (2*s-2,0)
 
 instance BoundedGrid TriTriGrid where
   tileSideCount _ = 3
   boundary g = west ++ east ++ south
     where s = size g
-          west = [(0,k) | k ← [0,2..2*s-2]]
-          east = [(k,2*s-2-k) | k ← [2,4..2*s-2]]
-          south = [(k,0) | k ← [2*s-4,2*s-6..2]]
+          west = [(0,k) | k <- [0,2..2*s-2]]
+          east = [(k,2*s-2-k) | k <- [2,4..2*s-2]]
+          south = [(k,0) | k <- [2*s-4,2*s-6..2]]
   centre g = case s `mod` 3 of
-    0 → trefoilWithTop (k-1,k+1) where k = (2*s) `div` 3
-    1 → [(k,k)] where k = (2*(s-1)) `div` 3
-    2 → [(k+1,k+1)] where k = (2*(s-2)) `div` 3
-    _ → error "This will never happen."
+    0 -> trefoilWithTop (k-1,k+1) where k = (2*s) `div` 3
+    1 -> [(k,k)] where k = (2*(s-1)) `div` 3
+    2 -> [(k+1,k+1)] where k = (2*(s-2)) `div` 3
+    _ -> error "This will never happen."
     where s = size g
           trefoilWithTop (i,j) = [(i,j), (i+2, j-2), (i,j-2)]
 
@@ -112,10 +111,10 @@ instance BoundedGrid TriTriGrid where
 --   length @s@, using triangular tiles. If @s@ is nonnegative, the 
 --   resulting grid will have @s^2@ tiles. Otherwise, the resulting grid
 --   will be null and the list of indices will be null.
-triTriGrid ∷ Int → TriTriGrid
+triTriGrid :: Int -> TriTriGrid
 triTriGrid s = 
-  TriTriGrid s [(xx,yy) | xx ← [0..2*(s-1)], 
-                          yy ← [0..2*(s-1)], 
+  TriTriGrid s [(xx,yy) | xx <- [0..2*(s-1)], 
+                          yy <- [0..2*(s-1)], 
                           (xx,yy) `inTriTriGrid` s]
 
 --
@@ -137,26 +136,28 @@ instance Grid ParaTriGrid where
   neighbours = neighboursBasedOn UnboundedTriGrid
   distance = distanceBasedOn UnboundedTriGrid
   directionTo = directionToBasedOn UnboundedTriGrid
-  contains g (x,y) = 0 ≤ x && x < 2*c && 0 ≤ y && y < 2*r && even (x+y)
+  contains g (x,y) = 0 <= x && x < 2*c && 0 <= y && y < 2*r && even (x+y)
     where (r,c) = size g
 
 instance FiniteGrid ParaTriGrid where
   type Size ParaTriGrid = (Int, Int)
   size (ParaTriGrid s _) = s
+  maxPossibleDistance g@(ParaTriGrid (r,c) _) =
+    distance g (0,0) (2*c-1,2*r-1)
 
 instance BoundedGrid ParaTriGrid where
   tileSideCount _ = 3
   boundary g = west ++ north ++ east ++ south
     where (r,c) = size g
-          west = [(0,k) | k ← [0,2..2*r-2], c>0]
-          north = [(k,2*r-1) | k ← [1,3..2*c-1], r>0]
-          east = [(2*c-1,k) | k ← [2*r-3,2*r-5..1], c>0]
-          south = [(k,0) | k ← [2*c-2,2*c-4..2], r>0]
+          west = [(0,k) | k <- [0,2..2*r-2], c>0]
+          north = [(k,2*r-1) | k <- [1,3..2*c-1], r>0]
+          east = [(2*c-1,k) | k <- [2*r-3,2*r-5..1], c>0]
+          south = [(k,0) | k <- [2*c-2,2*c-4..2], r>0]
   centre g = f . size $ g
     where f (r,c)
             | odd r && odd c             
                 = [(c-1,r-1), (c,r)]
-            | even r && even c && r ≡ c 
+            | even r && even c && r == c 
                 = bowtie (c-1,r-1)
             | even r && even c && r > c  
                 = bowtie (c-1,r-3) ++ bowtie (c-1,r-1) ++ bowtie (c-1,r+1)
@@ -171,10 +172,13 @@ instance BoundedGrid ParaTriGrid where
 --   tiles. If @r@ and @c@ are both nonnegative, the resulting grid will
 --   have @2*r*c@ tiles. Otherwise, the resulting grid will be null and
 --   the list of indices will be null.
-paraTriGrid ∷ Int → Int → ParaTriGrid
+paraTriGrid :: Int -> Int -> ParaTriGrid
 paraTriGrid r c = 
-  ParaTriGrid (r,c) [(x,y) | x ← [0..2*c-1], y ← [0..2*r-1], even (x+y)]
+  ParaTriGrid (r,c) (parallelogramIndices r c)
 
+parallelogramIndices :: Int -> Int -> [(Int, Int)]
+parallelogramIndices r c = 
+  [(x,y) | x <- [0..2*c-1], y <- [0..2*r-1], even (x+y)]
 
 --
 -- Rectangular grids with triangular tiles
@@ -200,6 +204,8 @@ instance Grid RectTriGrid where
 instance FiniteGrid RectTriGrid where
   type Size RectTriGrid = (Int, Int)
   size (RectTriGrid s _) = s
+  maxPossibleDistance g = -- TODO: make more efficient
+    maximum . map (distance g (0,0)) . indices $ g
 
 instance BoundedGrid RectTriGrid where
   tileSideCount _ = 3
@@ -209,8 +215,8 @@ instance BoundedGrid RectTriGrid where
 --   using triangular tiles. If @r@ and @c@ are both nonnegative, the 
 --   resulting grid will have @2*r*c@ tiles. Otherwise, the resulting grid will be null and
 --   the list of indices will be null.
-rectTriGrid ∷ Int → Int → RectTriGrid
-rectTriGrid r c = RectTriGrid (r,c) [(x,y) | y ← [0..2*r-1], x ← [xMin y .. xMax c y], even (x+y)]
+rectTriGrid :: Int -> Int -> RectTriGrid
+rectTriGrid r c = RectTriGrid (r,c) [(x,y) | y <- [0..2*r-1], x <- [xMin y .. xMax c y], even (x+y)]
   where xMin y = if even y then w else w+1
           where w = -2*((y+1) `div` 4)
         xMax c2 y = xMin y + 2*(c2-1)
@@ -236,12 +242,14 @@ instance Grid TorTriGrid where
   neighbour = neighbourWrappedBasedOn UnboundedTriGrid
   distance = distanceWrappedBasedOn UnboundedTriGrid
   directionTo = directionToWrappedBasedOn UnboundedTriGrid
-  isAdjacent g a b = distance g a b ≤ 1
+  isAdjacent g a b = distance g a b <= 1
   contains _ _ = True
 
 instance FiniteGrid TorTriGrid where
   type Size TorTriGrid = (Int, Int)
   size (TorTriGrid s _) = s
+  maxPossibleDistance g = -- TODO: make more efficient
+    maximum . map (distance g (0,0)) . indices $ g
 
 instance WrappedGrid TorTriGrid where
   normalise g (x,y) | y < 0     = normalise g (x,y+2*r)
@@ -261,9 +269,8 @@ instance WrappedGrid TorTriGrid where
 --   for @ParaTriGrid@. If @r@ and @c@ are both nonnegative, the 
 --   resulting grid will have @2*r*c@ tiles. Otherwise, the resulting
 --   grid will be null and the list of indices will be null.
-torTriGrid ∷ Int → Int → TorTriGrid
-torTriGrid r c = 
-  TorTriGrid (r,c) [(x,y) | x ← [0..2*c-1], y ← [0..2*r-1], even (x+y)]
+torTriGrid :: Int -> Int -> TorTriGrid
+torTriGrid r c = TorTriGrid (r,c) (parallelogramIndices r c)
 
 --
 -- Cylindrical grids with triangular tiles
@@ -286,13 +293,15 @@ instance Grid YCylTriGrid where
   neighbour = neighbourWrappedBasedOn UnboundedTriGrid
   distance = distanceWrappedBasedOn UnboundedTriGrid
   directionTo = directionToWrappedBasedOn UnboundedTriGrid
-  isAdjacent g a b = distance g a b ≤ 1
-  contains g (x, y) = 0 ≤ y && y ≤ 2*r-1 && even (x+y) 
+  isAdjacent g a b = distance g a b <= 1
+  contains g (x, y) = 0 <= y && y <= 2*r-1 && even (x+y) 
     where (r, _) = size g
 
 instance FiniteGrid YCylTriGrid where
   type Size YCylTriGrid = (Int, Int)
   size (YCylTriGrid s _) = s
+  maxPossibleDistance g = -- TODO: make more efficient
+    maximum . map (distance g (0,0)) . indices $ g
 
 instance WrappedGrid YCylTriGrid where
   normalise g (x,y) | x < 0     = normalise g (x+2*c,y)
@@ -309,9 +318,51 @@ instance WrappedGrid YCylTriGrid where
 --   If @r@ and @c@ are both nonnegative, the resulting grid will have 
 --   @2*r*c@ tiles. Otherwise, the resulting grid will be null and the 
 --   list of indices will be null.
-yCylTriGrid ∷ Int → Int → YCylTriGrid
-yCylTriGrid r c = 
-  YCylTriGrid (r,c) [(x,y) | x ← [0..2*c-1], y ← [0..2*r-1], even (x+y)]
+yCylTriGrid :: Int -> Int -> YCylTriGrid
+yCylTriGrid r c = YCylTriGrid (r,c) (parallelogramIndices r c)
 
+-- -- | A cylindrical grid with triangular tiles, where the cylinder is
+-- --   along the x-axis.
+-- --   The grid and its indexing scheme are illustrated in the user guide,
+-- --   available at <https://github.com/mhwombat/grid/wiki>.
+-- data XCylTriGrid = XCylTriGrid (Int, Int) [(Int, Int)] deriving Eq
 
+-- instance Show XCylTriGrid where 
+--   show (XCylTriGrid (r,c) _) = "yCylTriGrid " ++ show r ++ " " ++ show c
+
+-- instance Grid XCylTriGrid where
+--   type Index XCylTriGrid = (Int, Int)
+--   type Direction XCylTriGrid = TriDirection
+--   indices (XCylTriGrid _ xs) = xs
+--   neighbours = neighboursWrappedBasedOn UnboundedTriGrid
+--   neighbour = neighbourWrappedBasedOn UnboundedTriGrid
+--   distance = distanceWrappedBasedOn UnboundedTriGrid
+--   directionTo = directionToWrappedBasedOn UnboundedTriGrid
+--   isAdjacent g a b = distance g a b <= 1
+--   contains g (x, y) = 0 <= x && x <= 2*c-1 && even (x+y) 
+--     where (_, c) = size g
+
+-- instance FiniteGrid XCylTriGrid where
+--   type Size XCylTriGrid = (Int, Int)
+--   size (XCylTriGrid s _) = s
+--   maxPossibleDistance g = -- TODO: make more efficient
+--     maximum . map (distance g (0,0)) . indices $ g
+
+-- instance WrappedGrid XCylTriGrid where
+--   normalise g (x,y) | y < 0     = normalise g (x,y+2*r)
+--                     | y > 2*r-1 = normalise g (x,y-2*r)
+--                     | otherwise = (x,y)
+--     where (r, _) = size g
+--   denormalise g a = nub [ (x,y-2*r), (x,y), (x,y+2*r) ]
+--     where (r, _) = size g
+--           (x, y) = normalise g a
+
+-- -- | @'xCylTriGrid' r c@ returns a cylindrical grid with @r@ rows and 
+-- --   @c@ columns, using triangular tiles, where the cylinder is along 
+-- --   the y-axis. The indexing method is the same as for @ParaTriGrid@. 
+-- --   If @r@ and @c@ are both nonnegative, the resulting grid will have 
+-- --   @2*r*c@ tiles. Otherwise, the resulting grid will be null and the 
+-- --   list of indices will be null.
+-- xCylTriGrid :: Int -> Int -> XCylTriGrid
+-- xCylTriGrid r c = XCylTriGrid (r,c) (parallelogramIndices r c)
 

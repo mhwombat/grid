@@ -13,8 +13,8 @@
 -- into a single type.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE UnicodeSyntax, TypeFamilies, FlexibleContexts, 
-    MultiParamTypeClasses, UndecidableInstances #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts, MultiParamTypeClasses,
+    UndecidableInstances #-}
 
 module Math.Geometry.GridMap
   (
@@ -54,64 +54,64 @@ import qualified Math.Geometry.Grid as G
 --   in @Data.Map@ impose the @Ord@ constraint on map keys, so we'll
 --   live with it. In summary, to use some methods in this class, your
 --   grid indices must be orderable.
-class (G.Grid (BaseGrid gm v), Foldable gm) ⇒ 
-    GridMap (gm ∷ * → *) v where
+class (G.Grid (BaseGrid gm v), Foldable gm) => 
+    GridMap (gm :: * -> *) v where
   type BaseGrid gm v
 
   -- | Find the value at a tile position in the grid.
-  (!) ∷ (k ~ (G.Index (BaseGrid gm v)), Ord k) ⇒ gm v → k → v
+  (!) :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => gm v -> k -> v
   (!) gm k = toMap gm M.! k
 
   -- | Returns a map of grid indices to values.
-  toMap ∷ k ~ (G.Index (BaseGrid gm v)) ⇒ gm v → M.Map k v
+  toMap :: k ~ (G.Index (BaseGrid gm v)) => gm v -> M.Map k v
 
   -- | Returns the grid on which this map is based.
-  toGrid ∷ gm v → BaseGrid gm v
+  toGrid :: gm v -> BaseGrid gm v
 
   -- | Convert the map to a list of key/value pairs.
-  toList ∷ k ~ (G.Index (BaseGrid gm v)) ⇒ gm v → [(k, v)]
+  toList :: k ~ (G.Index (BaseGrid gm v)) => gm v -> [(k, v)]
   toList = M.toList . toMap
 
   -- | Lookup the value at a tile position in the grid map.
-  lookup ∷ (k ~ (G.Index (BaseGrid gm v)), Ord k) ⇒ k → gm v → Maybe v
+  lookup :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => k -> gm v -> Maybe v
   lookup k = M.lookup k . toMap
 
   -- | Adjust a value at a specific tile position. When the tile is not
   --   within the bounds of the grid map, the original grid map is
   --   returned.
-  adjust ∷ (k ~ (G.Index (BaseGrid gm v)), Ord k) ⇒ 
-    (v → v) → k → gm v → gm v
-  adjust f = adjustWithKey (\_ v → f v)
+  adjust :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => 
+    (v -> v) -> k -> gm v -> gm v
+  adjust f = adjustWithKey (\_ v -> f v)
 
   -- | Adjust a value at a specific tile position. When the tile is not
   --   within the bounds of the grid map, the original grid map is
   --   returned.
-  adjustWithKey ∷ (k ~ (G.Index (BaseGrid gm v)), Ord k) ⇒ 
-    (k → v → v) → k → gm v → gm v
+  adjustWithKey :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => 
+    (k -> v -> v) -> k -> gm v -> gm v
 
   -- | The expression @('findWithDefault' def k map)@ returns the value
   --   at tile position @k@ or returns @def@ when the tile is not within
   --   the bounds of the grid map.
-  findWithDefault ∷ (k ~ (G.Index (BaseGrid gm v)), Ord k) ⇒ 
-    v → k → gm v → v
+  findWithDefault :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => 
+    v -> k -> gm v -> v
   findWithDefault v k = M.findWithDefault v k . toMap
 
   -- | Returns all values in the map 
-  elems ∷ gm v → [v]
+  elems :: gm v -> [v]
   elems = M.elems . toMap
 
   -- | Map a function over all values in the map.
   map 
-    ∷ (GridMap gm v2, 
-        G.Index (BaseGrid gm v) ~ G.Index (BaseGrid gm v2)) ⇒ 
-    (v → v2) → gm v → gm v2
-  map f = mapWithKey (\_ v → f v)
+    :: (GridMap gm v2, 
+        G.Index (BaseGrid gm v) ~ G.Index (BaseGrid gm v2)) => 
+    (v -> v2) -> gm v -> gm v2
+  map f = mapWithKey (\_ v -> f v)
 
   -- | Map a function over all values in the map.
   mapWithKey 
-    ∷ (k ~ G.Index (BaseGrid gm v), k ~ G.Index (BaseGrid gm v2), 
-        GridMap gm v2) ⇒ 
-      (k → v → v2) → gm v → gm v2
+    :: (k ~ G.Index (BaseGrid gm v), k ~ G.Index (BaseGrid gm v2), 
+        GridMap gm v2) => 
+      (k -> v -> v2) -> gm v -> gm v2
 
 {- $Compare
 Some functions in @Data.Map@ have been replaced in @GridMap@.

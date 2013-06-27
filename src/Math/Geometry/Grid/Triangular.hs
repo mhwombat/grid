@@ -1,4 +1,4 @@
------------------------------------------------------------------------------
+------------------------------------------------------------------------
 -- |
 -- Module      :  Math.Geometry.TriGrid
 -- Copyright   :  (c) Amy de Buitléir 2012
@@ -12,8 +12,8 @@
 -- <https://github.com/mhwombat/grid/wiki>.
 -- Also see @Math.Geometry.Grid@ for examples of how to use this class.
 --
------------------------------------------------------------------------------
-{-# LANGUAGE UnicodeSyntax, MultiParamTypeClasses, TypeSynonymInstances, 
+------------------------------------------------------------------------
+{-# LANGUAGE MultiParamTypeClasses, TypeSynonymInstances, 
   FlexibleInstances #-}
 
 module Math.Geometry.Grid.Triangular
