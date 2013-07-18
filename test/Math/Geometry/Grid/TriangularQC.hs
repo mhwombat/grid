@@ -316,49 +316,49 @@ yCylTriGridProperties = gridProperties "YCylTriGrid"
 yCylTriGridTests :: [Test]
 yCylTriGridTests = makeTests yCylTriGridProperties
 
--- data XCylTriGridTD =
---   XCylTriGridTD XCylTriGrid [(Int,Int)] ((Int,Int),(Int,Int)) TriDirection
---   deriving Show
+data XCylTriGridTD =
+  XCylTriGridTD XCylTriGrid [(Int,Int)] ((Int,Int),(Int,Int)) TriDirection
+  deriving Show
 
--- instance TestData XCylTriGridTD where
---   type BaseGrid XCylTriGridTD = XCylTriGrid
---   grid (XCylTriGridTD g _ _ _) = g
---   points (XCylTriGridTD _ ps _ _) = ps
---   twoClosePoints (XCylTriGridTD _ _ qs _) = qs
---   neighbourCountBounds _ = (0, 3)
---   direction (XCylTriGridTD _ _ _ d) = d
+instance TestData XCylTriGridTD where
+  type BaseGrid XCylTriGridTD = XCylTriGrid
+  grid (XCylTriGridTD g _ _ _) = g
+  points (XCylTriGridTD _ ps _ _) = ps
+  twoClosePoints (XCylTriGridTD _ _ qs _) = qs
+  neighbourCountBounds _ = (0, 3)
+  direction (XCylTriGridTD _ _ _ d) = d
 
--- instance TestDataF XCylTriGridTD where
---   maxDistance (XCylTriGridTD g _ _ _) = 2*(r+c) - 3
---     where (r, c) = size g
---   expectedTileCount (XCylTriGridTD g _ _ _) = 2*r*c
---     where (r, c) = size g
+instance TestDataF XCylTriGridTD where
+  maxDistance (XCylTriGridTD g _ _ _) = 2*(r+c) - 3
+    where (r, c) = size g
+  expectedTileCount (XCylTriGridTD g _ _ _) = 2*r*c
+    where (r, c) = size g
 
--- -- We want the number of tiles in a test grid to be O(n)
--- sizedXCylTriGridTD :: Int -> Gen XCylTriGridTD
--- sizedXCylTriGridTD n = do
---   r0 <- choose (0,n `div` 2)
---   let r = 2*r0
---   let c = n `div` (2*r + 1)
---   let g = xCylTriGrid r c
---   ps <- chooseIndices g n
---   qs <- chooseClosePoints g `suchThat` bothValid
---   d <- arbitrary
---   return $ XCylTriGridTD g ps qs d
+-- We want the number of tiles in a test grid to be O(n)
+sizedXCylTriGridTD :: Int -> Gen XCylTriGridTD
+sizedXCylTriGridTD n = do
+  r0 <- choose (0,n `div` 2)
+  let r = 2*r0
+  let c = n `div` (2*r + 1)
+  let g = xCylTriGrid r c
+  ps <- chooseIndices g n
+  qs <- chooseClosePoints g `suchThat` bothValid
+  d <- arbitrary
+  return $ XCylTriGridTD g ps qs d
 
--- instance Arbitrary XCylTriGridTD where
---   arbitrary = sized sizedXCylTriGridTD
+instance Arbitrary XCylTriGridTD where
+  arbitrary = sized sizedXCylTriGridTD
 
--- xCylTriGridProperties :: [(String, XCylTriGridTD -> Property)]
--- xCylTriGridProperties = gridProperties "XCylTriGrid"
---   ++ finiteGridProperties "XCylTriGrid"
+xCylTriGridProperties :: [(String, XCylTriGridTD -> Property)]
+xCylTriGridProperties = gridProperties "XCylTriGrid"
+  ++ finiteGridProperties "XCylTriGrid"
 
--- xCylTriGridTests :: [Test]
--- xCylTriGridTests = makeTests xCylTriGridProperties
+xCylTriGridTests :: [Test]
+xCylTriGridTests = makeTests xCylTriGridProperties
 
 test :: Test
 test = testGroup "Math.Geometry.Grid.TriangularQC"
   ( unboundedTriGridTests ++ triTriGridTests ++ paraTriGridTests
-    ++ rectTriGridTests ++ torTriGridTests ++ yCylTriGridTests)
---    ++ xCylTriGridTests)
+    ++ rectTriGridTests ++ torTriGridTests ++ yCylTriGridTests
+    ++ xCylTriGridTests)
 

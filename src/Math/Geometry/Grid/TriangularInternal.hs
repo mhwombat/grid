@@ -321,48 +321,48 @@ instance WrappedGrid YCylTriGrid where
 yCylTriGrid :: Int -> Int -> YCylTriGrid
 yCylTriGrid r c = YCylTriGrid (r,c) (parallelogramIndices r c)
 
--- -- | A cylindrical grid with triangular tiles, where the cylinder is
--- --   along the x-axis.
--- --   The grid and its indexing scheme are illustrated in the user guide,
--- --   available at <https://github.com/mhwombat/grid/wiki>.
--- data XCylTriGrid = XCylTriGrid (Int, Int) [(Int, Int)] deriving Eq
+-- | A cylindrical grid with triangular tiles, where the cylinder is
+--   along the x-axis.
+--   The grid and its indexing scheme are illustrated in the user guide,
+--   available at <https://github.com/mhwombat/grid/wiki>.
+data XCylTriGrid = XCylTriGrid (Int, Int) [(Int, Int)] deriving Eq
 
--- instance Show XCylTriGrid where 
---   show (XCylTriGrid (r,c) _) = "yCylTriGrid " ++ show r ++ " " ++ show c
+instance Show XCylTriGrid where 
+  show (XCylTriGrid (r,c) _) = "yCylTriGrid " ++ show r ++ " " ++ show c
 
--- instance Grid XCylTriGrid where
---   type Index XCylTriGrid = (Int, Int)
---   type Direction XCylTriGrid = TriDirection
---   indices (XCylTriGrid _ xs) = xs
---   neighbours = neighboursWrappedBasedOn UnboundedTriGrid
---   neighbour = neighbourWrappedBasedOn UnboundedTriGrid
---   distance = distanceWrappedBasedOn UnboundedTriGrid
---   directionTo = directionToWrappedBasedOn UnboundedTriGrid
---   isAdjacent g a b = distance g a b <= 1
---   contains g (x, y) = 0 <= x && x <= 2*c-1 && even (x+y) 
---     where (_, c) = size g
+instance Grid XCylTriGrid where
+  type Index XCylTriGrid = (Int, Int)
+  type Direction XCylTriGrid = TriDirection
+  indices (XCylTriGrid _ xs) = xs
+  neighbours = neighboursWrappedBasedOn UnboundedTriGrid
+  neighbour = neighbourWrappedBasedOn UnboundedTriGrid
+  distance = distanceWrappedBasedOn UnboundedTriGrid
+  directionTo = directionToWrappedBasedOn UnboundedTriGrid
+  isAdjacent g a b = distance g a b <= 1
+  contains g (x, y) = 0 <= x && x <= 2*c-1 && even (x+y) 
+    where (_, c) = size g
 
--- instance FiniteGrid XCylTriGrid where
---   type Size XCylTriGrid = (Int, Int)
---   size (XCylTriGrid s _) = s
---   maxPossibleDistance g = -- TODO: make more efficient
---     maximum . map (distance g (0,0)) . indices $ g
+instance FiniteGrid XCylTriGrid where
+  type Size XCylTriGrid = (Int, Int)
+  size (XCylTriGrid s _) = s
+  maxPossibleDistance g = -- TODO: make more efficient
+    maximum . map (distance g (0,0)) . indices $ g
 
--- instance WrappedGrid XCylTriGrid where
---   normalise g (x,y) | y < 0     = normalise g (x,y+2*r)
---                     | y > 2*r-1 = normalise g (x,y-2*r)
---                     | otherwise = (x,y)
---     where (r, _) = size g
---   denormalise g a = nub [ (x,y-2*r), (x,y), (x,y+2*r) ]
---     where (r, _) = size g
---           (x, y) = normalise g a
+instance WrappedGrid XCylTriGrid where
+  normalise g (x,y) | y < 0     = normalise g (x,y+2*r)
+                    | y > 2*r-1 = normalise g (x,y-2*r)
+                    | otherwise = (x,y)
+    where (r, _) = size g
+  denormalise g a = nub [ (x,y-2*r), (x,y), (x,y+2*r) ]
+    where (r, _) = size g
+          (x, y) = normalise g a
 
--- -- | @'xCylTriGrid' r c@ returns a cylindrical grid with @r@ rows and 
--- --   @c@ columns, using triangular tiles, where the cylinder is along 
--- --   the y-axis. The indexing method is the same as for @ParaTriGrid@. 
--- --   If @r@ and @c@ are both nonnegative, the resulting grid will have 
--- --   @2*r*c@ tiles. Otherwise, the resulting grid will be null and the 
--- --   list of indices will be null.
--- xCylTriGrid :: Int -> Int -> XCylTriGrid
--- xCylTriGrid r c = XCylTriGrid (r,c) (parallelogramIndices r c)
+-- | @'xCylTriGrid' r c@ returns a cylindrical grid with @r@ rows and 
+--   @c@ columns, using triangular tiles, where the cylinder is along 
+--   the y-axis. The indexing method is the same as for @ParaTriGrid@. 
+--   If @r@ and @c@ are both nonnegative, the resulting grid will have 
+--   @2*r*c@ tiles. Otherwise, the resulting grid will be null and the 
+--   list of indices will be null.
+xCylTriGrid :: Int -> Int -> XCylTriGrid
+xCylTriGrid r c = XCylTriGrid (r,c) (parallelogramIndices r c)
 

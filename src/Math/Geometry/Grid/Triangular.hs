@@ -31,9 +31,15 @@ module Math.Geometry.Grid.Triangular
     rectTriGrid,
     -- * Toroidal grid with triangular tiles
     TorTriGrid,
-    torTriGrid
+    torTriGrid,
+    -- * Cylindrical grids with triangular tiles
+    YCylTriGrid,
+    yCylTriGrid,
+    XCylTriGrid,
+    xCylTriGrid
   ) where
 
-import Math.Geometry.Grid.TriangularInternal (UnboundedTriGrid, TriTriGrid, 
-  triTriGrid, ParaTriGrid, paraTriGrid, RectTriGrid, rectTriGrid, 
-  TorTriGrid, torTriGrid)
+import Math.Geometry.Grid.TriangularInternal (UnboundedTriGrid,
+  TriTriGrid, triTriGrid, ParaTriGrid, paraTriGrid,
+  RectTriGrid, rectTriGrid, TorTriGrid, torTriGrid,
+  YCylTriGrid, yCylTriGrid, XCylTriGrid, xCylTriGrid)
