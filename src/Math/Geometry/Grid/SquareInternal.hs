@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- |
 -- Module      :  Math.Geometry.SquareGridInternal
--- Copyright   :  (c) Amy de Buitléir 2012
+-- Copyright   :  (c) Amy de Buitléir 2012-2013
 -- License     :  BSD-style
 -- Maintainer  :  amy@nualeargais.ie
 -- Stability   :  experimental
@@ -12,21 +12,24 @@
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts, DeriveGeneric #-}
 
 module Math.Geometry.Grid.SquareInternal where
 
 import Prelude hiding (null)
 
 import Data.List (nub)
+import GHC.Generics (Generic)
 import Math.Geometry.GridInternal
 
-data SquareDirection = North | East | South | West deriving (Show, Eq)
+data SquareDirection = North | East | South | West
+  deriving (Show, Eq)
 
 -- | An unbounded grid with square tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedSquareGrid = UnboundedSquareGrid deriving Show
+data UnboundedSquareGrid = UnboundedSquareGrid
+  deriving (Eq, Show, Generic)
 
 instance Grid UnboundedSquareGrid where
   type Index UnboundedSquareGrid = (Int, Int)
@@ -50,7 +53,8 @@ instance Grid UnboundedSquareGrid where
 -- | A rectangular grid with square tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data RectSquareGrid = RectSquareGrid (Int, Int) [(Int, Int)] deriving Eq
+data RectSquareGrid = RectSquareGrid (Int, Int) [(Int, Int)]
+  deriving  (Eq, Generic)
 
 instance Show RectSquareGrid where 
   show (RectSquareGrid (r,c) _) = 
@@ -99,7 +103,8 @@ rectSquareGrid r c =
 -- | A toroidal grid with square tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data TorSquareGrid = TorSquareGrid (Int, Int) [(Int, Int)] deriving Eq
+data TorSquareGrid = TorSquareGrid (Int, Int) [(Int, Int)]
+  deriving  (Eq, Generic)
 
 instance Show TorSquareGrid where 
   show (TorSquareGrid (r,c) _) = "torSquareGrid " ++ show r ++ " " ++ show c

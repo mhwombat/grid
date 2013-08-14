@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- |
 -- Module      :  Math.Geometry.TriGridInternal
--- Copyright   :  (c) Amy de Buitléir 2012
+-- Copyright   :  (c) Amy de Buitléir 2012-2013
 -- License     :  BSD-style
 -- Maintainer  :  amy@nualeargais.ie
 -- Stability   :  experimental
@@ -12,22 +12,24 @@
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts, DeriveGeneric #-}
 
 module Math.Geometry.Grid.TriangularInternal where
 
 import Prelude hiding (null)
 
 import Data.List (nub)
+import GHC.Generics (Generic)
 import Math.Geometry.GridInternal
 
 data TriDirection = South | Northwest | Northeast | 
-                      North | Southeast | Southwest deriving (Show, Eq)
+                      North | Southeast | Southwest
+                        deriving (Show, Eq, Generic)
 
 -- | An unbounded grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedTriGrid = UnboundedTriGrid deriving Show
+data UnboundedTriGrid = UnboundedTriGrid deriving (Eq, Show, Generic)
 
 instance Grid UnboundedTriGrid where
   type Index UnboundedTriGrid = (Int, Int)
@@ -69,7 +71,7 @@ triZ x y = if even y then -x - y else -x - y + 1
 -- | A triangular grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data TriTriGrid = TriTriGrid Int [(Int, Int)] deriving Eq
+data TriTriGrid = TriTriGrid Int [(Int, Int)] deriving (Eq, Generic)
 
 instance Show TriTriGrid where 
   show (TriTriGrid s _) = "triTriGrid " ++ show s
@@ -124,7 +126,8 @@ triTriGrid s =
 -- | A Parallelogrammatical grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data ParaTriGrid = ParaTriGrid (Int, Int) [(Int, Int)] deriving Eq
+data ParaTriGrid = ParaTriGrid (Int, Int) [(Int, Int)]
+  deriving  (Eq, Generic)
 
 instance Show ParaTriGrid where 
   show (ParaTriGrid (r,c) _) = "paraTriGrid " ++ show r ++ " " ++ show c
@@ -187,7 +190,8 @@ parallelogramIndices r c =
 -- | A rectangular grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data RectTriGrid = RectTriGrid (Int, Int) [(Int, Int)] deriving Eq
+data RectTriGrid = RectTriGrid (Int, Int) [(Int, Int)]
+  deriving  (Eq, Generic)
 
 instance Show RectTriGrid where 
   show (RectTriGrid (r,c) _) = "rectTriGrid " ++ show r ++ " " ++ show c
@@ -229,7 +233,8 @@ rectTriGrid r c = RectTriGrid (r,c) [(x,y) | y <- [0..2*r-1], x <- [xMin y .. xM
 -- | A toroidal grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data TorTriGrid = TorTriGrid (Int, Int) [(Int, Int)] deriving Eq
+data TorTriGrid = TorTriGrid (Int, Int) [(Int, Int)]
+  deriving  (Eq, Generic)
 
 instance Show TorTriGrid where 
   show (TorTriGrid (r,c) _) = "torTriGrid " ++ show r ++ " " ++ show c
@@ -280,7 +285,8 @@ torTriGrid r c = TorTriGrid (r,c) (parallelogramIndices r c)
 --   along the y-axis.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data YCylTriGrid = YCylTriGrid (Int, Int) [(Int, Int)] deriving Eq
+data YCylTriGrid = YCylTriGrid (Int, Int) [(Int, Int)]
+  deriving  (Eq, Generic)
 
 instance Show YCylTriGrid where 
   show (YCylTriGrid (r,c) _) = "yCylTriGrid " ++ show r ++ " " ++ show c
@@ -325,7 +331,8 @@ yCylTriGrid r c = YCylTriGrid (r,c) (parallelogramIndices r c)
 --   along the x-axis.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data XCylTriGrid = XCylTriGrid (Int, Int) [(Int, Int)] deriving Eq
+data XCylTriGrid = XCylTriGrid (Int, Int) [(Int, Int)]
+  deriving  (Eq, Generic)
 
 instance Show XCylTriGrid where 
   show (XCylTriGrid (r,c) _) = "yCylTriGrid " ++ show r ++ " " ++ show c

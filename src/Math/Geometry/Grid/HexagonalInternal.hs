@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- |
 -- Module      :  Math.Geometry.HexGridInternal
--- Copyright   :  (c) Amy de Buitléir 2012
+-- Copyright   :  (c) Amy de Buitléir 2012-2013
 -- License     :  BSD-style
 -- Maintainer  :  amy@nualeargais.ie
 -- Stability   :  experimental
@@ -12,7 +12,7 @@
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts, DeriveGeneric #-}
 
 module Math.Geometry.Grid.HexagonalInternal where
 
@@ -20,15 +20,16 @@ import Prelude hiding (null)
 import Data.Function (on)
 import Data.List (groupBy, sortBy)
 import Data.Ord (comparing)
+import GHC.Generics (Generic)
 import Math.Geometry.GridInternal
 
 data HexDirection = West | Northwest | Northeast | East | Southeast | 
-                      Southwest deriving (Show, Eq)
+                      Southwest deriving (Show, Eq, Generic)
 
 -- | An unbounded grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedHexGrid = UnboundedHexGrid deriving Show
+data UnboundedHexGrid = UnboundedHexGrid deriving (Show, Eq, Generic)
 
 instance Grid UnboundedHexGrid where
   type Index UnboundedHexGrid = (Int, Int)
@@ -63,7 +64,7 @@ instance Grid UnboundedHexGrid where
 -- | A hexagonal grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data HexHexGrid = HexHexGrid Int [(Int, Int)] deriving Eq
+data HexHexGrid = HexHexGrid Int [(Int, Int)] deriving (Eq, Generic)
 
 instance Show HexHexGrid where show (HexHexGrid s _) = "hexHexGrid " ++ show s
 
@@ -113,7 +114,8 @@ hexHexGrid r = HexHexGrid r [(x, y) | x <- [-r+1..r-1], y <- f x]
 -- | A parallelogramatical grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data ParaHexGrid = ParaHexGrid (Int, Int) [(Int, Int)] deriving Eq
+data ParaHexGrid = ParaHexGrid (Int, Int) [(Int, Int)]
+  deriving (Eq, Generic)
 
 instance Show ParaHexGrid where 
   show (ParaHexGrid (r,c) _) = "paraHexGrid " ++ show r ++ " " ++ show c

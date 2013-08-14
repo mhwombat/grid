@@ -13,8 +13,7 @@
 -- into a single type.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts, MultiParamTypeClasses,
-    UndecidableInstances #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts, MultiParamTypeClasses #-}
 
 module Math.Geometry.GridMap
   (

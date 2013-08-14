@@ -14,7 +14,7 @@
 --
 ------------------------------------------------------------------------
 {-# LANGUAGE TypeFamilies, FlexibleContexts, FlexibleInstances,
-    MultiParamTypeClasses, UndecidableInstances #-}
+    MultiParamTypeClasses, UndecidableInstances, DeriveGeneric #-}
 
 module Math.Geometry.GridMap.Lazy
   (
@@ -29,12 +29,14 @@ import qualified Data.Foldable as F (Foldable(..))
 import qualified Data.Map as M
 --import qualified Data.Map.Strict as Strict (Map)
 import Data.Maybe (fromMaybe)
+import GHC.Generics (Generic)
 import qualified Math.Geometry.Grid as G
 import Math.Geometry.GridMap
 
 -- | A map from tile positions in a grid to values.
 data LGridMap g v =
   LGridMap { lgmGrid :: g, lgmMap :: M.Map (G.Index g) v }
+    deriving Generic
 
 -- | Construct a grid map which is strict in the keys (tile positions), but
 --   lazy in the values.

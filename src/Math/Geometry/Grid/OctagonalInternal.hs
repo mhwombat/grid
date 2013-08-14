@@ -12,22 +12,24 @@
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts, DeriveGeneric #-}
 
 module Math.Geometry.Grid.OctagonalInternal where
 
 import Prelude hiding (null)
 
 import Data.List (nub)
+import GHC.Generics (Generic)
 import Math.Geometry.GridInternal
 
 data OctDirection = West | Northwest | North | Northeast | East | 
-                      Southeast | South | Southwest deriving (Show, Eq)
+                      Southeast | South | Southwest
+                        deriving (Show, Eq, Generic)
 
 -- | An unbounded grid with octagonal tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedOctGrid = UnboundedOctGrid deriving Show
+data UnboundedOctGrid = UnboundedOctGrid deriving (Eq, Show, Generic)
 
 instance Grid UnboundedOctGrid where
   type Index UnboundedOctGrid = (Int, Int)
@@ -59,7 +61,8 @@ instance Grid UnboundedOctGrid where
 -- | A rectangular grid with octagonal tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data RectOctGrid = RectOctGrid (Int, Int) [(Int, Int)] deriving Eq
+data RectOctGrid = RectOctGrid (Int, Int) [(Int, Int)]
+  deriving (Eq, Generic)
 
 instance Show RectOctGrid where 
   show (RectOctGrid (r,c) _) = 
@@ -102,7 +105,8 @@ rectOctGrid r c =
 -- | A toroidal grid with octagonal tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data TorOctGrid = TorOctGrid (Int, Int) [(Int, Int)] deriving Eq
+data TorOctGrid = TorOctGrid (Int, Int) [(Int, Int)]
+  deriving (Eq, Generic)
 
 instance Show TorOctGrid where 
   show (TorOctGrid (r,c) _) = "torOctGrid " ++ show r ++ " " ++ show c

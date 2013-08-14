@@ -12,20 +12,21 @@
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts, DeriveGeneric #-}
 
 module Math.Geometry.Grid.HexagonalInternal2 where
 
 import Prelude hiding (null)
+import GHC.Generics (Generic)
 import Math.Geometry.GridInternal
 
 data HexDirection = Northwest | North | Northeast | Southeast | South |
-                      Southwest deriving (Show, Eq)
+                      Southwest deriving (Show, Eq, Generic)
 
 -- | An unbounded grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedHexGrid = UnboundedHexGrid deriving Show
+data UnboundedHexGrid = UnboundedHexGrid deriving (Eq, Show, Generic)
 
 instance Grid UnboundedHexGrid where
   type Index UnboundedHexGrid = (Int, Int)
@@ -60,7 +61,7 @@ instance Grid UnboundedHexGrid where
 -- | A hexagonal grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data HexHexGrid = HexHexGrid Int [(Int, Int)] deriving Eq
+data HexHexGrid = HexHexGrid Int [(Int, Int)] deriving (Eq, Generic)
 
 instance Show HexHexGrid where show (HexHexGrid s _) = "hexHexGrid " ++ show s
 
@@ -110,7 +111,8 @@ hexHexGrid r = HexHexGrid r [(x, y) | x <- [-r+1..r-1], y <- f x]
 -- | A rectangular grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data RectHexGrid = RectHexGrid (Int, Int) [(Int, Int)] deriving Eq
+data RectHexGrid = RectHexGrid (Int, Int) [(Int, Int)]
+  deriving (Eq, Generic)
 
 instance Show RectHexGrid where 
   show (RectHexGrid (r,c) _) = "rectHexGrid " ++ show r ++ " " ++ show c
