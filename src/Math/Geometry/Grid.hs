@@ -47,7 +47,7 @@
 -- operations.
 --
 -----------------------------------------------------------------------------
-{-# LANGUAGE UnicodeSyntax, MultiParamTypeClasses, TypeSynonymInstances, 
+{-# LANGUAGE MultiParamTypeClasses, TypeSynonymInstances, 
   FlexibleInstances #-}
 
 module Math.Geometry.Grid
