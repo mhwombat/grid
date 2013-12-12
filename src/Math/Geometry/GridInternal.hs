@@ -18,7 +18,7 @@ module Math.Geometry.GridInternal where
 import Prelude hiding (null)
 
 import Data.Function (on)
-import Data.List (groupBy, nub, nubBy, sortBy)
+import Data.List ((\\), groupBy, nub, nubBy, sortBy)
 import Data.Ord (comparing)
 
 -- | A regular arrangement of tiles.
@@ -51,6 +51,12 @@ class Grid g where
   --   @g@ which are adjacent to the tile with index @a@.
   neighbours :: Eq (Index g) => g -> Index g -> [Index g]
   neighbours = defaultNeighbours
+
+  -- | @'neighboursOfSet' g as@ returns the indices of the tiles in the
+  --   grid @g@ which are adjacent to any of the tiles with index in
+  --   @as@.
+  neighboursOfSet :: Eq (Index g) => g -> [Index g] -> [Index g]
+  neighboursOfSet = defaultNeighboursOfSet
 
   -- | @'neighbour' g d a@ returns the indices of the tile in the grid
   --   @g@ which is adjacent to the tile with index @a@, in the
@@ -142,6 +148,11 @@ class Grid g where
   -- WARNING: this implementation won't work for wrapped grids
   defaultNeighbours :: g -> Index g -> [Index g]
   defaultNeighbours g a = filter (\b -> distance g a b == 1 ) $ indices g
+
+  -- This should work for wrapped grids, though.
+  defaultNeighboursOfSet :: Eq (Index g) => g -> [Index g] -> [Index g]
+  defaultNeighboursOfSet g as = ns \\ as
+    where ns = nub . concatMap (neighbours g) $ as
 
   -- WARNING: this implementation won't work for wrapped grids
   defaultNeighbour :: (Eq (Index g), Eq (Direction g))

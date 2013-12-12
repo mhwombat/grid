@@ -186,6 +186,22 @@ prop_custom_adjacentTilesToward_eq_default t = nonNull g ==>
   where g = grid t
         (a:b:_) = points t
 
+prop_custom_neighboursOfSet_eq_default
+  :: (TestData t, Grid (BaseGrid t), Ord (Index (BaseGrid t)))
+    => t -> Property
+prop_custom_neighboursOfSet_eq_default t = nonNull g ==>
+  neighboursOfSet g as == defaultNeighboursOfSet g as
+  where g = grid t
+        as = points t
+
+prop_custom_neighboursOfSet_cw_minDistance
+  :: (TestData t, Grid (BaseGrid t), Ord (Index (BaseGrid t)))
+    => t -> Property
+prop_custom_neighboursOfSet_cw_minDistance t = nonNull g ==>
+  a `elem` (neighboursOfSet g bs) || minDistance g bs a /= 1 
+  where g = grid t
+        (a:bs) = points t
+
 gridProperties 
   :: (TestData t, Grid (BaseGrid t), Arbitrary t, 
     Eq (Index (BaseGrid t)), Ord (Index (BaseGrid t)), 
@@ -204,7 +220,9 @@ gridProperties s =
     ("prop_minimal_paths_have_min_length: " ++ s, prop_minimal_paths_have_min_length),
     ("prop_minimal_paths_are_valid: " ++ s, prop_minimal_paths_are_valid),
     ("prop_neighbour_cw_directionTo: " ++ s, prop_neighbour_cw_directionTo),
-    ("prop_custom_adjacentTilesToward_eq_default: " ++ s, prop_custom_adjacentTilesToward_eq_default)
+    ("prop_custom_adjacentTilesToward_eq_default: " ++ s, prop_custom_adjacentTilesToward_eq_default),
+    ("prop_custom_neighboursOfSet_eq_default: " ++ s, prop_custom_neighboursOfSet_eq_default),
+    ("prop_custom_neighboursOfSet_cw_minDistance: " ++ s, prop_custom_neighboursOfSet_cw_minDistance)
   ]
 
 --

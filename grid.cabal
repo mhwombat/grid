@@ -1,5 +1,5 @@
 name:           grid
-version:        7.5
+version:        7.6
 synopsis:       Tools for working with regular grids (graphs, lattices).
 description:    Provides tools for working with regular arrangements
                 of tiles, such as might be used in a board game or some
@@ -22,7 +22,7 @@ library
   hs-source-dirs:  src
   build-depends:   base ==4.*,
                    base-unicode-symbols ==0.2.*,
-                   cereal ==0.4.*,
+                   cereal ==0.3.* || ==0.4.*,
                    containers ==0.4.2.* || ==0.5.*
   ghc-options:     -Wall
   exposed-modules: Math.Geometry.Grid,
