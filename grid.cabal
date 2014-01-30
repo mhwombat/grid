@@ -24,6 +24,7 @@ library
                    base-unicode-symbols ==0.2.*,
                    cereal ==0.4.*,
                    containers ==0.5.*
+                   ghc-prim ==0.2.*
   ghc-options:     -Wall
   exposed-modules: Math.Geometry.Grid,
                    Math.Geometry.Grid.Triangular,
