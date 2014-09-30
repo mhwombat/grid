@@ -1,30 +1,40 @@
-name:           grid
-version:        7.6.1
-synopsis:       Tools for working with regular grids (graphs, lattices).
-description:    Provides tools for working with regular arrangements
-                of tiles, such as might be used in a board game or some
-                other type of grid map. Currently supports triangular,
-                square, and hexagonal tiles, with various 2D and 
-                toroidal layouts.
-                The userguide is available at 
-                <https://github.com/mhwombat/grid/wiki>.
-category:       Math
-cabal-version:  >=1.8
-build-type:     Simple
-author:         Amy de Buitléir
-copyright:      (c) Amy de Buitléir 2010-2012
-license:        BSD3
-stability:      experimental
-maintainer:     amy@nualeargais.ie
-license-file:   LICENSE
+Name:              grid
+Version:           7.6.3
+Stability:         experimental
+Synopsis:          Tools for working with regular grids (graphs, lattices).
+Description:       Provides tools for working with regular arrangements
+                   of tiles, such as might be used in a board game or some
+                   other type of grid map. Currently supports triangular,
+                   square, and hexagonal tiles, with various 2D and 
+                   toroidal layouts.
+                   The userguide is available at 
+                   <https://github.com/mhwombat/grid/wiki>.
+Category:          Math
+License:           BSD3
+License-file:      LICENSE
+Copyright:         (c) Amy de Buitléir 2010-2014
+Homepage:          https://github.com/mhwombat/creatur
+Bug-reports:       https://github.com/mhwombat/creatur/issues
+Author:            Amy de Buitléir
+Maintainer:        amy@nualeargais.ie
+Build-Type:        Simple
+Cabal-Version:     >=1.8
+
+source-repository head
+  type:     git
+  location: https://github.com/mhwombat/grid.git
+
+source-repository this
+  type:     git
+  location: https://github.com/mhwombat/grid.git
+  tag:      1.4.18
+
 
 library
   hs-source-dirs:  src
   build-depends:   base ==4.*,
-                   base-unicode-symbols ==0.2.*,
                    cereal ==0.4.*,
                    containers ==0.5.*
-                   ghc-prim ==0.2.*
   ghc-options:     -Wall
   exposed-modules: Math.Geometry.Grid,
                    Math.Geometry.Grid.Triangular,
@@ -44,9 +54,8 @@ library
 test-suite grid-tests
   type:            exitcode-stdio-1.0
   build-depends:   base ==4.*,
-                   exact-combinatorics ==0.2.*,
                    test-framework-quickcheck2 ==0.3.*,
-                   QuickCheck ==2.6.*,
+                   QuickCheck ==2.7.*,
                    test-framework ==0.8.*,
                    grid
   hs-source-dirs:  test

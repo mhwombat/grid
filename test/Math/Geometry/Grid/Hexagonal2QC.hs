@@ -1,3 +1,15 @@
+------------------------------------------------------------------------
+-- |
+-- Module      :  Math.Geometry.Grid.Hexagonal2QC
+-- Copyright   :  (c) Amy de Buitléir 2012-2014
+-- License     :  BSD-style
+-- Maintainer  :  amy@nualeargais.ie
+-- Stability   :  experimental
+-- Portability :  portable
+--
+-- QuickCheck tests.
+--
+------------------------------------------------------------------------
 {-# LANGUAGE FlexibleContexts, ExistentialQuantification,
     TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
@@ -12,7 +24,6 @@ import Math.Geometry.GridInternal
 import Math.Geometry.GridQC
 
 import Prelude hiding (null)
-import qualified Prelude as P (null)
 import Test.Framework as TF (Test, testGroup)
 import Test.QuickCheck 
   (Gen, Arbitrary, arbitrary, sized, elements, choose, Property, vectorOf)

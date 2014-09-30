@@ -1,3 +1,15 @@
+------------------------------------------------------------------------
+-- |
+-- Module      :  Math.Geometry.Grid.GridQC
+-- Copyright   :  (c) Amy de Buitléir 2012-2014
+-- License     :  BSD-style
+-- Maintainer  :  amy@nualeargais.ie
+-- Stability   :  experimental
+-- Portability :  portable
+--
+-- QuickCheck tests.
+--
+------------------------------------------------------------------------
 {-# LANGUAGE FlexibleContexts, ExistentialQuantification, TypeFamilies,
     MultiParamTypeClasses #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}

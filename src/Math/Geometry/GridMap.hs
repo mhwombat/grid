@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- |
 -- Module      :  Math.Geometry.GridMap
--- Copyright   :  (c) Amy de Buitléir 2012-2013
+-- Copyright   :  (c) Amy de Buitléir 2012-2014
 -- License     :  BSD-style
 -- Maintainer  :  amy@nualeargais.ie
 -- Stability   :  experimental
@@ -31,8 +31,6 @@ module Math.Geometry.GridMap
   ) where
 
 import Prelude hiding (lookup, map, foldr, foldl, foldr1, foldl1, null)
-
-import qualified Prelude as P (map)
 import Data.Foldable (Foldable)
 import qualified Data.Map as M
 --import qualified Data.Map.Strict as Strict (Map)

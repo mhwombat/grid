@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- |
 -- Module      :  Math.Geometry.GridMap
--- Copyright   :  (c) Amy de Buitléir 2012-2013
+-- Copyright   :  (c) Amy de Buitléir 2012-2014
 -- License     :  BSD-style
 -- Maintainer  :  amy@nualeargais.ie
 -- Stability   :  experimental
@@ -53,7 +53,9 @@ instance F.Foldable (LGridMap g) where
   fold = F.fold . lgmMap
   foldMap f g = F.foldMap f (lgmMap g)
   foldr f x g = F.foldr f x (lgmMap g)
+  foldr' f x g = F.foldr' f x (lgmMap g)
   foldl f x g = F.foldl f x (lgmMap g)
+  foldl' f x g = F.foldl' f x (lgmMap g)
 --  foldr1 f x g = foldr1 f x (lgmMap g)
 --  foldl1 f x g = foldl1 f x (lgmMap g)
 
