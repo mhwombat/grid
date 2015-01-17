@@ -5,9 +5,9 @@ Synopsis:          Tools for working with regular grids (graphs, lattices).
 Description:       Provides tools for working with regular arrangements
                    of tiles, such as might be used in a board game or some
                    other type of grid map. Currently supports triangular,
-                   square, and hexagonal tiles, with various 2D and 
+                   square, and hexagonal tiles, with various 2D and
                    toroidal layouts.
-                   The userguide is available at 
+                   The userguide is available at
                    <https://github.com/mhwombat/grid/wiki>.
 Category:          Math
 License:           BSD3
@@ -28,7 +28,6 @@ source-repository this
   type:     git
   location: https://github.com/mhwombat/grid.git
   tag:      7.6.6
-
 
 library
   hs-source-dirs:  src
@@ -61,5 +60,10 @@ test-suite grid-tests
   hs-source-dirs:  test
   ghc-options:     -Wall
   main-is:         Main.hs
-  other-modules: Math.Geometry.GridQC
+  other-modules:   Math.Geometry.GridQC,
+                   Math.Geometry.Grid.Hexagonal2QC,
+                   Math.Geometry.Grid.HexagonalQC,
+                   Math.Geometry.Grid.OctagonalQC,
+                   Math.Geometry.Grid.SquareQC,
+                   Math.Geometry.Grid.TriangularQC
 
