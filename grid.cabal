@@ -1,5 +1,5 @@
 Name:              grid
-Version:           7.6.6
+Version:           7.6.9
 Stability:         experimental
 Synopsis:          Tools for working with regular grids (graphs, lattices).
 Description:       Provides tools for working with regular arrangements
@@ -27,7 +27,8 @@ source-repository head
 source-repository this
   type:     git
   location: https://github.com/mhwombat/grid.git
-  tag:      7.6.6
+  tag:      7.6.9
+
 
 library
   hs-source-dirs:  src
