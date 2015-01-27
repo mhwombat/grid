@@ -19,7 +19,7 @@
 module Math.Geometry.Grid.Square
   (
     -- * Unbounded grid with square tiles
-    UnboundedSquareGrid,
+    UnboundedSquareGrid(..),
     -- * Rectangular grid with square tiles
     RectSquareGrid,
     rectSquareGrid,
@@ -28,6 +28,4 @@ module Math.Geometry.Grid.Square
     torSquareGrid
   ) where
 
-import Math.Geometry.Grid.SquareInternal (UnboundedSquareGrid, 
-  RectSquareGrid, rectSquareGrid, TorSquareGrid, torSquareGrid)
-
+import Math.Geometry.Grid.SquareInternal

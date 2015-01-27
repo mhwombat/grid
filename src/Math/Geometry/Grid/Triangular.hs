@@ -19,7 +19,7 @@
 module Math.Geometry.Grid.Triangular
   (
     -- * Unbounded grid with triangular tiles
-    UnboundedTriGrid,
+    UnboundedTriGrid(..),
     -- * Triangular grid with triangular tiles
     TriTriGrid,
     triTriGrid,
@@ -39,7 +39,4 @@ module Math.Geometry.Grid.Triangular
     xCylTriGrid
   ) where
 
-import Math.Geometry.Grid.TriangularInternal (UnboundedTriGrid,
-  TriTriGrid, triTriGrid, ParaTriGrid, paraTriGrid,
-  RectTriGrid, rectTriGrid, TorTriGrid, torTriGrid,
-  YCylTriGrid, yCylTriGrid, XCylTriGrid, xCylTriGrid)
+import Math.Geometry.Grid.TriangularInternal

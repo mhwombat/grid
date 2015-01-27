@@ -23,7 +23,7 @@
 module Math.Geometry.Grid.Octagonal
   (
     -- * Unbounded grid with octagonal tiles
-    UnboundedOctGrid,
+    UnboundedOctGrid(..),
     -- * Rectangular grid with octagonal tiles
     RectOctGrid,
     rectOctGrid,
@@ -32,6 +32,4 @@ module Math.Geometry.Grid.Octagonal
     torOctGrid
   ) where
 
-import Math.Geometry.Grid.OctagonalInternal (UnboundedOctGrid, RectOctGrid, 
-  rectOctGrid, TorOctGrid, torOctGrid)
-
+import Math.Geometry.Grid.OctagonalInternal

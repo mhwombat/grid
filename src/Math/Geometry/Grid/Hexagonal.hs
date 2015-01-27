@@ -19,7 +19,7 @@
 module Math.Geometry.Grid.Hexagonal
   (
     -- * Unbounded grid with hexagonal tiles
-    UnboundedHexGrid,
+    UnboundedHexGrid(..),
     -- * Hexagonal grid with hexagonal tiles
     HexHexGrid,
     hexHexGrid,
@@ -28,6 +28,4 @@ module Math.Geometry.Grid.Hexagonal
     paraHexGrid
   ) where
 
-import Math.Geometry.Grid.HexagonalInternal (UnboundedHexGrid, HexHexGrid, 
-  hexHexGrid, ParaHexGrid, paraHexGrid)
-
+import Math.Geometry.Grid.HexagonalInternal
