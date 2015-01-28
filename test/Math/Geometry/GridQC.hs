@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- |
 -- Module      :  Math.Geometry.Grid.GridQC
--- Copyright   :  (c) Amy de Buitléir 2012-2014
+-- Copyright   :  (c) Amy de Buitléir 2012-2015
 -- License     :  BSD-style
 -- Maintainer  :  amy@nualeargais.ie
 -- Stability   :  experimental
@@ -22,7 +22,7 @@ import Prelude hiding (null)
 import qualified Prelude as P (null)
 import Data.List (delete, nub, sort)
 import Data.Maybe (isJust, fromJust)
-import Test.Framework as TF (Test)
+import Test.Framework (Test)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
 import Test.QuickCheck 
   ((==>), Gen, Arbitrary, arbitrary, choose, Property, property,

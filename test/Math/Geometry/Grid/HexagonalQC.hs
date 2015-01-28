@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- |
 -- Module      :  Math.Geometry.Grid.RectangularQC
--- Copyright   :  (c) Amy de Buitléir 2012-2014
+-- Copyright   :  (c) Amy de Buitléir 2012-2015
 -- License     :  BSD-style
 -- Maintainer  :  amy@nualeargais.ie
 -- Stability   :  experimental
@@ -24,7 +24,7 @@ import Math.Geometry.GridInternal
 import Math.Geometry.GridQC
 
 import Prelude hiding (null)
-import Test.Framework as TF (Test, testGroup)
+import Test.Framework (Test, testGroup)
 import Test.QuickCheck 
   (Gen, Arbitrary, arbitrary, sized, elements, choose, Property, vectorOf)
 

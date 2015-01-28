@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- |
--- Module      :  Math.Geometry.GridMap
--- Copyright   :  (c) Amy de Buitléir 2012-2014
+-- Module      :  Math.Geometry.GridMap.Lazy
+-- Copyright   :  (c) Amy de Buitléir 2012-2015
 -- License     :  BSD-style
 -- Maintainer  :  amy@nualeargais.ie
 -- Stability   :  experimental
@@ -19,7 +19,8 @@
 module Math.Geometry.GridMap.Lazy
   (
     LGridMap,
-    lazyGridMap
+    lazyGridMap,
+    empty
   ) where
 
 import Prelude hiding (lookup, map, foldr, foldl, foldr1, foldl1, null)
@@ -38,12 +39,15 @@ data LGridMap g v =
   LGridMap { lgmGrid :: g, lgmMap :: M.Map (G.Index g) v }
     deriving Generic
 
--- | Construct a grid map which is strict in the keys (tile positions), but
---   lazy in the values.
+-- | Construct a grid map which is strict in the keys (tile positions),
+--   but lazy in the values.
 lazyGridMap :: (Ord (G.Index g), G.Grid g) => g -> [v] -> LGridMap g v
 lazyGridMap g vs = LGridMap g (M.fromList kvs)
   where kvs = zip ks vs
         ks = G.indices g
+
+empty :: G.Grid g => g -> LGridMap g v
+empty g = LGridMap g M.empty
 
 instance (G.Grid g, Ord (G.Index g)) => Functor (LGridMap g) where
   fmap f gm = lazyGridMap (lgmGrid gm) (P.map f vs)
@@ -83,10 +87,21 @@ instance (G.Grid g) => GridMap (LGridMap g) v where
   toMap = lgmMap
   toGrid = lgmGrid
   lookup k = M.lookup k . toMap
+  insertWithKey f k v gm = if gm `G.contains` k
+                   then gm { lgmMap = M.insertWithKey f k v $ lgmMap gm }
+                   else gm 
+  delete k gm = if gm `G.contains` k
+                   then gm { lgmMap = M.delete k $ lgmMap gm }
+                   else gm 
   adjustWithKey f k gm = gm { lgmMap = M.adjustWithKey f k (lgmMap gm)}
+  alter f k gm = if gm `G.contains` k
+                   then gm { lgmMap = M.alter f k $ lgmMap gm }
+                   else gm
   findWithDefault v k = fromMaybe v . lookup k
   map f (LGridMap g m) = LGridMap g (M.map f m)
   mapWithKey f (LGridMap g m) = LGridMap g (M.mapWithKey f m)
+  filter f (LGridMap g m) = LGridMap g (M.filter f m)
+  filterWithKey f (LGridMap g m) = LGridMap g (M.filterWithKey f m)
 
 instance (Eq g, Eq (G.Index g), Eq v) => Eq (LGridMap g v) where
   (==) (LGridMap g1 gm1) (LGridMap g2 gm2) = g1 == g2 && gm1 == gm2

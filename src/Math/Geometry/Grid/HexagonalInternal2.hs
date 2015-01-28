@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- |
 -- Module      :  Math.Geometry.HexGridInternal
--- Copyright   :  (c) Amy de Buitléir 2012-2014
+-- Copyright   :  (c) Amy de Buitléir 2012-2015
 -- License     :  BSD-style
 -- Maintainer  :  amy@nualeargais.ie
 -- Stability   :  experimental

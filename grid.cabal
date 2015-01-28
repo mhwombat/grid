@@ -1,5 +1,5 @@
 Name:              grid
-Version:           7.6.10
+Version:           7.7.0
 Stability:         experimental
 Synopsis:          Tools for working with regular grids (graphs, lattices).
 Description:       Provides tools for working with regular arrangements
@@ -12,7 +12,7 @@ Description:       Provides tools for working with regular arrangements
 Category:          Math
 License:           BSD3
 License-file:      LICENSE
-Copyright:         (c) Amy de Buitl&eacute;ir 2010-2014
+Copyright:         (c) Amy de Buitl&eacute;ir 2010-2015
 Homepage:          https://github.com/mhwombat/grid
 Bug-reports:       https://github.com/mhwombat/grid/issues
 Author:            Amy de Buitl&eacute;ir
@@ -27,7 +27,7 @@ source-repository head
 source-repository this
   type:     git
   location: https://github.com/mhwombat/grid.git
-  tag:      7.6.10
+  tag:      7.7.0
 
 
 library
@@ -54,6 +54,7 @@ library
 test-suite grid-tests
   type:            exitcode-stdio-1.0
   build-depends:   base ==4.*,
+                   containers ==0.5.*,
                    test-framework-quickcheck2 ==0.3.*,
                    QuickCheck ==2.7.*,
                    test-framework ==0.8.*,
