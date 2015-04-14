@@ -190,7 +190,7 @@ class Grid g where
 -- | A regular arrangement of tiles where the number of tiles is finite.
 --   Minimal complete definition: @'size'@, @'maxPossibleDistance'@.
 class Grid g => FiniteGrid g where
-  type Size s
+  type Size g
   -- | Returns the dimensions of the grid.
   --   For example, if @g@ is a 4x3 rectangular grid, @'size' g@ would
   --   return @(4, 3)@, while @'tileCount' g@ would return @12@.

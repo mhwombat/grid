@@ -30,9 +30,7 @@ module Math.Geometry.GridMap
   ) where
 
 import Prelude hiding (lookup, map, foldr, foldl, foldr1, foldl1, null)
-import Data.Foldable (Foldable)
 import qualified Data.Map as M
---import qualified Data.Map.Strict as Strict (Map)
 import qualified Math.Geometry.Grid as G
 
 -- | A regular arrangement of tiles, having a value associated with
