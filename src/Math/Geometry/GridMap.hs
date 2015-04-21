@@ -12,7 +12,10 @@
 -- @'Data.Map'@, in order to combine the functionality of grids and maps
 -- into a single type.
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts, MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE CPP #-}
 
 module Math.Geometry.GridMap
   (
@@ -32,6 +35,11 @@ module Math.Geometry.GridMap
 import Prelude hiding (lookup, map, foldr, foldl, foldr1, foldl1, null)
 import qualified Data.Map as M
 import qualified Math.Geometry.Grid as G
+
+#if MIN_VERSION_base(4,8,0)
+#else
+import Data.Foldable (Foldable)
+#endif
 
 -- | A regular arrangement of tiles, having a value associated with
 --   each tile.
