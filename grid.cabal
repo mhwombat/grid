@@ -33,7 +33,7 @@ source-repository this
 library
   hs-source-dirs:  src
   build-depends:   base ==4.*,
-                   cereal ==0.4.*,
+                   cereal >=0.4 && < 0.6,
                    containers ==0.5.*
   ghc-options:     -Wall
   exposed-modules: Math.Geometry.Grid,
@@ -69,4 +69,3 @@ test-suite grid-tests
                    Math.Geometry.Grid.SquareQC,
                    Math.Geometry.Grid.TriangularQC
                    Math.Geometry.GridMap.LazyQC
-
