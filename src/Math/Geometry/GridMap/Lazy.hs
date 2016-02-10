@@ -20,6 +20,7 @@ module Math.Geometry.GridMap.Lazy
   (
     LGridMap,
     lazyGridMap,
+    lazyGridMapIndexed,
     empty
   ) where
 
@@ -45,6 +46,9 @@ lazyGridMap :: (Ord (G.Index g), G.Grid g) => g -> [v] -> LGridMap g v
 lazyGridMap g vs = LGridMap g (M.fromList kvs)
   where kvs = zip ks vs
         ks = G.indices g
+
+lazyGridMapIndexed :: (Ord (G.Index g), G.Grid g) => g -> [((G.Index g), v)] -> LGridMap g v
+lazyGridMapIndexed g kvs = LGridMap g (M.fromList kvs)
 
 empty :: G.Grid g => g -> LGridMap g v
 empty g = LGridMap g M.empty
@@ -89,10 +93,10 @@ instance (G.Grid g) => GridMap (LGridMap g) v where
   lookup k = M.lookup k . toMap
   insertWithKey f k v gm = if gm `G.contains` k
                    then gm { lgmMap = M.insertWithKey f k v $ lgmMap gm }
-                   else gm 
+                   else gm
   delete k gm = if gm `G.contains` k
                    then gm { lgmMap = M.delete k $ lgmMap gm }
-                   else gm 
+                   else gm
   adjustWithKey f k gm = gm { lgmMap = M.adjustWithKey f k (lgmMap gm)}
   alter f k gm = if gm `G.contains` k
                    then gm { lgmMap = M.alter f k $ lgmMap gm }
@@ -106,5 +110,5 @@ instance (G.Grid g) => GridMap (LGridMap g) v where
 instance (Eq g, Eq (G.Index g), Eq v) => Eq (LGridMap g v) where
   (==) (LGridMap g1 gm1) (LGridMap g2 gm2) = g1 == g2 && gm1 == gm2
 
-instance (Show g, Show v) => Show (LGridMap g v) where
-  show (LGridMap g m) = "lazyGridMap (" ++ show g ++ ") " ++ show (M.elems m)
+instance (Show g, Show v, Show (G.Index g)) => Show (LGridMap g v) where
+  show (LGridMap g m) = "lazyGridMapIndexed (" ++ show g ++ ") " ++ show (M.toList m)
