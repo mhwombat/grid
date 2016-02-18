@@ -19,7 +19,7 @@ module Math.Geometry.GridMap.LazyQC
     test
   ) where
 
-import Data.List ((\\), foldl')
+import Data.List ((\\), foldl', intersect)
 import Data.Maybe (isJust)
 import qualified Math.Geometry.GridMap as GM
 import Math.Geometry.GridMap.Lazy
@@ -114,6 +114,20 @@ prop_delete_never_invalid
 prop_delete_never_invalid gm k = property $
   mapValid (GM.delete k gm)
 
+prop_lazyGridMapIndexed_adds_all_valid_keys
+  :: Int -> Int -> [(G.Index RectSquareGrid, Int)] -> Property
+prop_lazyGridMapIndexed_adds_all_valid_keys n m kvs = property $
+  (GM.keys gm) `intersect` (G.indices g) == GM.keys gm
+  where gm = lazyGridMapIndexed g kvs
+        g = rectSquareGrid n m
+
+prop_lazyGridMapIndexed_never_adds_invalid_keys
+  :: Int -> Int -> [(G.Index RectSquareGrid, Int)] -> Property
+prop_lazyGridMapIndexed_never_adds_invalid_keys n m kvs = property $
+  null ((GM.keys gm) \\ (G.indices g))
+  where gm = lazyGridMapIndexed g kvs
+        g = rectSquareGrid n m
+
 test :: Test
 test = testGroup "Math.Geometry.GridMap.LazyQC"
   [
@@ -125,5 +139,9 @@ test = testGroup "Math.Geometry.GridMap.LazyQC"
     testProperty "prop_delete_works" prop_delete_works,
     testProperty "prop_delete_never_alters_grid"
       prop_delete_never_alters_grid,
-    testProperty "prop_delete_never_invalid" prop_delete_never_invalid
+    testProperty "prop_delete_never_invalid" prop_delete_never_invalid,
+    testProperty "prop_lazyGridMapIndexed_adds_all_valid_keys"
+      prop_lazyGridMapIndexed_adds_all_valid_keys,
+    testProperty "prop_lazyGridMapIndexed_never_adds_invalid_keys"
+      prop_lazyGridMapIndexed_never_adds_invalid_keys
   ]
