@@ -11,7 +11,7 @@
 -- use @Grid@ instead. This module is subject to change without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies, FlexibleContexts, ConstrainedClassMethods #-}
 
 module Math.Geometry.GridInternal where
 
