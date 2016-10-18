@@ -1,3 +1,6 @@
+[![Hackage](https://img.shields.io/hackage/v/grid.svg)](http://hackage.haskell.org/package/grid)
+[![Hackage-Deps](https://img.shields.io/hackage-deps/v/grid.svg)](http://hackage.haskell.org/package/grid)
+
 # Grid
 
 **Grid** is a Haskell library for working with regular grids/graphs/lattices.
