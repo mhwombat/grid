@@ -1,5 +1,5 @@
 Name:              grid
-Version:           7.8.5
+Version:           7.8.6
 Stability:         experimental
 Synopsis:          Tools for working with regular grids (graphs, lattices).
 Description:       Provides tools for working with regular arrangements
@@ -12,7 +12,7 @@ Description:       Provides tools for working with regular arrangements
 Category:          Math
 License:           BSD3
 License-file:      LICENSE
-Copyright:         (c) Amy de Buitléir 2010-2015
+Copyright:         (c) Amy de Buitléir 2010-2016
 Homepage:          https://github.com/mhwombat/grid
 Bug-reports:       https://github.com/mhwombat/grid/issues
 Author:            Amy de Buitléir
