@@ -52,7 +52,7 @@ lazyGridMapIndexed g kvs = LGridMap g (M.fromList kvs')
   where kvs' = Prelude.filter (validIndex . fst) kvs
         validIndex k = g `G.contains` k
 
-empty :: G.Grid g => g -> LGridMap g v
+empty :: g -> LGridMap g v
 empty g = LGridMap g M.empty
 
 instance (G.Grid g, Ord (G.Index g)) => Functor (LGridMap g) where

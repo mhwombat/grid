@@ -1,71 +1,67 @@
-Name:              grid
-Version:           7.8.6
-Stability:         experimental
-Synopsis:          Tools for working with regular grids (graphs, lattices).
-Description:       Provides tools for working with regular arrangements
-                   of tiles, such as might be used in a board game or some
-                   other type of grid map. Currently supports triangular,
-                   square, and hexagonal tiles, with various 2D and
-                   toroidal layouts.
-                   The userguide is available at
-                   <https://github.com/mhwombat/grid/wiki>.
-Category:          Math
-License:           BSD3
-License-file:      LICENSE
-Copyright:         (c) Amy de Buitléir 2010-2016
-Homepage:          https://github.com/mhwombat/grid
-Bug-reports:       https://github.com/mhwombat/grid/issues
-Author:            Amy de Buitléir
-Maintainer:        amy@nualeargais.ie
-Build-Type:        Simple
-Cabal-Version:     >=1.8
+name:                grid
+version:             7.8.7
+synopsis:            Tools for working with regular grids (graphs, lattices).
+description:         Provides tools for working with regular arrangements
+                     of tiles, such as might be used in a board game or some
+                     other type of grid map. Currently supports triangular,
+                     square, and hexagonal tiles, with various 2D and
+                     toroidal layouts.
+                     The userguide is available at
+                     <https://github.com/mhwombat/grid/wiki>.
+homepage:            https://github.com/mhwombat/grid#readme
+bug-reports:         https://github.com/mhwombat/grid/issues
+license:             BSD3
+license-file:        LICENSE
+author:              Amy de Buitléir
+maintainer:          amy@nualeargais.ie
+copyright:           (c) Amy de Buitléir 2010-2016
+category:            Math
+build-type:          Simple
+-- extra-source-files:
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Math.Geometry.Grid,
+                       Math.Geometry.Grid.Triangular,
+                       Math.Geometry.Grid.Square,
+                       Math.Geometry.Grid.Hexagonal,
+                       Math.Geometry.Grid.Hexagonal2,
+                       Math.Geometry.Grid.Octagonal,
+                       Math.Geometry.GridInternal,
+                       Math.Geometry.Grid.TriangularInternal,
+                       Math.Geometry.Grid.SquareInternal,
+                       Math.Geometry.Grid.HexagonalInternal,
+                       Math.Geometry.Grid.HexagonalInternal2,
+                       Math.Geometry.Grid.OctagonalInternal,
+                       Math.Geometry.GridMap,
+                       Math.Geometry.GridMap.Lazy
+  ghc-options:         -Wall
+  build-depends:       base >= 4.7 && < 5,
+                       cereal >=0.4 && <0.6,
+                       containers ==0.5.*
+  default-language:    Haskell2010
+
+test-suite grid-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             TestMain.hs
+  other-modules:       Math.Geometry.GridQC,
+                       Math.Geometry.Grid.Hexagonal2QC,
+                       Math.Geometry.Grid.HexagonalQC,
+                       Math.Geometry.Grid.OctagonalQC,
+                       Math.Geometry.Grid.SquareQC,
+                       Math.Geometry.Grid.TriangularQC
+                       Math.Geometry.GridMap.LazyQC
+  build-depends:       base,
+                       grid,
+                       containers,
+                       test-framework ==0.8.*,
+                       test-framework-quickcheck2 ==0.3.*,
+                       QuickCheck >=2.8 && <2.10
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall
+  default-language:    Haskell2010
 
 source-repository head
   type:     git
-  location: https://github.com/mhwombat/grid.git
-
-source-repository this
-  type:     git
-  location: https://github.com/mhwombat/grid.git
-  tag:      7.8.5
-
-
-library
-  hs-source-dirs:  src
-  build-depends:   base ==4.*,
-                   cereal >=0.4 && < 0.6,
-                   containers ==0.5.*
-  ghc-options:     -Wall
-  exposed-modules: Math.Geometry.Grid,
-                   Math.Geometry.Grid.Triangular,
-                   Math.Geometry.Grid.Square,
-                   Math.Geometry.Grid.Hexagonal,
-                   Math.Geometry.Grid.Hexagonal2,
-                   Math.Geometry.Grid.Octagonal,
-                   Math.Geometry.GridInternal,
-                   Math.Geometry.Grid.TriangularInternal,
-                   Math.Geometry.Grid.SquareInternal,
-                   Math.Geometry.Grid.HexagonalInternal,
-                   Math.Geometry.Grid.HexagonalInternal2,
-                   Math.Geometry.Grid.OctagonalInternal,
-                   Math.Geometry.GridMap,
-                   Math.Geometry.GridMap.Lazy
-
-test-suite grid-tests
-  type:            exitcode-stdio-1.0
-  build-depends:   base ==4.*,
-                   containers ==0.5.*,
-                   test-framework-quickcheck2 ==0.3.*,
-                   QuickCheck ==2.8.*,
-                   test-framework ==0.8.*,
-                   grid
-  hs-source-dirs:  test
-  ghc-options:     -Wall
-  main-is:         Main.hs
-  other-modules:   Math.Geometry.GridQC,
-                   Math.Geometry.Grid.Hexagonal2QC,
-                   Math.Geometry.Grid.HexagonalQC,
-                   Math.Geometry.Grid.OctagonalQC,
-                   Math.Geometry.Grid.SquareQC,
-                   Math.Geometry.Grid.TriangularQC
-                   Math.Geometry.GridMap.LazyQC
+  location: https://github.com/mhwombat/grid

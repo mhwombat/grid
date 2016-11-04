@@ -215,10 +215,9 @@ prop_custom_neighboursOfSet_cw_minDistance t = nonNull g ==>
         (a:bs) = points t
 
 gridProperties 
-  :: (TestData t, Grid (BaseGrid t), Arbitrary t, 
-    Eq (Index (BaseGrid t)), Ord (Index (BaseGrid t)), 
-    Eq (Direction (BaseGrid t))) 
-    => String -> [(String, t -> Property)]
+  :: (TestData t, Grid (BaseGrid t), Eq (Index (BaseGrid t)),
+    Ord (Index (BaseGrid t)), Eq (Direction (BaseGrid t))) 
+      => String -> [(String, t -> Property)]
 gridProperties s = 
   [
     ("prop_indices_are_contained: " ++ s, prop_indices_are_contained),
@@ -246,7 +245,7 @@ class TestDataF t where
   maxDistance :: t -> Int
 
 prop_tile_count_correct
-  :: (TestData t, TestDataF t, Grid (BaseGrid t), Ord (Index (BaseGrid t)))
+  :: (TestData t, TestDataF t, Grid (BaseGrid t))
     => t -> Property
 prop_tile_count_correct t = nonNull g ==>
   tileCount g == expectedTileCount t 
@@ -259,7 +258,7 @@ prop_custom_tileCount_eq_default t = nonNull g ==>
   where g = grid t
 
 prop_distance_in_bounds
-  :: (TestData t, TestDataF t, Grid (BaseGrid t), Ord (Index (BaseGrid t)))
+  :: (TestData t, TestDataF t, Grid (BaseGrid t))
     => t -> Property
 prop_distance_in_bounds t = nonNull g ==> 
   0 <= n && n <= maxDistance t
@@ -316,7 +315,7 @@ prop_custom_minimalPaths_eq_default t = nonNull g ==>
         (a:b:_) = points t
 
 prop_distance_le_maxPossibleDistance
-  :: (TestData t, TestDataF t, FiniteGrid (BaseGrid t), Ord (Index (BaseGrid t)))
+  :: (TestData t, FiniteGrid (BaseGrid t))
     => t -> Property
 prop_distance_le_maxPossibleDistance t = nonNull g ==>
   distance g a b <= maxPossibleDistance g
@@ -335,7 +334,7 @@ prop_maxPossibleDistance_occurs t = nonNull g ==>
         dMax = maxPossibleDistance g
 
 finiteGridProperties 
-  :: (TestData t, TestDataF t, FiniteGrid (BaseGrid t), Arbitrary t, 
+  :: (TestData t, TestDataF t, FiniteGrid (BaseGrid t),
     Eq (Index (BaseGrid t)), Ord (Index (BaseGrid t))) 
     => String -> [(String, t -> Property)]
 finiteGridProperties s = 
@@ -431,7 +430,7 @@ prop_custom_neighbour_eq_default t = nonNull g ==>
         d = direction t
 
 prop_custom_isAdjacent_eq_default
-  :: (TestData t, Grid (BaseGrid t), Ord (Index (BaseGrid t)))
+  :: (TestData t, Grid (BaseGrid t))
     => t -> Property
 prop_custom_isAdjacent_eq_default t = nonNull g ==>
   isAdjacent g a b == defaultIsAdjacent g a b
@@ -439,7 +438,7 @@ prop_custom_isAdjacent_eq_default t = nonNull g ==>
         (a:b:_) = points t
 
 boundedGridProperties 
-  :: (TestData t, TestDataB t, BoundedGrid (BaseGrid t), Arbitrary t, 
+  :: (TestData t, TestDataB t, BoundedGrid (BaseGrid t),
     Eq (Index (BaseGrid t)), Ord (Index (BaseGrid t)),
     Eq (Direction (BaseGrid t))) 
     => String -> [(String, t -> Property)]
@@ -491,9 +490,7 @@ prop_centres_farthest_from_boundary t =
         bs = boundary g
 
 boundedGridProperties2
-  :: (TestData t, TestDataB t, BoundedGrid (BaseGrid t), Arbitrary t, 
-    Eq (Index (BaseGrid t)), Ord (Index (BaseGrid t)),
-    Eq (Direction (BaseGrid t))) 
+  :: (TestData t, BoundedGrid (BaseGrid t), Ord (Index (BaseGrid t))) 
     => String -> [(String, t -> Property)]
 boundedGridProperties2 s = 
   [
