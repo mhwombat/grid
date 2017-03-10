@@ -32,7 +32,7 @@ import qualified Data.Map as M
 --import qualified Data.Map.Strict as Strict (Map)
 import Data.Maybe (fromMaybe)
 import GHC.Generics (Generic)
-import qualified Math.Geometry.Grid as G
+import qualified Math.Geometry.GridInternal as G
 import Math.Geometry.GridMap
 
 -- | A map from tile positions in a grid to values.
@@ -86,6 +86,13 @@ instance G.FiniteGrid g => G.FiniteGrid (LGridMap g v) where
   type Size (LGridMap g v) = G.Size g
   size (LGridMap g _) = G.size g
   maxPossibleDistance (LGridMap g _) = G.maxPossibleDistance g
+
+instance G.BoundedGrid g => G.BoundedGrid (LGridMap g v) where
+  tileSideCount (LGridMap g _) = G.tileSideCount g
+
+instance G.WrappedGrid g => G.WrappedGrid (LGridMap g v) where
+  normalise (LGridMap g _) k = G.normalise g k
+  denormalise (LGridMap g _) k = G.denormalise g k
 
 instance (G.Grid g) => GridMap (LGridMap g) v where
   type BaseGrid (LGridMap g) v = g
