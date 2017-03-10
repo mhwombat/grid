@@ -91,8 +91,8 @@ instance G.BoundedGrid g => G.BoundedGrid (LGridMap g v) where
   tileSideCount (LGridMap g _) = G.tileSideCount g
 
 instance G.WrappedGrid g => G.WrappedGrid (LGridMap g v) where
-  normalise (LGridMap g _) k = G.normalise g k
-  denormalise (LGridMap g _) k = G.denormalise g k
+  normalise (LGridMap g _) = G.normalise g
+  denormalise (LGridMap g _) = G.denormalise g
 
 instance (G.Grid g) => GridMap (LGridMap g) v where
   type BaseGrid (LGridMap g) v = g
