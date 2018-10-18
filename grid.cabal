@@ -2,11 +2,13 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 267640fa31f493ca373c9e69d3d66293dc4e352b0f60bce9defb3b30fc78b665
+-- hash: add150642d3d975fd2ae7f93f27f6bb6a586d77198f61f9e7d145568cbab1255
 
 name:           grid
 version:        7.8.10
+synopsis:       Tools for working with regular grids (graphs, lattices).
 description:    Please see the README on GitHub at <https://github.com/mhwombat/grid#readme>
+category:       Math
 homepage:       https://github.com/mhwombat/grid#readme
 bug-reports:    https://github.com/mhwombat/grid/issues
 author:         Amy de Buitléir
