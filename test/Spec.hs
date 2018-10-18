@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- |
--- Module      :  Math.Geometry.Grid.Main
--- Copyright   :  (c) Amy de Buitléir 2012-2016
+-- Module      :  Main
+-- Copyright   :  (c) Amy de Buitléir 2012-2017
 -- License     :  BSD-style
 -- Maintainer  :  amy@nualeargais.ie
 -- Stability   :  experimental
@@ -10,8 +10,6 @@
 -- QuickCheck tests.
 --
 ------------------------------------------------------------------------
-module Main where
-
 import Math.Geometry.Grid.TriangularQC ( test )
 import Math.Geometry.Grid.SquareQC ( test )
 import Math.Geometry.Grid.HexagonalQC ( test )

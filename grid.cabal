@@ -1,67 +1,74 @@
-name:                grid
-version:             7.8.7
-synopsis:            Tools for working with regular grids (graphs, lattices).
-description:         Provides tools for working with regular arrangements
-                     of tiles, such as might be used in a board game or some
-                     other type of grid map. Currently supports triangular,
-                     square, and hexagonal tiles, with various 2D and
-                     toroidal layouts.
-                     The userguide is available at
-                     <https://github.com/mhwombat/grid/wiki>.
-homepage:            https://github.com/mhwombat/grid#readme
-bug-reports:         https://github.com/mhwombat/grid/issues
-license:             BSD3
-license-file:        LICENSE
-author:              Amy de Buitléir
-maintainer:          amy@nualeargais.ie
-copyright:           (c) Amy de Buitléir 2010-2016
-category:            Math
-build-type:          Simple
--- extra-source-files:
-cabal-version:       >=1.10
+-- This file has been generated from package.yaml by hpack version 0.28.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 78a1bebfd08463b51b6b44da8c3f238cfdf62c9c6e9762526451a96773939f8f
 
-library
-  hs-source-dirs:      src
-  exposed-modules:     Math.Geometry.Grid,
-                       Math.Geometry.Grid.Triangular,
-                       Math.Geometry.Grid.Square,
-                       Math.Geometry.Grid.Hexagonal,
-                       Math.Geometry.Grid.Hexagonal2,
-                       Math.Geometry.Grid.Octagonal,
-                       Math.Geometry.GridInternal,
-                       Math.Geometry.Grid.TriangularInternal,
-                       Math.Geometry.Grid.SquareInternal,
-                       Math.Geometry.Grid.HexagonalInternal,
-                       Math.Geometry.Grid.HexagonalInternal2,
-                       Math.Geometry.Grid.OctagonalInternal,
-                       Math.Geometry.GridMap,
-                       Math.Geometry.GridMap.Lazy
-  ghc-options:         -Wall
-  build-depends:       base >= 4.7 && < 5,
-                       cereal >=0.4 && <0.6,
-                       containers ==0.5.*
-  default-language:    Haskell2010
-
-test-suite grid-test
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             TestMain.hs
-  other-modules:       Math.Geometry.GridQC,
-                       Math.Geometry.Grid.Hexagonal2QC,
-                       Math.Geometry.Grid.HexagonalQC,
-                       Math.Geometry.Grid.OctagonalQC,
-                       Math.Geometry.Grid.SquareQC,
-                       Math.Geometry.Grid.TriangularQC
-                       Math.Geometry.GridMap.LazyQC
-  build-depends:       base,
-                       grid,
-                       containers,
-                       test-framework ==0.8.*,
-                       test-framework-quickcheck2 ==0.3.*,
-                       QuickCheck >=2.8 && <2.11
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N -Wall
-  default-language:    Haskell2010
+name:           grid
+version:        7.8.10
+description:    Please see the README on GitHub at <https://github.com/mhwombat/grid#readme>
+homepage:       https://github.com/mhwombat/grid#readme
+bug-reports:    https://github.com/mhwombat/grid/issues
+author:         Amy de Buitléir
+maintainer:     amy@nualeargais.ie
+copyright:      2010-2018 Amy de Buitléir
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+cabal-version:  >= 1.10
+extra-source-files:
+    ChangeLog.md
+    README.md
 
 source-repository head
-  type:     git
+  type: git
   location: https://github.com/mhwombat/grid
+
+library
+  exposed-modules:
+      Math.Geometry.Grid
+      Math.Geometry.Grid.Hexagonal
+      Math.Geometry.Grid.Hexagonal2
+      Math.Geometry.Grid.HexagonalInternal
+      Math.Geometry.Grid.HexagonalInternal2
+      Math.Geometry.Grid.Octagonal
+      Math.Geometry.Grid.OctagonalInternal
+      Math.Geometry.Grid.Square
+      Math.Geometry.Grid.SquareInternal
+      Math.Geometry.Grid.Triangular
+      Math.Geometry.Grid.TriangularInternal
+      Math.Geometry.GridInternal
+      Math.Geometry.GridMap
+      Math.Geometry.GridMap.Lazy
+  other-modules:
+      Paths_grid
+  hs-source-dirs:
+      src
+  ghc-options: -Wall -Werror
+  build-depends:
+      base >=4.7 && <5
+    , containers
+  default-language: Haskell2010
+
+test-suite som-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      Math.Geometry.Grid.Hexagonal2QC
+      Math.Geometry.Grid.HexagonalQC
+      Math.Geometry.Grid.OctagonalQC
+      Math.Geometry.Grid.SquareQC
+      Math.Geometry.Grid.TriangularQC
+      Math.Geometry.GridMap.LazyQC
+      Math.Geometry.GridQC
+      Paths_grid
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Werror
+  build-depends:
+      QuickCheck
+    , base >=4.7 && <5
+    , grid
+    , test-framework
+    , test-framework-quickcheck2
+  default-language: Haskell2010
