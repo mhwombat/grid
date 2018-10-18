@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 78a1bebfd08463b51b6b44da8c3f238cfdf62c9c6e9762526451a96773939f8f
+-- hash: 267640fa31f493ca373c9e69d3d66293dc4e352b0f60bce9defb3b30fc78b665
 
 name:           grid
 version:        7.8.10
@@ -44,7 +44,7 @@ library
       Paths_grid
   hs-source-dirs:
       src
-  ghc-options: -Wall -Werror
+  ghc-options: -Wall
   build-depends:
       base >=4.7 && <5
     , containers
@@ -64,7 +64,7 @@ test-suite som-test
       Paths_grid
   hs-source-dirs:
       test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall -Werror
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall
   build-depends:
       QuickCheck
     , base >=4.7 && <5

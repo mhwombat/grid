@@ -1,0 +1,45 @@
+name:                grid
+version:             7.8.10
+github:              "mhwombat/grid"
+license:             BSD3
+author:              "Amy de Buitléir"
+maintainer:          "amy@nualeargais.ie"
+copyright:           "2010-2018 Amy de Buitléir"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Tools for working with regular grids (graphs, lattices).
+# category:            Math
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/mhwombat/grid#readme>
+
+dependencies:
+  - base >= 4.7 && < 5
+
+library:
+  source-dirs: src
+  ghc-options:
+  - -Wall
+  dependencies:
+    - containers
+
+tests:
+  som-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    - -Wall
+    dependencies:
+    - grid
+    - QuickCheck
+    - test-framework
+    - test-framework-quickcheck2
