@@ -1,5 +1,5 @@
 name:                grid
-version:             7.8.10
+version:             7.8.11
 github:              "mhwombat/grid"
 license:             BSD3
 author:              "Amy de Buitléir"
@@ -30,7 +30,7 @@ library:
     - containers
 
 tests:
-  som-test:
+  grid-test:
     main:                Spec.hs
     source-dirs:         test
     ghc-options:
