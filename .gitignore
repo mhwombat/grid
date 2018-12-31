@@ -1,5 +1,7 @@
 # Build artifacts
 .stack-work
+result
+dist
 
 # Backup files
 *~

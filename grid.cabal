@@ -1,31 +1,20 @@
-cabal-version: 1.12
-
--- This file has been generated from package.yaml by hpack version 0.31.1.
---
--- see: https://github.com/sol/hpack
---
--- hash: b7f83e97618d4feffa720e42e28dece766fb7e44c9e2a7e4999c0813862e9f02
-
-name:           grid
-version:        7.8.11
-synopsis:       Tools for working with regular grids (graphs, lattices).
-description:    Please see the README on GitHub at <https://github.com/mhwombat/grid#readme>
-category:       Math
-homepage:       https://github.com/mhwombat/grid#readme
-bug-reports:    https://github.com/mhwombat/grid/issues
-author:         Amy de Buitléir
-maintainer:     amy@nualeargais.ie
-copyright:      2010-2018 Amy de Buitléir
-license:        BSD3
-license-file:   LICENSE
-build-type:     Simple
+name:                grid
+version:             7.8.12
+synopsis:            Tools for working with regular grids (graphs, lattices).
+description:         Please see the README on GitHub at <https://github.com/mhwombat/grid#readme>
+homepage:            https://github.com/mhwombat/grid#readme
+license:             BSD3
+license-file:        LICENSE
+author:              Amy de Buitléir
+maintainer:          amy@nualeargais.ie
+copyright:           2010-2018 Amy de Buitléir
+category:            Math
+bug-reports:         https://github.com/mhwombat/grid/issues
+build-type:          Simple
 extra-source-files:
     README.md
     ChangeLog.md
-
-source-repository head
-  type: git
-  location: https://github.com/mhwombat/grid
+cabal-version:       >=1.10
 
 library
   exposed-modules:
@@ -50,7 +39,7 @@ library
   ghc-options: -Wall
   build-depends:
       base >=4.7 && <5
-    , containers
+    , containers  ==0.5.* || ==0.6.*
   default-language: Haskell2010
 
 test-suite grid-test
