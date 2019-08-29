@@ -2,6 +2,8 @@
 .stack-work
 result
 dist
+dist-newstyle
+.ghc.environment.*
 
 # Backup files
 *~
