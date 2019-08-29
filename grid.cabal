@@ -30,7 +30,7 @@ library
       Math.Geometry.GridInternal
       Math.Geometry.GridMap
       Math.Geometry.GridMap.Lazy
-  -- other-modules:    Paths_grid
+  other-modules:       Paths_grid
   other-extensions:    TypeFamilies, FlexibleContexts, ConstrainedClassMethods, MultiParamTypeClasses, CPP, TypeSynonymInstances, FlexibleInstances, UndecidableInstances, DeriveGeneric
   build-depends:       base >=4.7 && <5, containers >=0.5 && <0.7
   hs-source-dirs:      src
