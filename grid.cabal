@@ -51,9 +51,9 @@ test-suite grid-test
   hs-source-dirs:      test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall
   build-depends:
-      QuickCheck ==2.12.*
+      QuickCheck
     , base >=4.7 && <5
     , grid
-    , test-framework ==0.8.*
-    , test-framework-quickcheck2 ==0.3.*
+    , test-framework
+    , test-framework-quickcheck2
   default-language: Haskell2010
