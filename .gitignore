@@ -1,12 +1,10 @@
 # Build artifacts
+.ghc.environment*
 .stack-work
-result
+cabal.project.local
 dist
 dist-newstyle
-.ghc.environment.*
+result
 
 # Backup files
 *~
-
-# Stuff that I'm not ready to publish
-
