@@ -1,1 +1,1 @@
-(import ./release.nix).project.env
+(import ./default.nix {}).shell

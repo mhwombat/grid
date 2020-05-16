@@ -1,20 +1,21 @@
-cabal-version:       >=1.10
 name:                grid
+synopsis:           Tools for working with regular grids (graphs, lattices).
 version:             7.8.14
-synopsis:            Tools for working with regular grids (graphs, lattices).
--- description:
 homepage:            https://github.com/mhwombat/grid
 bug-reports:         https://github.com/mhwombat/grid/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Amy de Buitléir
-maintainer:          amy@nualeargais.ie
-copyright:           2010-2019 Amy de Buitléir
+maintainer:          Amy de Buitléir <amy@nualeargais.ie>
+copyright:           2010-2020 Amy de Buitléir
 category:            Math
 build-type:          Simple
+cabal-version:       >=1.10
 extra-source-files:  ChangeLog.md, README.md
 
 library
+  hs-source-dirs:      src
+  default-language:    Haskell2010
   exposed-modules:     
       Math.Geometry.Grid
       Math.Geometry.Grid.Hexagonal
@@ -32,13 +33,13 @@ library
       Math.Geometry.GridMap.Lazy
   other-modules:       Paths_grid
   other-extensions:    TypeFamilies, FlexibleContexts, ConstrainedClassMethods, MultiParamTypeClasses, CPP, TypeSynonymInstances, FlexibleInstances, UndecidableInstances, DeriveGeneric
-  build-depends:       base >=4.7 && <5, containers >=0.5 && <0.7
-  hs-source-dirs:      src
-  default-language:    Haskell2010
+  build-depends:       base >=4.11 && <5, containers >=0.5 && <0.7
 
-test-suite grid-test
-  type: exitcode-stdio-1.0
+test-suite grid-tests
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   test
   main-is: Spec.hs
+  default-language: Haskell2010
   other-modules:
       Math.Geometry.Grid.Hexagonal2QC
       Math.Geometry.Grid.HexagonalQC
@@ -48,12 +49,10 @@ test-suite grid-test
       Math.Geometry.GridMap.LazyQC
       Math.Geometry.GridQC
       Paths_grid
-  hs-source-dirs:      test
   ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wall
-  build-depends:
-      QuickCheck
-    , base >=4.7 && <5
+  build-depends: base >=4.7 && <5
+    ,  QuickCheck
     , grid
     , test-framework
     , test-framework-quickcheck2
-  default-language: Haskell2010
+

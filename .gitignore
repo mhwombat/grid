@@ -1,10 +1,28 @@
-# Build artifacts
-.ghc.environment*
-.stack-work
-cabal.project.local
+*.lock
+
+# nix
+result
+result-*
+
+# haskell
 dist
 dist-newstyle
-result
-
-# Backup files
-*~
+cabal-dev
+*.o
+*.hi
+*.chi
+*.chs.h
+*.dyn_o
+*.dyn_hi
+.hpc
+.hsenv
+.cabal-sandbox/
+cabal.sandbox.config
+*.prof
+*.aux
+*.hp
+*.eventlog
+.stack-work/
+cabal.project.local
+.HTF/
+.ghc.environment.*
