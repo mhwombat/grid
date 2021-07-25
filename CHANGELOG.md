@@ -1,5 +1,7 @@
 # Changelog for grid
 
+7.8.15 Simplified nix config again.
+
 7.8.14 Simplified nix config.
 
 7.8.13 Updated copyright year.
