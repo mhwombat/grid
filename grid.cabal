@@ -72,7 +72,6 @@ test-suite grid-tests
     Math.Geometry.Grid.TriangularQC
     Math.Geometry.GridMap.LazyQC
     Math.Geometry.GridQC
-    Paths_grid
 
   ghc-options:
     -threaded -rtsopts -with-rtsopts=-N -Wall -Wunused-packages
