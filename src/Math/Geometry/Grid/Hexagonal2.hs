@@ -9,13 +9,12 @@
 --
 -- Same as @'Math.Geometry.Grid.Hexagonal'@, except the grids are
 -- oriented so that the flat part of the hexagonal tiles is on the top.
--- The userguide, with illustrations, is available at 
+-- The userguide, with illustrations, is available at
 -- <https://github.com/mhwombat/grid/wiki>.
 -- Also see @Math.Geometry.Grid@ for examples of how to use this class.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE MultiParamTypeClasses, TypeSynonymInstances, 
-  FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
 
 module Math.Geometry.Grid.Hexagonal2
   (

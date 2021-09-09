@@ -7,8 +7,8 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- A module containing private @HexGrid@ internals. Most developers 
--- should use @HexGrid@ instead. This module is subject to change 
+-- A module containing private @HexGrid@ internals. Most developers
+-- should use @HexGrid@ instead. This module is subject to change
 -- without notice.
 --
 ------------------------------------------------------------------------
@@ -23,7 +23,7 @@ import Data.Ord (comparing)
 import GHC.Generics (Generic)
 import Math.Geometry.GridInternal
 
-data HexDirection = West | Northwest | Northeast | East | Southeast | 
+data HexDirection = West | Northwest | Northeast | East | Southeast |
                       Southwest deriving (Show, Eq, Generic)
 
 -- | An unbounded grid with hexagonal tiles
@@ -35,9 +35,9 @@ instance Grid UnboundedHexGrid where
   type Index UnboundedHexGrid = (Int, Int)
   type Direction UnboundedHexGrid = HexDirection
   indices _ = undefined
-  neighbours _ (x,y) = 
+  neighbours _ (x,y) =
     [(x-1,y), (x-1,y+1), (x,y+1), (x+1,y), (x+1,y-1), (x,y-1)]
-  distance _ (x1, y1) (x2, y2) = 
+  distance _ (x1, y1) (x2, y2) =
     maximum [abs (x2-x1), abs (y2-y1), abs(z2-z1)]
     where z1 = -x1 - y1
           z2 = -x2 - y2
@@ -88,7 +88,7 @@ instance FiniteGrid HexHexGrid where
 
 instance BoundedGrid HexHexGrid where
   tileSideCount _ = 6
-  boundary g = 
+  boundary g =
     north ++ northeast ++ southeast ++ south ++ southwest ++ northwest
     where s = size g
           north = [(k,s-1) | k <- [-s+1,-s+2..0]]
@@ -100,8 +100,8 @@ instance BoundedGrid HexHexGrid where
   centre _ = [(0,0)]
 
 -- | @'hexHexGrid' s@ returns a grid of hexagonal shape, with
---   sides of length @s@, using hexagonal tiles. If @s@ is nonnegative, the 
---   resulting grid will have @3*s*(s-1) + 1@ tiles. Otherwise, the resulting 
+--   sides of length @s@, using hexagonal tiles. If @s@ is nonnegative, the
+--   resulting grid will have @3*s*(s-1) + 1@ tiles. Otherwise, the resulting
 --   grid will be null and the list of indices will be null.
 hexHexGrid :: Int -> HexHexGrid
 hexHexGrid r = HexHexGrid r [(x, y) | x <- [-r+1..r-1], y <- f x]
@@ -117,7 +117,7 @@ hexHexGrid r = HexHexGrid r [(x, y) | x <- [-r+1..r-1], y <- f x]
 data ParaHexGrid = ParaHexGrid (Int, Int) [(Int, Int)]
   deriving (Eq, Generic)
 
-instance Show ParaHexGrid where 
+instance Show ParaHexGrid where
   show (ParaHexGrid (r,c) _) = "paraHexGrid " ++ show r ++ " " ++ show c
 
 instance Grid ParaHexGrid where
@@ -133,7 +133,7 @@ instance Grid ParaHexGrid where
 instance FiniteGrid ParaHexGrid where
   type Size ParaHexGrid = (Int, Int)
   size (ParaHexGrid s _) = s
-  maxPossibleDistance g@(ParaHexGrid (r,c) _) = 
+  maxPossibleDistance g@(ParaHexGrid (r,c) _) =
     distance g (0,0) (c-1,r-1)
 
 instance BoundedGrid ParaHexGrid where
@@ -141,18 +141,18 @@ instance BoundedGrid ParaHexGrid where
   boundary g = cartesianIndices . size $ g
   centre g | length xs == 1  = map fst . head $ xs
            | length xs == 2  = map fst . concat $ xs
-           | length xs == 3  = map fst . head . drop 1 $ xs
+           | length xs == 3  = map fst . (!! 1) $ xs
            | otherwise      = error "logic error"
     where xs = groupBy ((==) `on` snd) . sortBy (comparing snd)
-                 . map (\a -> (a,fst a + snd a))
+                 . map (\a -> (a, uncurry (+) a))
                  . cartesianCentre . size $ g
 
--- | @'paraHexGrid' r c@ returns a grid in the shape of a 
---   parallelogram with @r@ rows and @c@ columns, using hexagonal tiles. If 
+-- | @'paraHexGrid' r c@ returns a grid in the shape of a
+--   parallelogram with @r@ rows and @c@ columns, using hexagonal tiles. If
 --   @r@ and @c@ are both nonnegative, the resulting grid will have @r*c@ tiles.
---   Otherwise, the resulting grid will be null and the list of indices will 
+--   Otherwise, the resulting grid will be null and the list of indices will
 --   be null.
 paraHexGrid :: Int -> Int -> ParaHexGrid
-paraHexGrid r c = 
+paraHexGrid r c =
   ParaHexGrid (r,c) [(x, y) | x <- [0..c-1], y <- [0..r-1]]
 

@@ -19,13 +19,13 @@ module Math.Geometry.Grid.SquareQC
     test
   ) where
 
-import Math.Geometry.Grid.SquareInternal 
-import Math.Geometry.GridInternal 
+import Math.Geometry.Grid.SquareInternal
+import Math.Geometry.GridInternal
 import Math.Geometry.GridQC
 
 import Prelude hiding (null)
 import Test.Framework (Test, testGroup)
-import Test.QuickCheck 
+import Test.QuickCheck
   (Gen, Arbitrary, arbitrary, sized, choose, elements,  Property, vectorOf)
 
 instance Arbitrary SquareDirection where
@@ -36,7 +36,7 @@ instance Arbitrary SquareDirection where
 -- Unbounded grids with square tiles
 --
 
-data UnboundedSquareGridTD = 
+data UnboundedSquareGridTD =
   UnboundedSquareGridTD [(Int,Int)] ((Int,Int),(Int,Int)) SquareDirection
   deriving Show
 
@@ -53,8 +53,7 @@ sizedUnboundedSquareGridTD n = do
   k <- choose (0,n)
   ps <- vectorOf (k+2) arbitrary :: Gen [(Int,Int)]
   qs <- chooseClosePointsUnbounded
-  d <- arbitrary
-  return $ UnboundedSquareGridTD ps qs d
+  UnboundedSquareGridTD ps qs <$> arbitrary
 
 instance Arbitrary UnboundedSquareGridTD where
   arbitrary = sized sizedUnboundedSquareGridTD
@@ -70,7 +69,7 @@ unboundedSquareGridTests = makeTests unboundedSquareGridProperties
 -- Rectangular grids with square tiles
 --
 
-data RectSquareGridTD = 
+data RectSquareGridTD =
   RectSquareGridTD RectSquareGrid [(Int,Int)] ((Int,Int),(Int,Int)) SquareDirection
   deriving Show
 
@@ -89,7 +88,7 @@ instance TestDataF RectSquareGridTD where
     where (r,c) = size g
 
 instance TestDataB RectSquareGridTD where
-  expectedBoundaryCount (RectSquareGridTD g _ _ _) = 
+  expectedBoundaryCount (RectSquareGridTD g _ _ _) =
     (cartesianBoundaryCount . size) g
 
 -- We want the number of tiles in a test grid to be O(n)
@@ -100,8 +99,7 @@ sizedRectSquareGridTD n = do
   let g = rectSquareGrid r c
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
-  d <- arbitrary
-  return $ RectSquareGridTD g ps qs d
+  RectSquareGridTD g ps qs <$> arbitrary
 
 instance Arbitrary RectSquareGridTD where
   arbitrary = sized sizedRectSquareGridTD
@@ -120,14 +118,14 @@ rectSquareGridTests = makeTests rectSquareGridProperties
 -- Toroidal grids with square tiles
 --
 
-data TorSquareGridTD = 
+data TorSquareGridTD =
   TorSquareGridTD TorSquareGrid [(Int,Int)] ((Int,Int),(Int,Int)) SquareDirection
   deriving Show
 
 instance TestData TorSquareGridTD where
   type BaseGrid TorSquareGridTD = TorSquareGrid
   grid (TorSquareGridTD g _ _ _) = g
-  points (TorSquareGridTD _ ps _ _) = ps 
+  points (TorSquareGridTD _ ps _ _) = ps
   twoClosePoints (TorSquareGridTD _ _ qs _) = qs
   neighbourCountBounds _ = (0, 4)
   direction (TorSquareGridTD _ _ _ d) = d
@@ -146,8 +144,7 @@ sizedTorSquareGridTD n = do
   let g = torSquareGrid r c
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
-  d <- arbitrary
-  return $ TorSquareGridTD g ps qs d
+  TorSquareGridTD g ps qs <$> arbitrary
 
 instance Arbitrary TorSquareGridTD where
   arbitrary = sized sizedTorSquareGridTD
@@ -163,7 +160,7 @@ torSquareGridTests = makeTests torSquareGridProperties
 --TODO replace these
 --TODO replace these
 
---prop_UnboundedSquareGrid_num_min_paths_correct :: 
+--prop_UnboundedSquareGrid_num_min_paths_correct ::
 --  UnboundedSquareGrid -> Int -> Int -> Property
 --prop_UnboundedSquareGrid_num_min_paths_correct g i j = nonNull g ==>
 --  minPathCount g a b == M.choose (deltaX+deltaY) deltaX
@@ -173,17 +170,17 @@ torSquareGridTests = makeTests torSquareGridProperties
 --          deltaY = abs $ snd b - snd a
 
 ---- If the ordering produced by rectSquareGrid is ever changed, this
----- property may need to be changed too. It relies on the first and last 
+---- property may need to be changed too. It relies on the first and last
 ---- elements being at opposite corners.
 --prop_RectSquareGrid_distance_corner_to_corner :: RectSquareGrid -> Property
---prop_RectSquareGrid_distance_corner_to_corner g = r > 0 && c > 0 ==> 
+--prop_RectSquareGrid_distance_corner_to_corner g = r > 0 && c > 0 ==>
 --  distance g a b == r + c - 2
 --    where (r, c) = size g
 --          ps = indices g
 --          a = head ps
 --          b = last ps
 
---prop_RectSquareGrid_num_min_paths_correct :: 
+--prop_RectSquareGrid_num_min_paths_correct ::
 --  RectSquareGrid -> Int -> Int -> Property
 --prop_RectSquareGrid_num_min_paths_correct g i j = nonNull g ==>
 --  minPathCount g a b == M.choose (deltaX+deltaY) deltaX
@@ -195,7 +192,7 @@ torSquareGridTests = makeTests torSquareGridProperties
 ---- If the ordering produced by torSquareGrid is ever changed, this property
 ---- may need to be changed too.
 --prop_TorSquareGrid_distance_corner_to_corner :: TorSquareGrid -> Property
---prop_TorSquareGrid_distance_corner_to_corner g = r > 0 && c > 0 ==> 
+--prop_TorSquareGrid_distance_corner_to_corner g = r > 0 && c > 0 ==>
 --  distance g a b == f
 --    where (r, c) = size g
 --          ps = indices g

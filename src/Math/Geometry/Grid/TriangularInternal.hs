@@ -7,8 +7,8 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- A module containing private @TriGrid@ internals. Most developers 
--- should use @TriGrid@ instead. This module is subject to change 
+-- A module containing private @TriGrid@ internals. Most developers
+-- should use @TriGrid@ instead. This module is subject to change
 -- without notice.
 --
 ------------------------------------------------------------------------
@@ -22,7 +22,7 @@ import Data.List (nub)
 import GHC.Generics (Generic)
 import Math.Geometry.GridInternal
 
-data TriDirection = South | Northwest | Northeast | 
+data TriDirection = South | Northwest | Northeast |
                       North | Southeast | Southwest
                         deriving (Show, Eq, Generic)
 
@@ -45,7 +45,7 @@ instance Grid UnboundedTriGrid where
   contains _ _ = True
   null _ = False
   nonNull _ = True
-  directionTo _ (x1, y1) (x2, y2) = 
+  directionTo _ (x1, y1) (x2, y2) =
     if even y1
       then f1 . f2 . f3 $ []
       else f4 . f5 . f6 $ []
@@ -57,11 +57,11 @@ instance Grid UnboundedTriGrid where
           f6 ds =  if z2 > z1 then Southwest:ds else ds
           z1 = triZ x1 y1
           z2 = triZ x2 y2
-          
 
--- | For triangular tiles, it is convenient to define a third component 
+
+-- | For triangular tiles, it is convenient to define a third component
 --   z.
-triZ :: Int -> Int -> Int            
+triZ :: Int -> Int -> Int
 triZ x y = if even y then -x - y else -x - y + 1
 
 --
@@ -73,7 +73,7 @@ triZ x y = if even y then -x - y else -x - y + 1
 --   available at <https://github.com/mhwombat/grid/wiki>.
 data TriTriGrid = TriTriGrid Int [(Int, Int)] deriving (Eq, Generic)
 
-instance Show TriTriGrid where 
+instance Show TriTriGrid where
   show (TriTriGrid s _) = "triTriGrid " ++ show s
 
 instance Grid TriTriGrid where
@@ -109,14 +109,14 @@ instance BoundedGrid TriTriGrid where
     where s = size g
           trefoilWithTop (i,j) = [(i,j), (i+2, j-2), (i,j-2)]
 
--- | @'triTriGrid' s@ returns a triangular grid with sides of 
---   length @s@, using triangular tiles. If @s@ is nonnegative, the 
+-- | @'triTriGrid' s@ returns a triangular grid with sides of
+--   length @s@, using triangular tiles. If @s@ is nonnegative, the
 --   resulting grid will have @s^2@ tiles. Otherwise, the resulting grid
 --   will be null and the list of indices will be null.
 triTriGrid :: Int -> TriTriGrid
-triTriGrid s = 
-  TriTriGrid s [(xx,yy) | xx <- [0..2*(s-1)], 
-                          yy <- [0..2*(s-1)], 
+triTriGrid s =
+  TriTriGrid s [(xx,yy) | xx <- [0..2*(s-1)],
+                          yy <- [0..2*(s-1)],
                           (xx,yy) `inTriTriGrid` s]
 
 --
@@ -129,7 +129,7 @@ triTriGrid s =
 data ParaTriGrid = ParaTriGrid (Int, Int) [(Int, Int)]
   deriving  (Eq, Generic)
 
-instance Show ParaTriGrid where 
+instance Show ParaTriGrid where
   show (ParaTriGrid (r,c) _) = "paraTriGrid " ++ show r ++ " " ++ show c
 
 instance Grid ParaTriGrid where
@@ -152,35 +152,35 @@ instance BoundedGrid ParaTriGrid where
   tileSideCount _ = 3
   boundary g = west ++ north ++ east ++ south
     where (r,c) = size g
-          west = [(0,k) | k <- [0,2..2*r-2], c>0]
-          north = [(k,2*r-1) | k <- [1,3..2*c-1], r>0]
-          east = [(2*c-1,k) | k <- [2*r-3,2*r-5..1], c>0]
-          south = [(k,0) | k <- [2*c-2,2*c-4..2], r>0]
+          west = [(0,k) | c>0, k <- [0,2..2*r-2]]
+          north = [(k,2*r-1) | r>0, k <- [1,3..2*c-1]]
+          east = [(2*c-1,k) | c>0, k <- [2*r-3,2*r-5..1]]
+          south = [(k,0) | r>0, k <- [2*c-2,2*c-4..2]]
   centre g = f . size $ g
     where f (r,c)
-            | odd r && odd c             
+            | odd r && odd c
                 = [(c-1,r-1), (c,r)]
-            | even r && even c && r == c 
+            | even r && even c && r == c
                 = bowtie (c-1,r-1)
-            | even r && even c && r > c  
+            | even r && even c && r > c
                 = bowtie (c-1,r-3) ++ bowtie (c-1,r-1) ++ bowtie (c-1,r+1)
-            | even r && even c && r < c  
+            | even r && even c && r < c
                 = bowtie (c-3,r-1) ++ bowtie (c-1,r-1) ++ bowtie (c+1,r-1)
-            | otherwise                  
+            | otherwise
                 = [(c-1,r), (c,r-1)]
           bowtie (i,j) = [(i,j), (i+1,j+1)]
 
--- | @'paraTriGrid' r c@ returns a grid in the shape of a 
---   parallelogram with @r@ rows and @c@ columns, using triangular 
+-- | @'paraTriGrid' r c@ returns a grid in the shape of a
+--   parallelogram with @r@ rows and @c@ columns, using triangular
 --   tiles. If @r@ and @c@ are both nonnegative, the resulting grid will
 --   have @2*r*c@ tiles. Otherwise, the resulting grid will be null and
 --   the list of indices will be null.
 paraTriGrid :: Int -> Int -> ParaTriGrid
-paraTriGrid r c = 
+paraTriGrid r c =
   ParaTriGrid (r,c) (parallelogramIndices r c)
 
 parallelogramIndices :: Int -> Int -> [(Int, Int)]
-parallelogramIndices r c = 
+parallelogramIndices r c =
   [(x,y) | x <- [0..2*c-1], y <- [0..2*r-1], even (x+y)]
 
 --
@@ -193,7 +193,7 @@ parallelogramIndices r c =
 data RectTriGrid = RectTriGrid (Int, Int) [(Int, Int)]
   deriving  (Eq, Generic)
 
-instance Show RectTriGrid where 
+instance Show RectTriGrid where
   show (RectTriGrid (r,c) _) = "rectTriGrid " ++ show r ++ " " ++ show c
 
 instance Grid RectTriGrid where
@@ -214,9 +214,9 @@ instance FiniteGrid RectTriGrid where
 instance BoundedGrid RectTriGrid where
   tileSideCount _ = 3
 
--- | @'rectTriGrid' r c@ returns a grid in the shape of a 
---   rectangle (with jagged edges) that has @r@ rows and @c@ columns, 
---   using triangular tiles. If @r@ and @c@ are both nonnegative, the 
+-- | @'rectTriGrid' r c@ returns a grid in the shape of a
+--   rectangle (with jagged edges) that has @r@ rows and @c@ columns,
+--   using triangular tiles. If @r@ and @c@ are both nonnegative, the
 --   resulting grid will have @2*r*c@ tiles. Otherwise, the resulting grid will be null and
 --   the list of indices will be null.
 rectTriGrid :: Int -> Int -> RectTriGrid
@@ -236,7 +236,7 @@ rectTriGrid r c = RectTriGrid (r,c) [(x,y) | y <- [0..2*r-1], x <- [xMin y .. xM
 data TorTriGrid = TorTriGrid (Int, Int) [(Int, Int)]
   deriving  (Eq, Generic)
 
-instance Show TorTriGrid where 
+instance Show TorTriGrid where
   show (TorTriGrid (r,c) _) = "torTriGrid " ++ show r ++ " " ++ show c
 
 instance Grid TorTriGrid where
@@ -271,7 +271,7 @@ instance WrappedGrid TorTriGrid where
 
 -- | @'torTriGrid' r c@ returns a toroidal grid with @r@ rows and @c@
 --   columns, using triangular tiles. The indexing method is the same as
---   for @ParaTriGrid@. If @r@ and @c@ are both nonnegative, the 
+--   for @ParaTriGrid@. If @r@ and @c@ are both nonnegative, the
 --   resulting grid will have @2*r*c@ tiles. Otherwise, the resulting
 --   grid will be null and the list of indices will be null.
 torTriGrid :: Int -> Int -> TorTriGrid
@@ -288,7 +288,7 @@ torTriGrid r c = TorTriGrid (r,c) (parallelogramIndices r c)
 data YCylTriGrid = YCylTriGrid (Int, Int) [(Int, Int)]
   deriving  (Eq, Generic)
 
-instance Show YCylTriGrid where 
+instance Show YCylTriGrid where
   show (YCylTriGrid (r,c) _) = "yCylTriGrid " ++ show r ++ " " ++ show c
 
 instance Grid YCylTriGrid where
@@ -300,7 +300,7 @@ instance Grid YCylTriGrid where
   distance = distanceWrappedBasedOn UnboundedTriGrid
   directionTo = directionToWrappedBasedOn UnboundedTriGrid
   isAdjacent g a b = distance g a b <= 1
-  contains g (x, y) = 0 <= y && y <= 2*r-1 && even (x+y) 
+  contains g (x, y) = 0 <= y && y <= 2*r-1 && even (x+y)
     where (r, _) = size g
 
 instance FiniteGrid YCylTriGrid where
@@ -318,11 +318,11 @@ instance WrappedGrid YCylTriGrid where
     where (_, c) = size g
           (x, y) = normalise g a
 
--- | @'yCylTriGrid' r c@ returns a cylindrical grid with @r@ rows and 
---   @c@ columns, using triangular tiles, where the cylinder is along 
---   the y-axis. The indexing method is the same as for @ParaTriGrid@. 
---   If @r@ and @c@ are both nonnegative, the resulting grid will have 
---   @2*r*c@ tiles. Otherwise, the resulting grid will be null and the 
+-- | @'yCylTriGrid' r c@ returns a cylindrical grid with @r@ rows and
+--   @c@ columns, using triangular tiles, where the cylinder is along
+--   the y-axis. The indexing method is the same as for @ParaTriGrid@.
+--   If @r@ and @c@ are both nonnegative, the resulting grid will have
+--   @2*r*c@ tiles. Otherwise, the resulting grid will be null and the
 --   list of indices will be null.
 yCylTriGrid :: Int -> Int -> YCylTriGrid
 yCylTriGrid r c = YCylTriGrid (r,c) (parallelogramIndices r c)
@@ -334,7 +334,7 @@ yCylTriGrid r c = YCylTriGrid (r,c) (parallelogramIndices r c)
 data XCylTriGrid = XCylTriGrid (Int, Int) [(Int, Int)]
   deriving  (Eq, Generic)
 
-instance Show XCylTriGrid where 
+instance Show XCylTriGrid where
   show (XCylTriGrid (r,c) _) = "yCylTriGrid " ++ show r ++ " " ++ show c
 
 instance Grid XCylTriGrid where
@@ -346,7 +346,7 @@ instance Grid XCylTriGrid where
   distance = distanceWrappedBasedOn UnboundedTriGrid
   directionTo = directionToWrappedBasedOn UnboundedTriGrid
   isAdjacent g a b = distance g a b <= 1
-  contains g (x, y) = 0 <= x && x <= 2*c-1 && even (x+y) 
+  contains g (x, y) = 0 <= x && x <= 2*c-1 && even (x+y)
     where (_, c) = size g
 
 instance FiniteGrid XCylTriGrid where
@@ -364,11 +364,11 @@ instance WrappedGrid XCylTriGrid where
     where (r, _) = size g
           (x, y) = normalise g a
 
--- | @'xCylTriGrid' r c@ returns a cylindrical grid with @r@ rows and 
---   @c@ columns, using triangular tiles, where the cylinder is along 
---   the y-axis. The indexing method is the same as for @ParaTriGrid@. 
---   If @r@ and @c@ are both nonnegative, the resulting grid will have 
---   @2*r*c@ tiles. Otherwise, the resulting grid will be null and the 
+-- | @'xCylTriGrid' r c@ returns a cylindrical grid with @r@ rows and
+--   @c@ columns, using triangular tiles, where the cylinder is along
+--   the y-axis. The indexing method is the same as for @ParaTriGrid@.
+--   If @r@ and @c@ are both nonnegative, the resulting grid will have
+--   @2*r*c@ tiles. Otherwise, the resulting grid will be null and the
 --   list of indices will be null.
 xCylTriGrid :: Int -> Int -> XCylTriGrid
 xCylTriGrid r c = XCylTriGrid (r,c) (parallelogramIndices r c)

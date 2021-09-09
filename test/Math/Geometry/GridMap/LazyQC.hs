@@ -19,15 +19,16 @@ module Math.Geometry.GridMap.LazyQC
     test
   ) where
 
+import Control.Monad (replicateM)
 import Data.List ((\\), foldl', intersect)
-import Data.Maybe (isJust)
+import Data.Maybe (isJust, isNothing)
 import qualified Math.Geometry.GridMap as GM
 import Math.Geometry.GridMap.Lazy
 import qualified Math.Geometry.Grid as G
 import Math.Geometry.Grid.Square (RectSquareGrid, rectSquareGrid)
 import Test.Framework (Test, testGroup)
 import Test.Framework.Providers.QuickCheck2 (testProperty)
-import Test.QuickCheck 
+import Test.QuickCheck
   ((==>), Gen, Arbitrary, arbitrary, choose, Property, property,
     vectorOf, elements, sized)
 
@@ -48,7 +49,7 @@ sizedGridMap n = do
     else do
       -- Arbitrarily delete some values from the map
       m <- choose (0,n)
-      ks <- sequence . replicate m . elements . G.indices $ g
+      ks <- replicateM m . elements . G.indices $ g
       return $ foldl' (flip GM.delete) gm ks
 
 instance Arbitrary (LGridMap RectSquareGrid Int) where
@@ -100,7 +101,7 @@ prop_insert_never_invalid gm k v = property $
   mapValid (GM.insert k v gm)
 
 prop_delete_works :: LGridMap RectSquareGrid Int -> Int -> Property
-prop_delete_works gm n = G.nonNull gm ==> GM.lookup k gm' == Nothing
+prop_delete_works gm n = G.nonNull gm ==> isNothing (GM.lookup k gm')
   where k = selectIndex gm n
         gm' = GM.delete k gm
 
@@ -117,14 +118,14 @@ prop_delete_never_invalid gm k = property $
 prop_lazyGridMapIndexed_adds_all_valid_keys
   :: Int -> Int -> [(G.Index RectSquareGrid, Int)] -> Property
 prop_lazyGridMapIndexed_adds_all_valid_keys n m kvs = property $
-  (GM.keys gm) `intersect` (G.indices g) == GM.keys gm
+  (GM.keys gm `intersect` G.indices g) == GM.keys gm
   where gm = lazyGridMapIndexed g kvs
         g = rectSquareGrid n m
 
 prop_lazyGridMapIndexed_never_adds_invalid_keys
   :: Int -> Int -> [(G.Index RectSquareGrid, Int)] -> Property
 prop_lazyGridMapIndexed_never_adds_invalid_keys n m kvs = property $
-  null ((GM.keys gm) \\ (G.indices g))
+  null (GM.keys gm \\ G.indices g)
   where gm = lazyGridMapIndexed g kvs
         g = rectSquareGrid n m
 

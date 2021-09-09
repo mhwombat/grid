@@ -20,12 +20,12 @@ module Math.Geometry.Grid.Hexagonal2QC
   ) where
 
 import Math.Geometry.Grid.HexagonalInternal2
-import Math.Geometry.GridInternal 
+import Math.Geometry.GridInternal
 import Math.Geometry.GridQC
 
 import Prelude hiding (null)
 import Test.Framework (Test, testGroup)
-import Test.QuickCheck 
+import Test.QuickCheck
   (Gen, Arbitrary, arbitrary, sized, elements, choose, Property, vectorOf)
 
 instance Arbitrary HexDirection where
@@ -36,7 +36,7 @@ instance Arbitrary HexDirection where
 -- Unbounded grids with hexagonal tiles
 --
 
-data UnboundedHexGridTD = 
+data UnboundedHexGridTD =
   UnboundedHexGridTD [(Int,Int)] ((Int,Int),(Int,Int)) HexDirection
   deriving Show
 
@@ -53,8 +53,7 @@ sizedUnboundedHexGridTD n = do
   k <- choose (0,n)
   ps <- vectorOf (k+2) arbitrary :: Gen [(Int,Int)]
   qs <- chooseClosePointsUnbounded
-  d <- arbitrary
-  return $ UnboundedHexGridTD ps qs d
+  UnboundedHexGridTD ps qs <$> arbitrary
 
 instance Arbitrary UnboundedHexGridTD where
   arbitrary = sized sizedUnboundedHexGridTD
@@ -69,7 +68,7 @@ unboundedHexGridTests = makeTests unboundedHexGridProperties
 -- Hegagonal grids with hexagonal tiles
 --
 
-data HexHexGridTD = 
+data HexHexGridTD =
   HexHexGridTD HexHexGrid [(Int,Int)] ((Int,Int),(Int,Int)) HexDirection
   deriving Show
 
@@ -100,8 +99,7 @@ sizedHexHexGridTD n = do
   let g = hexHexGrid s
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
-  d <- arbitrary
-  return $ HexHexGridTD g ps qs d
+  HexHexGridTD g ps qs <$> arbitrary
 
 instance Arbitrary HexHexGridTD where
   arbitrary = sized sizedHexHexGridTD
@@ -116,17 +114,17 @@ hexHexGridTests :: [Test]
 hexHexGridTests = makeTests hexHexGridProperties
 
 --
--- Rectangular hexagonal grids   
+-- Rectangular hexagonal grids
 --
 
-data RectHexGridTD = 
+data RectHexGridTD =
   RectHexGridTD RectHexGrid [(Int,Int)] ((Int,Int),(Int,Int)) HexDirection
   deriving Show
 
 instance TestData RectHexGridTD where
   type BaseGrid RectHexGridTD = RectHexGrid
   grid (RectHexGridTD g _ _ _) = g
-  points (RectHexGridTD _ ps _ _) = ps 
+  points (RectHexGridTD _ ps _ _) = ps
   twoClosePoints (RectHexGridTD _ _ qs _) = qs
   neighbourCountBounds _ = (0, 6)
   direction (RectHexGridTD _ _ _ d) = d
@@ -138,7 +136,7 @@ instance TestDataF RectHexGridTD where
     where (r,c) = size g
 
 instance TestDataB RectHexGridTD where
-  expectedBoundaryCount (RectHexGridTD g _ _ _) = 
+  expectedBoundaryCount (RectHexGridTD g _ _ _) =
     (cartesianBoundaryCount . size) g
 
 -- We want the number of tiles in a test grid to be O(n)
@@ -150,8 +148,7 @@ sizedRectHexGridTD n = do
   let g = rectHexGrid r c
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
-  d <- arbitrary
-  return $ RectHexGridTD g ps qs d
+  RectHexGridTD g ps qs <$> arbitrary
 
 instance Arbitrary RectHexGridTD where
   arbitrary = sized sizedRectHexGridTD

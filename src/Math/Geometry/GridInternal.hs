@@ -141,7 +141,7 @@ class Grid g where
   -- These default implementations are broken out to make it easier to
   -- compare the results with custom implementations (for testing).
   --
-  
+
   defaultMinDistance :: g -> [Index g] -> Index g -> Int
   defaultMinDistance g xs a = minimum . map (distance g a) $ xs
 
@@ -253,7 +253,7 @@ class Grid g => BoundedGrid g where
 
   defaultIsCentre :: Eq (Index g) => g -> Index g -> Bool
   defaultIsCentre g a = a `elem` centre g
-  
+
 -- | A regular arrangement of tiles where the boundaries are joined.
 --   Minimal complete definition: @'normalise'@ and @'denormalise'@.
 class (Grid g) => WrappedGrid g where
@@ -341,10 +341,10 @@ cartesianIndices
   :: (Enum r, Enum c, Num r, Num c, Ord r, Ord c) =>
      (r, c) -> [(c, r)]
 cartesianIndices (r, c) = west ++ north ++ east ++ south
-  where west = [(0,k) | k <- [0,1..r-1], c>0]
-        north = [(k,r-1) | k <- [1,2..c-1], r>0]
-        east = [(c-1,k) | k <- [r-2,r-3..0], c>1]
-        south = [(k,0) | k <- [c-2,c-3..1], r>1]
+  where west = [(0,k) | c>0, k <- [0,1..r-1]]
+        north = [(k,r-1) | r>0, k <- [1,2..c-1]]
+        east = [(c-1,k) | c>1, k <- [r-2,r-3..0]]
+        south = [(k,0) | r>1, k <- [c-2,c-3..1]]
 
 cartesianCentre :: (Int, Int) -> [(Int, Int)]
 cartesianCentre (r,c) = [(i,j) | i <- cartesianMidpoints c, j <- cartesianMidpoints r]

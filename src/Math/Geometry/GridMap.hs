@@ -8,7 +8,7 @@
 -- Portability :  portable
 --
 -- Ordered maps from tiles on a grid to values.
--- This module is a wrapper around @'Math.Geometry.Grid'@ and 
+-- This module is a wrapper around @'Math.Geometry.Grid'@ and
 -- @'Data.Map'@, in order to combine the functionality of grids and maps
 -- into a single type.
 ------------------------------------------------------------------------
@@ -51,17 +51,17 @@ import Data.Foldable (Foldable)
 --   to empty tiles, and the value at a tile can be modified or
 --   removed.
 --
---   Note: Some of the methods have an @Ord@ constraint on the grid 
+--   Note: Some of the methods have an @Ord@ constraint on the grid
 --   index. This is purely to make it easier to write implementations.
 --   While tile positions can be ordered (e.g., @(1,2) < (2,1)@), the
---   ordering may not be particularly meaningful. (Comparisons such as 
+--   ordering may not be particularly meaningful. (Comparisons such as
 --   /east of/ or /south of/ may be more sensible.) However, it is
 --   convenient to write implementations of this class using
 --   @Data.Map@, with the grid indices as keys. Many of the functions
 --   in @Data.Map@ impose the @Ord@ constraint on map keys, so we'll
 --   live with it. In summary, to use some methods in this class, your
 --   grid indices must be orderable.
-class (G.Grid (BaseGrid gm v), Foldable gm) => 
+class (G.Grid (BaseGrid gm v), Foldable gm) =>
     GridMap (gm :: * -> *) v where
   type BaseGrid gm v
 
@@ -74,14 +74,14 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > "red"
   -- > λ> m ! (0,5)
   -- > "*** Exception: Map.!: given key is not an element in the map
-  (!) :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => gm v -> k -> v
+  (!) :: (k ~ G.Index (BaseGrid gm v), Ord k) => gm v -> k -> v
   (!) gm k = toMap gm M.! k
 
   -- | Returns a map of tile positions to values.
   --
   -- > λ> toMap $ lazyGridMap (rectSquareGrid 1 2) ["red", "blue"]
   -- > fromList [((0,0),"red"),((1,0),"blue")]
-  toMap :: k ~ (G.Index (BaseGrid gm v)) => gm v -> M.Map k v
+  toMap :: k ~ G.Index (BaseGrid gm v) => gm v -> M.Map k v
 
   -- | Returns the grid on which this map is based.
   --
@@ -93,7 +93,7 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   --
   -- > λ> toList $ lazyGridMap (rectSquareGrid 1 2) ["red", "blue"]
   -- > [((0,0),"red"),((1,0),"blue")]
-  toList :: k ~ (G.Index (BaseGrid gm v)) => gm v -> [(k, v)]
+  toList :: k ~ G.Index (BaseGrid gm v) => gm v -> [(k, v)]
   toList = M.toList . toMap
 
   -- | The expression @'lookup' k m@ returns the value contained in the
@@ -106,7 +106,7 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > Just "blue"
   -- > λ> Math.Geometry.GridMap.lookup (5,5) m
   -- > Nothing
-  lookup :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => k -> gm v -> Maybe v
+  lookup :: (k ~ G.Index (BaseGrid gm v), Ord k) => k -> gm v -> Maybe v
   lookup k = M.lookup k . toMap
 
   -- | Insert a new value at a tile position in the grid map.
@@ -118,7 +118,7 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > lazyGridMap (rectSquareGrid 1 2) ["red","hello"]
   -- > λ> insert (5,5) "hello" $ lazyGridMap (rectSquareGrid 1 2) ["red","blue"]
   -- > lazyGridMap (rectSquareGrid 1 2) ["red","blue"]
-  insert :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => k -> v -> gm v -> gm v
+  insert :: (k ~ G.Index (BaseGrid gm v), Ord k) => k -> v -> gm v -> gm v
   insert = insertWith const
 
   -- | The expression @'insertWith' f k v m@ will insert the value
@@ -136,7 +136,7 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > lazyGridMap (rectSquareGrid 1 2) [100,1]
   -- > λ> insertWith (+) (5,5) 1 m
   -- > lazyGridMap (rectSquareGrid 1 2) [100]
-  insertWith :: (k ~ (G.Index (BaseGrid gm v)), Ord k) =>
+  insertWith :: (k ~ G.Index (BaseGrid gm v), Ord k) =>
     (v -> v -> v) -> k -> v -> gm v -> gm v
   insertWith f = insertWithKey (\_ x' y' -> f x' y')
 
@@ -156,12 +156,12 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > lazyGridMap (rectSquareGrid 1 2) ["red","dark"]
   -- > λ> insertWithKey f (5,5) "dark" m
   -- > lazyGridMap (rectSquareGrid 1 2) ["red"]
-  insertWithKey :: (k ~ (G.Index (BaseGrid gm v)), Ord k) =>
+  insertWithKey :: (k ~ G.Index (BaseGrid gm v), Ord k) =>
     (k -> v -> v -> v) -> k -> v -> gm v -> gm v
 
   -- | Combines @'lookup'@ with @'insertWithKey'@.
   --   The old value is returned, along with the updated map.
-  insertLookupWithKey :: (k ~ (G.Index (BaseGrid gm v)), Ord k) =>
+  insertLookupWithKey :: (k ~ G.Index (BaseGrid gm v), Ord k) =>
     (k -> v -> v -> v) -> k -> v -> gm v -> (Maybe v, gm v)
   insertLookupWithKey f k v gm = (lookup k gm, insertWithKey f k v gm)
 
@@ -179,7 +179,7 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > lazyGridMap (rectSquareGrid 1 2) ["red"]
   -- > λ> delete (5,5) m
   -- > lazyGridMap (rectSquareGrid 1 2) ["red"]
-  delete :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => k -> gm v -> gm v
+  delete :: (k ~ G.Index (BaseGrid gm v), Ord k) => k -> gm v -> gm v
 
   -- | Adjust a value at a specific tile position.
   --   If the tile does not contain a value,
@@ -194,7 +194,7 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > lazyGridMap (rectSquareGrid 1 2) ["world"]
   -- > λ> adjust f (5,5) m
   -- > lazyGridMap (rectSquareGrid 1 2) ["world"]
-  adjust :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => 
+  adjust :: (k ~ G.Index (BaseGrid gm v), Ord k) =>
     (v -> v) -> k -> gm v -> gm v
   adjust f = adjustWithKey (\_ v -> f v)
 
@@ -210,7 +210,7 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > lazyGridMap (rectSquareGrid 1 2) ["world"]
   -- > λ> adjustWithKey f (5,5) m
   -- > lazyGridMap (rectSquareGrid 1 2) ["world"]
-  adjustWithKey :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => 
+  adjustWithKey :: (k ~ G.Index (BaseGrid gm v), Ord k) =>
     (k -> v -> v) -> k -> gm v -> gm v
 
   -- | The expression (alter f k map) alters the value at k, or absence
@@ -236,7 +236,7 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > lazyGridMap (rectSquareGrid 1 2) ["hi!"]
   -- > λ> alter f (5,5) m
   -- > lazyGridMap (rectSquareGrid 1 2) ["red"]
-  alter :: (k ~ (G.Index (BaseGrid gm v)), Ord k) =>
+  alter :: (k ~ G.Index (BaseGrid gm v), Ord k) =>
     (Maybe v -> Maybe v) -> k -> gm v -> gm v
 
   -- | The expression @('findWithDefault' def k map)@ returns the value
@@ -250,7 +250,7 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > "yellow"
   -- > λ> findWithDefault "yellow" (5,5) m
   -- > "yellow"
-  findWithDefault :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => 
+  findWithDefault :: (k ~ G.Index (BaseGrid gm v), Ord k) =>
     v -> k -> gm v -> v
   findWithDefault v k = M.findWithDefault v k . toMap
 
@@ -258,9 +258,9 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   --   value.
   --   To get a list of all tiles in the map regardless of whether or
   --   not they contain values, use @'Math.Geometry.Grid.indices'@.
-  keys :: (k ~ (G.Index (BaseGrid gm v)), Ord k) => gm v -> [k]
+  keys :: (k ~ G.Index (BaseGrid gm v), Ord k) => gm v -> [k]
   keys = M.keys . toMap
-  
+
   -- | Returns all values in the map.
   elems :: gm v -> [v]
   elems = M.elems . toMap
@@ -269,9 +269,9 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   --
   -- > λ> Math.Geometry.GridMap.map (++ "!") $ lazyGridMap (rectSquareGrid 1 3) ["red","blue"]
   -- > lazyGridMap (rectSquareGrid 1 3) ["red!","blue!"]
-  map 
-    :: (GridMap gm v2, 
-        G.Index (BaseGrid gm v) ~ G.Index (BaseGrid gm v2)) => 
+  map
+    :: (GridMap gm v2,
+        G.Index (BaseGrid gm v) ~ G.Index (BaseGrid gm v2)) =>
     (v -> v2) -> gm v -> gm v2
   map f = mapWithKey (\_ v -> f v)
 
@@ -280,9 +280,9 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > λ> let f k v = v ++ "@" ++ show k
   -- > λ> mapWithKey f $ lazyGridMap (rectSquareGrid 1 3) ["red","blue"]
   -- > lazyGridMap (rectSquareGrid 1 3) ["red@(0,0)","blue@(1,0)"]
-  mapWithKey 
-    :: (k ~ G.Index (BaseGrid gm v), k ~ G.Index (BaseGrid gm v2), 
-        GridMap gm v2) => 
+  mapWithKey
+    :: (k ~ G.Index (BaseGrid gm v), k ~ G.Index (BaseGrid gm v2),
+        GridMap gm v2) =>
       (k -> v -> v2) -> gm v -> gm v2
 
   -- | Return a map containing only the values that satisfy the
@@ -295,7 +295,7 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > lazyGridMap (rectSquareGrid 1 4) [101,102]
   filter :: (v -> Bool) -> gm v -> gm v
   filter p = filterWithKey (\_ x -> p x)
-    
+
   -- | Return a map containing only the values that satisfy the
   --   predicate, which may depend on a tile's index as well as its
   --   value.
@@ -306,7 +306,7 @@ class (G.Grid (BaseGrid gm v), Foldable gm) =>
   -- > λ> filterWithKey f $ lazyGridMap (rectSquareGrid 1 4) [99, 100, 101, 102]
   -- > lazyGridMap (rectSquareGrid 1 4) [102]
   filterWithKey
-    :: k ~ (G.Index (BaseGrid gm v)) =>
+    :: k ~ G.Index (BaseGrid gm v) =>
       (k -> v -> Bool) -> gm v -> gm v
 
 {- $Compare
@@ -436,13 +436,13 @@ Notes:
 1. You can extract the map using @'toMap'@ and apply the function from
 @Data.Map@ to the result.
 
-2. Not implemented because the resulting map might have different 
+2. Not implemented because the resulting map might have different
 dimensions than the original input @GridMap@(s). However, you can
 extract the map using @'toMap'@ and apply the function from @Data.Map@
 to the result.
 
 3. Not implemented because, although tile positions can be ordered
-(e.g., @(1,2) < (2,1)@), the ordering may not be meaningful for grid 
+(e.g., @(1,2) < (2,1)@), the ordering may not be meaningful for grid
 maps. Comparisons such as /east of/ or /south of/ may be more useful.
 However, you can extract the map using @'toMap'@ and apply the function
 from @Data.Map@ to the result.

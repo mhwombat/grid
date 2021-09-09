@@ -10,7 +10,7 @@
 -- QuickCheck tests.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE FlexibleContexts, ExistentialQuantification, 
+{-# LANGUAGE FlexibleContexts, ExistentialQuantification,
     TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
@@ -61,8 +61,7 @@ sizedUnboundedTriGridTD n = do
   k <- choose (0,n)
   ps <- vectorOf (k+2) (arbitrary `suchThat` valid) :: Gen [(Int,Int)]
   qs <- chooseClosePointsUnbounded `suchThat` bothValid
-  d <- arbitrary
-  return $ UnboundedTriGridTD ps qs d
+  UnboundedTriGridTD ps qs <$> arbitrary
 
 instance Arbitrary UnboundedTriGridTD where
   arbitrary = sized sizedUnboundedTriGridTD
@@ -108,8 +107,7 @@ sizedTriTriGridTD n = do
   let g = triTriGrid (2 * isqrt n)
   ps <- chooseIndices g n
   qs <- chooseClosePoints g `suchThat` bothValid
-  d <- arbitrary
-  return $ TriTriGridTD g ps qs d
+  TriTriGridTD g ps qs <$> arbitrary
 
 instance Arbitrary TriTriGridTD where
   arbitrary = sized sizedTriTriGridTD
@@ -160,8 +158,7 @@ sizedParaTriGridTD n = do
   let g = paraTriGrid r c
   ps <- chooseIndices g n
   qs <- chooseClosePoints g `suchThat` bothValid
-  d <- arbitrary
-  return $ ParaTriGridTD g ps qs d
+  ParaTriGridTD g ps qs <$> arbitrary
 
 instance Arbitrary ParaTriGridTD where
   arbitrary = sized sizedParaTriGridTD
@@ -214,8 +211,7 @@ sizedRectTriGridTD n = do
   ps <- chooseIndices g n
   qs <- chooseClosePoints g `suchThat`
     (\(a,b) -> bothValid (a,b) && inRectBounds r c a && inRectBounds r c b)
-  d <- arbitrary
-  return $ RectTriGridTD g ps qs d
+  RectTriGridTD g ps qs <$> arbitrary
 
 inRectBounds :: Int -> Int -> (Int, Int) -> Bool
 inRectBounds _ c (x, y) = xMin <= x && x <= xMax
@@ -269,8 +265,7 @@ sizedTorTriGridTD n = do
 --  let g = torTriGrid r c
   ps <- chooseIndices g n
   qs <- chooseClosePoints g `suchThat` bothValid
-  d <- arbitrary
-  return $ TorTriGridTD g ps qs d
+  TorTriGridTD g ps qs <$> arbitrary
 
 instance Arbitrary TorTriGridTD where
   arbitrary = sized sizedTorTriGridTD
@@ -314,8 +309,7 @@ sizedYCylTriGridTD n = do
   let g = yCylTriGrid r c
   ps <- chooseIndices g n
   qs <- chooseClosePoints g `suchThat` bothValid
-  d <- arbitrary
-  return $ YCylTriGridTD g ps qs d
+  YCylTriGridTD g ps qs <$> arbitrary
 
 instance Arbitrary YCylTriGridTD where
   arbitrary = sized sizedYCylTriGridTD
@@ -354,8 +348,7 @@ sizedXCylTriGridTD n = do
   let g = xCylTriGrid r c
   ps <- chooseIndices g n
   qs <- chooseClosePoints g `suchThat` bothValid
-  d <- arbitrary
-  return $ XCylTriGridTD g ps qs d
+  XCylTriGridTD g ps qs <$> arbitrary
 
 instance Arbitrary XCylTriGridTD where
   arbitrary = sized sizedXCylTriGridTD

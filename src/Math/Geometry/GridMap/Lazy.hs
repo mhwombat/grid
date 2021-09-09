@@ -47,7 +47,7 @@ lazyGridMap g vs = LGridMap g (M.fromList kvs)
   where kvs = zip ks vs
         ks = G.indices g
 
-lazyGridMapIndexed :: (Ord (G.Index g), G.Grid g) => g -> [((G.Index g), v)] -> LGridMap g v
+lazyGridMapIndexed :: (Ord (G.Index g), G.Grid g) => g -> [(G.Index g, v)] -> LGridMap g v
 lazyGridMapIndexed g kvs = LGridMap g (M.fromList kvs')
   where kvs' = Prelude.filter (validIndex . fst) kvs
         validIndex k = g `G.contains` k

@@ -19,13 +19,13 @@ module Math.Geometry.Grid.OctagonalQC
     test
   ) where
 
-import Math.Geometry.Grid.OctagonalInternal 
-import Math.Geometry.GridInternal 
+import Math.Geometry.Grid.OctagonalInternal
+import Math.Geometry.GridInternal
 import Math.Geometry.GridQC
 
 import Prelude hiding (null)
 import Test.Framework (Test, testGroup)
-import Test.QuickCheck 
+import Test.QuickCheck
   (Gen, Arbitrary, arbitrary, sized, choose, elements, Property, vectorOf)
 
 instance Arbitrary OctDirection where
@@ -36,7 +36,7 @@ instance Arbitrary OctDirection where
 -- Unbounded grids with octagonal tiles
 --
 
-data UnboundedOctGridTD = 
+data UnboundedOctGridTD =
   UnboundedOctGridTD [(Int,Int)] ((Int,Int),(Int,Int)) OctDirection
   deriving Show
 
@@ -53,8 +53,7 @@ sizedUnboundedOctGridTD n = do
   k <- choose (0,n)
   ps <- vectorOf (k+2) arbitrary :: Gen [(Int,Int)]
   qs <- chooseClosePointsUnbounded
-  d <- arbitrary
-  return $ UnboundedOctGridTD ps qs d
+  UnboundedOctGridTD ps qs <$> arbitrary
 
 instance Arbitrary UnboundedOctGridTD where
   arbitrary = sized sizedUnboundedOctGridTD
@@ -69,26 +68,26 @@ unboundedOctGridTests = makeTests unboundedOctGridProperties
 -- Rectangular grids with octagonal tiles
 --
 
-data RectOctGridTD = 
+data RectOctGridTD =
   RectOctGridTD RectOctGrid [(Int,Int)] ((Int,Int),(Int,Int)) OctDirection
   deriving Show
 
 instance TestData RectOctGridTD where
   type BaseGrid RectOctGridTD = RectOctGrid
   grid (RectOctGridTD g _ _ _) = g
-  points (RectOctGridTD _ ps _ _) = ps 
+  points (RectOctGridTD _ ps _ _) = ps
   twoClosePoints (RectOctGridTD _ _ qs _) = qs
   neighbourCountBounds _ = (0, 8)
   direction (RectOctGridTD _ _ _ d) = d
 
 instance TestDataF RectOctGridTD where
-  maxDistance (RectOctGridTD g _ _ _) = (max r c) - 1
+  maxDistance (RectOctGridTD g _ _ _) = max r c - 1
     where (r, c) = size g
   expectedTileCount (RectOctGridTD g _ _ _) = r*c
     where (r,c) = size g
 
 instance TestDataB RectOctGridTD where
-  expectedBoundaryCount (RectOctGridTD g _ _ _) = 
+  expectedBoundaryCount (RectOctGridTD g _ _ _) =
     (cartesianBoundaryCount . size) g
 
 -- We want the number of tiles in a test grid to be O(n)
@@ -102,8 +101,7 @@ sizedRectOctGridTD n = do
   let g = rectOctGrid r c
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
-  d <- arbitrary
-  return $ RectOctGridTD g ps qs d
+  RectOctGridTD g ps qs <$> arbitrary
 
 instance Arbitrary RectOctGridTD where
   arbitrary = sized sizedRectOctGridTD
@@ -122,14 +120,14 @@ rectOctGridTests = makeTests rectOctGridProperties
 -- Toroidal grids with octagonal tiles
 --
 
-data TorOctGridTD = 
+data TorOctGridTD =
   TorOctGridTD TorOctGrid [(Int,Int)] ((Int,Int),(Int,Int)) OctDirection
   deriving Show
 
 instance TestData TorOctGridTD where
   type BaseGrid TorOctGridTD = TorOctGrid
   grid (TorOctGridTD g _ _ _) = g
-  points (TorOctGridTD _ ps _ _) = ps 
+  points (TorOctGridTD _ ps _ _) = ps
   twoClosePoints (TorOctGridTD _ _ qs _) = qs
   neighbourCountBounds _ = (0, 8)
   direction (TorOctGridTD _ _ _ d) = d
@@ -148,8 +146,7 @@ sizedTorOctGridTD n = do
   let g = torOctGrid r c
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
-  d <- arbitrary
-  return $ TorOctGridTD g ps qs d
+  TorOctGridTD g ps qs <$> arbitrary
 
 instance Arbitrary TorOctGridTD where
   arbitrary = sized sizedTorOctGridTD
@@ -165,7 +162,7 @@ torOctGridTests = makeTests torOctGridProperties
 
 --TODO redo these
 
---prop_RectOctGrid_num_min_paths_correct :: 
+--prop_RectOctGrid_num_min_paths_correct ::
 --  RectOctGrid -> Int -> Int -> Property
 --prop_RectOctGrid_num_min_paths_correct g i j = nonNull g ==>
 --  minPathCount g a b ==

@@ -9,7 +9,7 @@
 --
 -- A regular arrangement of tiles. Grids have a variety of uses,
 -- including games and self-organising maps.
--- The userguide is available at 
+-- The userguide is available at
 -- <https://github.com/mhwombat/grid/wiki>.
 --
 -- In this package, tiles are called \"triangular\", \"square\", etc.,
@@ -18,8 +18,8 @@
 -- tile has six.
 -- There are only three regular polygons that can tile a plane:
 -- triangles, squares, and hexagons.
--- Of course, other plane tilings are possible if you use irregular 
--- polygons, or curved shapes, or if you combine tiles of different 
+-- Of course, other plane tilings are possible if you use irregular
+-- polygons, or curved shapes, or if you combine tiles of different
 -- shapes.
 --
 -- When you tile other surfaces, things get very interesting.
@@ -39,7 +39,7 @@
 --
 -- NOTE: Version 6.0 moved the various grid flavours to sub-modules.
 --
--- NOTE: Version 4.0 uses associated (type) synonyms instead of 
+-- NOTE: Version 4.0 uses associated (type) synonyms instead of
 -- multi-parameter type classes.
 --
 -- NOTE: Version 3.0 changed the order of parameters for many functions.
@@ -47,8 +47,7 @@
 -- operations.
 --
 -----------------------------------------------------------------------------
-{-# LANGUAGE MultiParamTypeClasses, TypeSynonymInstances, 
-  FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
 
 module Math.Geometry.Grid
   (
@@ -56,8 +55,8 @@ module Math.Geometry.Grid
     -- $Example
 
     -- * Grids
-    Grid(indices, distance, minDistance, neighbours, neighbour, 
-      contains, tileCount, null, nonNull, edges, viewpoint, 
+    Grid(indices, distance, minDistance, neighbours, neighbour,
+      contains, tileCount, null, nonNull, edges, viewpoint,
       isAdjacent, adjacentTilesToward, minimalPaths, directionTo),
     Index,
     Direction,
@@ -69,7 +68,7 @@ module Math.Geometry.Grid
     BoundedGrid(..)
   ) where
 
-import Math.Geometry.GridInternal (Grid(..), FiniteGrid(..), 
+import Math.Geometry.GridInternal (Grid(..), FiniteGrid(..),
   BoundedGrid(..))
 
 

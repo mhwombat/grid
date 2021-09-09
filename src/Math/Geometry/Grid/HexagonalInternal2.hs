@@ -7,8 +7,8 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- A module containing private @HexGrid2@ internals. Most developers 
--- should use @HexGrid2@ instead. This module is subject to change 
+-- A module containing private @HexGrid2@ internals. Most developers
+-- should use @HexGrid2@ instead. This module is subject to change
 -- without notice.
 --
 ------------------------------------------------------------------------
@@ -32,9 +32,9 @@ instance Grid UnboundedHexGrid where
   type Index UnboundedHexGrid = (Int, Int)
   type Direction UnboundedHexGrid = HexDirection
   indices _ = undefined
-  neighbours _ (x,y) = 
+  neighbours _ (x,y) =
     [(x-1,y), (x-1,y+1), (x,y+1), (x+1,y), (x+1,y-1), (x,y-1)]
-  distance _ (x1, y1) (x2, y2) = 
+  distance _ (x1, y1) (x2, y2) =
     maximum [abs (x2-x1), abs (y2-y1), abs(z2-z1)]
     where z1 = -x1 - y1
           z2 = -x2 - y2
@@ -85,7 +85,7 @@ instance FiniteGrid HexHexGrid where
 
 instance BoundedGrid HexHexGrid where
   tileSideCount _ = 6
-  boundary g = 
+  boundary g =
     northwest ++ northeast ++ east ++ southeast ++ southwest ++ west
     where s = size g
           northwest = [(k,s-1) | k <- [-s+1,-s+2..0]]
@@ -97,8 +97,8 @@ instance BoundedGrid HexHexGrid where
   centre _ = [(0,0)]
 
 -- | @'hexHexGrid' s@ returns a grid of hexagonal shape, with
---   sides of length @s@, using hexagonal tiles. If @s@ is nonnegative, the 
---   resulting grid will have @3*s*(s-1) + 1@ tiles. Otherwise, the resulting 
+--   sides of length @s@, using hexagonal tiles. If @s@ is nonnegative, the
+--   resulting grid will have @3*s*(s-1) + 1@ tiles. Otherwise, the resulting
 --   grid will be null and the list of indices will be null.
 hexHexGrid :: Int -> HexHexGrid
 hexHexGrid r = HexHexGrid r [(x, y) | x <- [-r+1..r-1], y <- f x]
@@ -114,7 +114,7 @@ hexHexGrid r = HexHexGrid r [(x, y) | x <- [-r+1..r-1], y <- f x]
 data RectHexGrid = RectHexGrid (Int, Int) [(Int, Int)]
   deriving (Eq, Generic)
 
-instance Show RectHexGrid where 
+instance Show RectHexGrid where
   show (RectHexGrid (r,c) _) = "rectHexGrid " ++ show r ++ " " ++ show c
 
 instance Grid RectHexGrid where
@@ -133,25 +133,25 @@ instance Grid RectHexGrid where
 instance FiniteGrid RectHexGrid where
   type Size RectHexGrid = (Int, Int)
   size (RectHexGrid s _) = s
-  maxPossibleDistance g@(RectHexGrid (r,c) _) = 
+  maxPossibleDistance g@(RectHexGrid (r,c) _) =
     distance g (0,0) (c-1,r-(c `div` 2))
 
 instance BoundedGrid RectHexGrid where
   tileSideCount _ = 6
   boundary g =
-    [(0,rectHexGridY 0 j) | j <- [0..r-1], c>0]                -- West
-      ++ [(x,rectHexGridY x (r-1)) | x <- [1..c-1], r>0]       -- North
-      ++ [(c-1,rectHexGridY (c-1) j) | j <- [r-2,r-3..0], c>1] -- East
-      ++ [(x,rectHexGridY x 0) | x <- [c-2,c-3..1], r>1]       -- South
+    [(0,rectHexGridY 0 j) | c>0, j <- [0..r-1]]                -- West
+      ++ [(x,rectHexGridY x (r-1)) | r>0, x <- [1..c-1]]       -- North
+      ++ [(c-1,rectHexGridY (c-1) j) | c>1, j <- [r-2,r-3..0]] -- East
+      ++ [(x,rectHexGridY x 0) | r>1, x <- [c-2,c-3..1]]       -- South
     where (r,c) = size g
 
--- | @'rectHexGrid' r c@ returns a grid in the shape of a 
+-- | @'rectHexGrid' r c@ returns a grid in the shape of a
 --   parallelogram with @r@ rows and @c@ columns, using hexagonal tiles.
 --   If @r@ and @c@ are both nonnegative, the resulting grid will have
 --   @r*c@ tiles. Otherwise, the resulting grid will be null and the
 --   list of indices will be null.
 rectHexGrid :: Int -> Int -> RectHexGrid
-rectHexGrid r c = 
+rectHexGrid r c =
   RectHexGrid (r,c) [(x,rectHexGridY x j) | x <- [0..c-1], j <- [0..r-1]]
 
 rectHexGridY :: Int -> Int -> Int

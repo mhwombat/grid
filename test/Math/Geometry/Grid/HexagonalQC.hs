@@ -19,13 +19,13 @@ module Math.Geometry.Grid.HexagonalQC
     test
   ) where
 
-import Math.Geometry.Grid.HexagonalInternal 
-import Math.Geometry.GridInternal 
+import Math.Geometry.Grid.HexagonalInternal
+import Math.Geometry.GridInternal
 import Math.Geometry.GridQC
 
 import Prelude hiding (null)
 import Test.Framework (Test, testGroup)
-import Test.QuickCheck 
+import Test.QuickCheck
   (Gen, Arbitrary, arbitrary, sized, elements, choose, Property, vectorOf)
 
 instance Arbitrary HexDirection where
@@ -36,7 +36,7 @@ instance Arbitrary HexDirection where
 -- Unbounded grids with hexagonal tiles
 --
 
-data UnboundedHexGridTD = 
+data UnboundedHexGridTD =
   UnboundedHexGridTD [(Int,Int)] ((Int,Int),(Int,Int)) HexDirection
   deriving Show
 
@@ -53,8 +53,7 @@ sizedUnboundedHexGridTD n = do
   k <- choose (0,n)
   ps <- vectorOf (k+2) arbitrary :: Gen [(Int,Int)]
   qs <- chooseClosePointsUnbounded
-  d <- arbitrary
-  return $ UnboundedHexGridTD ps qs d
+  UnboundedHexGridTD ps qs <$> arbitrary
 
 instance Arbitrary UnboundedHexGridTD where
   arbitrary = sized sizedUnboundedHexGridTD
@@ -69,7 +68,7 @@ unboundedHexGridTests = makeTests unboundedHexGridProperties
 -- Hegagonal grids with hexagonal tiles
 --
 
-data HexHexGridTD = 
+data HexHexGridTD =
   HexHexGridTD HexHexGrid [(Int,Int)] ((Int,Int),(Int,Int)) HexDirection
   deriving Show
 
@@ -100,8 +99,7 @@ sizedHexHexGridTD n = do
   let g = hexHexGrid s
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
-  d <- arbitrary
-  return $ HexHexGridTD g ps qs d
+  HexHexGridTD g ps qs <$> arbitrary
 
 instance Arbitrary HexHexGridTD where
   arbitrary = sized sizedHexHexGridTD
@@ -116,17 +114,17 @@ hexHexGridTests :: [Test]
 hexHexGridTests = makeTests hexHexGridProperties
 
 --
--- Parallelogrammatical hexagonal grids   
+-- Parallelogrammatical hexagonal grids
 --
 
-data ParaHexGridTD = 
+data ParaHexGridTD =
   ParaHexGridTD ParaHexGrid [(Int,Int)] ((Int,Int),(Int,Int)) HexDirection
   deriving Show
 
 instance TestData ParaHexGridTD where
   type BaseGrid ParaHexGridTD = ParaHexGrid
   grid (ParaHexGridTD g _ _ _) = g
-  points (ParaHexGridTD _ ps _ _) = ps 
+  points (ParaHexGridTD _ ps _ _) = ps
   twoClosePoints (ParaHexGridTD _ _ qs _) = qs
   neighbourCountBounds _ = (0, 6)
   direction (ParaHexGridTD _ _ _ d) = d
@@ -138,7 +136,7 @@ instance TestDataF ParaHexGridTD where
     where (r,c) = size g
 
 instance TestDataB ParaHexGridTD where
-  expectedBoundaryCount (ParaHexGridTD g _ _ _) = 
+  expectedBoundaryCount (ParaHexGridTD g _ _ _) =
     (cartesianBoundaryCount . size) g
 
 -- We want the number of tiles in a test grid to be O(n)
@@ -149,8 +147,7 @@ sizedParaHexGridTD n = do
   let g = paraHexGrid r c
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
-  d <- arbitrary
-  return $ ParaHexGridTD g ps qs d
+  ParaHexGridTD g ps qs <$> arbitrary
 
 instance Arbitrary ParaHexGridTD where
   arbitrary = sized sizedParaHexGridTD
