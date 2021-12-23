@@ -46,7 +46,7 @@ library
   ghc-options:      -Wall -Wunused-packages
   build-depends:
     , base        >=4.7 && <5
-    , containers  >=0.5 && <0.7
+    , containers  >= 0.6.5 && < 0.7
   other-extensions:
     CPP
     ConstrainedClassMethods

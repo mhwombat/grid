@@ -10,8 +10,11 @@
 -- QuickCheck tests.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE FlexibleContexts, ExistentialQuantification, TypeFamilies,
-    MultiParamTypeClasses, FlexibleInstances #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleContexts          #-}
+{-# LANGUAGE FlexibleInstances         #-}
+{-# LANGUAGE MultiParamTypeClasses     #-}
+{-# LANGUAGE TypeFamilies              #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Math.Geometry.GridMap.LazyQC
@@ -19,18 +22,20 @@ module Math.Geometry.GridMap.LazyQC
     test
   ) where
 
-import Control.Monad (replicateM)
-import Data.List ((\\), foldl', intersect)
-import Data.Maybe (isJust, isNothing)
-import qualified Math.Geometry.GridMap as GM
-import Math.Geometry.GridMap.Lazy
-import qualified Math.Geometry.Grid as G
-import Math.Geometry.Grid.Square (RectSquareGrid, rectSquareGrid)
-import Test.Framework (Test, testGroup)
-import Test.Framework.Providers.QuickCheck2 (testProperty)
-import Test.QuickCheck
-  ((==>), Gen, Arbitrary, arbitrary, choose, Property, property,
-    vectorOf, elements, sized)
+import           Control.Monad                        (replicateM)
+import           Data.List                            (foldl', intersect, (\\))
+import           Data.Maybe                           (isJust, isNothing)
+import qualified Math.Geometry.Grid                   as G
+import           Math.Geometry.Grid.Square            (RectSquareGrid,
+                                                       rectSquareGrid)
+import qualified Math.Geometry.GridMap                as GM
+import           Math.Geometry.GridMap.Lazy
+import           Test.Framework                       (Test, testGroup)
+import           Test.Framework.Providers.QuickCheck2 (testProperty)
+import           Test.QuickCheck                      (Arbitrary, Gen, Property,
+                                                       arbitrary, choose,
+                                                       elements, sized,
+                                                       vectorOf, (==>))
 
 -- We want the number of tiles in a test grid to be O(n)
 sizedRectSquareGrid :: Int -> Gen RectSquareGrid
@@ -91,14 +96,13 @@ prop_insert_works gm v n = G.nonNull gm ==> gm' GM.! k == v
         gm' = GM.insert k v gm
 
 prop_insert_never_alters_grid
-  :: LGridMap RectSquareGrid Int -> (Int, Int) -> Int -> Property
-prop_insert_never_alters_grid gm k v = property $
-  GM.toGrid (GM.insert k v gm) == GM.toGrid gm
+  :: LGridMap RectSquareGrid Int -> (Int, Int) -> Int -> Bool
+prop_insert_never_alters_grid gm k v
+  = GM.toGrid (GM.insert k v gm) == GM.toGrid gm
 
 prop_insert_never_invalid
-  :: LGridMap RectSquareGrid Int -> (Int, Int) -> Int -> Property
-prop_insert_never_invalid gm k v = property $
-  mapValid (GM.insert k v gm)
+  :: LGridMap RectSquareGrid Int -> (Int, Int) -> Int -> Bool
+prop_insert_never_invalid gm k v = mapValid (GM.insert k v gm)
 
 prop_delete_works :: LGridMap RectSquareGrid Int -> Int -> Property
 prop_delete_works gm n = G.nonNull gm ==> isNothing (GM.lookup k gm')
@@ -106,26 +110,25 @@ prop_delete_works gm n = G.nonNull gm ==> isNothing (GM.lookup k gm')
         gm' = GM.delete k gm
 
 prop_delete_never_alters_grid
-  :: LGridMap RectSquareGrid Int -> (Int, Int) -> Property
-prop_delete_never_alters_grid gm k = property $
-  GM.toGrid (GM.delete k gm) == GM.toGrid gm
+  :: LGridMap RectSquareGrid Int -> (Int, Int) -> Bool
+prop_delete_never_alters_grid gm k
+  = GM.toGrid (GM.delete k gm) == GM.toGrid gm
 
 prop_delete_never_invalid
-  :: LGridMap RectSquareGrid Int -> (Int, Int) -> Property
-prop_delete_never_invalid gm k = property $
-  mapValid (GM.delete k gm)
+  :: LGridMap RectSquareGrid Int -> (Int, Int) -> Bool
+prop_delete_never_invalid gm k = mapValid (GM.delete k gm)
 
 prop_lazyGridMapIndexed_adds_all_valid_keys
-  :: Int -> Int -> [(G.Index RectSquareGrid, Int)] -> Property
-prop_lazyGridMapIndexed_adds_all_valid_keys n m kvs = property $
-  (GM.keys gm `intersect` G.indices g) == GM.keys gm
+  :: Int -> Int -> [(G.Index RectSquareGrid, Int)] -> Bool
+prop_lazyGridMapIndexed_adds_all_valid_keys n m kvs
+  = (GM.keys gm `intersect` G.indices g) == GM.keys gm
   where gm = lazyGridMapIndexed g kvs
         g = rectSquareGrid n m
 
 prop_lazyGridMapIndexed_never_adds_invalid_keys
-  :: Int -> Int -> [(G.Index RectSquareGrid, Int)] -> Property
-prop_lazyGridMapIndexed_never_adds_invalid_keys n m kvs = property $
-  null (GM.keys gm \\ G.indices g)
+  :: Int -> Int -> [(G.Index RectSquareGrid, Int)] -> Bool
+prop_lazyGridMapIndexed_never_adds_invalid_keys n m kvs
+  = null (GM.keys gm \\ G.indices g)
   where gm = lazyGridMapIndexed g kvs
         g = rectSquareGrid n m
 

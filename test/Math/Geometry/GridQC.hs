@@ -10,23 +10,26 @@
 -- QuickCheck tests.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE FlexibleContexts, ExistentialQuantification, TypeFamilies,
-    MultiParamTypeClasses #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleContexts          #-}
+{-# LANGUAGE MultiParamTypeClasses     #-}
+{-# LANGUAGE TypeFamilies              #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Math.Geometry.GridQC where
 
-import Math.Geometry.GridInternal
+import           Math.Geometry.GridInternal
 
-import Prelude hiding (null)
-import qualified Prelude as P (null)
-import Data.List (delete, nub, sort)
-import Data.Maybe (isJust, fromJust)
-import Test.Framework (Test)
-import Test.Framework.Providers.QuickCheck2 (testProperty)
-import Test.QuickCheck
-  ((==>), Gen, Arbitrary, arbitrary, choose, Property, property,
-    vectorOf, elements)
+import           Data.List                            (delete, nub, sort)
+import           Data.Maybe                           (fromJust, isJust)
+import           Prelude                              hiding (null)
+import qualified Prelude                              as P (null)
+import           Test.Framework                       (Test)
+import           Test.Framework.Providers.QuickCheck2 (testProperty)
+import           Test.QuickCheck                      (Arbitrary, Gen, Property,
+                                                       arbitrary, choose,
+                                                       elements, property,
+                                                       vectorOf, (==>))
 
 -- | @'isqrt' n@ returns the greatest integer not greater than the square root
 --   of @n@.
@@ -79,6 +82,7 @@ chooseClosePoints g = do
 
 makeTests :: (Arbitrary t, Show t) => [(String, t -> Property)] -> [Test]
 makeTests = map (uncurry testProperty)
+
 
 --
 -- Tests that should apply to and are identical for all grids
@@ -300,7 +304,7 @@ prop_edges_cw_neighbours t = nonNull g ==>
 prop_edges_are_adjacent
   :: (TestData t, Grid (BaseGrid t), Ord (Index (BaseGrid t)))
     => t -> Property
-prop_edges_are_adjacent t = property $ all f $ edges g
+prop_edges_are_adjacent t = property . all f $ edges g
   where g = grid t
         f (a, b) = isAdjacent g a b
 
@@ -372,13 +376,17 @@ prop_boundary_count_correct t = nonNull g ==>
   (length . boundary) g == expectedBoundaryCount t
   where g = grid t
 
+-- Return Property rather than Bool so that all of the elements in
+-- boundedGridProperties will have the same type.
 prop_grid_and_boundary_are_both_null_or_not
   :: (TestData t, BoundedGrid (BaseGrid t), Ord (Index (BaseGrid t)))
     => t -> Property
-prop_grid_and_boundary_are_both_null_or_not t = property $
-  (P.null . boundary) g == null g
+prop_grid_and_boundary_are_both_null_or_not t
+  = property $ (P.null . boundary) g == null g
   where g = grid t
 
+-- Return Property rather than Bool so that all of the elements in
+-- boundedGridProperties will have the same type.
 prop_boundary_in_grid
   :: (TestData t, BoundedGrid (BaseGrid t), Ord (Index (BaseGrid t)))
     => t -> Property
