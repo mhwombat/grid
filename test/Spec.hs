@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------
 -- |
 -- Module      :  Main
--- Copyright   :  (c) Amy de Buitléir 2012-2019
+-- Copyright   :  (c) 2012-2021 Amy de Buitléir
 -- License     :  BSD-style
 -- Maintainer  :  amy@nualeargais.ie
 -- Stability   :  experimental
