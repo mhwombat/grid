@@ -12,24 +12,26 @@
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts, DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric    #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies     #-}
 
 module Math.Geometry.Grid.TriangularInternal where
 
-import Prelude hiding (null)
+import           Prelude                    hiding (null)
 
-import Data.List (nub)
-import GHC.Generics (Generic)
-import Math.Geometry.GridInternal
+import           Data.List                  (nub)
+import           GHC.Generics               (Generic)
+import           Math.Geometry.GridInternal
 
 data TriDirection = South | Northwest | Northeast |
                       North | Southeast | Southwest
-                        deriving (Show, Eq, Generic)
+                        deriving (Read, Show, Eq, Generic)
 
 -- | An unbounded grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedTriGrid = UnboundedTriGrid deriving (Eq, Show, Generic)
+data UnboundedTriGrid = UnboundedTriGrid deriving (Read, Show, Eq, Generic)
 
 instance Grid UnboundedTriGrid where
   type Index UnboundedTriGrid = (Int, Int)
@@ -71,18 +73,17 @@ triZ x y = if even y then -x - y else -x - y + 1
 -- | A triangular grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data TriTriGrid = TriTriGrid Int [(Int, Int)] deriving (Eq, Generic)
-
-instance Show TriTriGrid where
-  show (TriTriGrid s _) = "triTriGrid " ++ show s
+data TriTriGrid = TriTriGrid Int deriving (Read, Show, Eq, Generic)
 
 instance Grid TriTriGrid where
   type Index TriTriGrid = (Int, Int)
   type Direction TriTriGrid = TriDirection
-  indices (TriTriGrid _ xs) = xs
+  indices (TriTriGrid s) = [(xx,yy) | xx <- [0..2*(s-1)],
+                                      yy <- [0..2*(s-1)],
+                                      (xx,yy) `inTriTriGrid` s]
   neighbours = neighboursBasedOn UnboundedTriGrid
   distance = distanceBasedOn UnboundedTriGrid
-  contains (TriTriGrid s _) (x, y) = inTriTriGrid (x,y) s
+  contains (TriTriGrid s) (x, y) = inTriTriGrid (x,y) s
   directionTo = directionToBasedOn UnboundedTriGrid
 
 inTriTriGrid :: (Int, Int) -> Int -> Bool
@@ -91,8 +92,8 @@ inTriTriGrid (x, y) s = x >= 0 && y >= 0 && even (x+y) && abs z <= 2*s-2
 
 instance FiniteGrid TriTriGrid where
   type Size TriTriGrid = Int
-  size (TriTriGrid s _) = s
-  maxPossibleDistance g@(TriTriGrid s _) = distance g (0,0) (2*s-2,0)
+  size (TriTriGrid s) = s
+  maxPossibleDistance g@(TriTriGrid s) = distance g (0,0) (2*s-2,0)
 
 instance BoundedGrid TriTriGrid where
   tileSideCount _ = 3
@@ -109,15 +110,14 @@ instance BoundedGrid TriTriGrid where
     where s = size g
           trefoilWithTop (i,j) = [(i,j), (i+2, j-2), (i,j-2)]
 
+{-# DEPRECATED triTriGrid "Use the TriTriGrid constructor instead." #-}
+
 -- | @'triTriGrid' s@ returns a triangular grid with sides of
 --   length @s@, using triangular tiles. If @s@ is nonnegative, the
 --   resulting grid will have @s^2@ tiles. Otherwise, the resulting grid
 --   will be null and the list of indices will be null.
 triTriGrid :: Int -> TriTriGrid
-triTriGrid s =
-  TriTriGrid s [(xx,yy) | xx <- [0..2*(s-1)],
-                          yy <- [0..2*(s-1)],
-                          (xx,yy) `inTriTriGrid` s]
+triTriGrid = TriTriGrid
 
 --
 -- Parallelogrammatical grids with triangular tiles
@@ -126,16 +126,13 @@ triTriGrid s =
 -- | A Parallelogrammatical grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data ParaTriGrid = ParaTriGrid (Int, Int) [(Int, Int)]
-  deriving  (Eq, Generic)
-
-instance Show ParaTriGrid where
-  show (ParaTriGrid (r,c) _) = "paraTriGrid " ++ show r ++ " " ++ show c
+data ParaTriGrid = ParaTriGrid (Int, Int)
+  deriving  (Read, Show, Eq, Generic)
 
 instance Grid ParaTriGrid where
   type Index ParaTriGrid = (Int, Int)
   type Direction ParaTriGrid = TriDirection
-  indices (ParaTriGrid _ xs) = xs
+  indices (ParaTriGrid (r, c)) = parallelogramIndices r c
   neighbours = neighboursBasedOn UnboundedTriGrid
   distance = distanceBasedOn UnboundedTriGrid
   directionTo = directionToBasedOn UnboundedTriGrid
@@ -144,8 +141,8 @@ instance Grid ParaTriGrid where
 
 instance FiniteGrid ParaTriGrid where
   type Size ParaTriGrid = (Int, Int)
-  size (ParaTriGrid s _) = s
-  maxPossibleDistance g@(ParaTriGrid (r,c) _) =
+  size (ParaTriGrid s) = s
+  maxPossibleDistance g@(ParaTriGrid (r,c)) =
     distance g (0,0) (2*c-1,2*r-1)
 
 instance BoundedGrid ParaTriGrid where
@@ -170,14 +167,15 @@ instance BoundedGrid ParaTriGrid where
                 = [(c-1,r), (c,r-1)]
           bowtie (i,j) = [(i,j), (i+1,j+1)]
 
+{-# DEPRECATED paraTriGrid "Use the ParaTriGrid constructor instead." #-}
+
 -- | @'paraTriGrid' r c@ returns a grid in the shape of a
 --   parallelogram with @r@ rows and @c@ columns, using triangular
 --   tiles. If @r@ and @c@ are both nonnegative, the resulting grid will
 --   have @2*r*c@ tiles. Otherwise, the resulting grid will be null and
 --   the list of indices will be null.
 paraTriGrid :: Int -> Int -> ParaTriGrid
-paraTriGrid r c =
-  ParaTriGrid (r,c) (parallelogramIndices r c)
+paraTriGrid r c = ParaTriGrid (r, c)
 
 parallelogramIndices :: Int -> Int -> [(Int, Int)]
 parallelogramIndices r c =
@@ -190,16 +188,17 @@ parallelogramIndices r c =
 -- | A rectangular grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data RectTriGrid = RectTriGrid (Int, Int) [(Int, Int)]
-  deriving  (Eq, Generic)
-
-instance Show RectTriGrid where
-  show (RectTriGrid (r,c) _) = "rectTriGrid " ++ show r ++ " " ++ show c
+data RectTriGrid = RectTriGrid (Int, Int)
+  deriving  (Read, Show, Eq, Generic)
 
 instance Grid RectTriGrid where
   type Index RectTriGrid = (Int, Int)
   type Direction RectTriGrid = TriDirection
-  indices (RectTriGrid _ xs) = xs
+  indices (RectTriGrid (r, c))
+    = [(x,y) | y <- [0..2*r-1], x <- [xMin y .. xMax c y], even (x+y)]
+      where xMin y = if even y then w else w+1
+              where w = -2*((y+1) `div` 4)
+            xMax c2 y = xMin y + 2*(c2-1)
   neighbours = neighboursBasedOn UnboundedTriGrid
   distance = distanceBasedOn UnboundedTriGrid
   directionTo = directionToBasedOn UnboundedTriGrid
@@ -207,12 +206,14 @@ instance Grid RectTriGrid where
 
 instance FiniteGrid RectTriGrid where
   type Size RectTriGrid = (Int, Int)
-  size (RectTriGrid s _) = s
+  size (RectTriGrid s) = s
   maxPossibleDistance g = -- TODO: make more efficient
     maximum . map (distance g (0,0)) . indices $ g
 
 instance BoundedGrid RectTriGrid where
   tileSideCount _ = 3
+
+{-# DEPRECATED rectTriGrid "Use the RectTriGrid constructor instead." #-}
 
 -- | @'rectTriGrid' r c@ returns a grid in the shape of a
 --   rectangle (with jagged edges) that has @r@ rows and @c@ columns,
@@ -220,10 +221,7 @@ instance BoundedGrid RectTriGrid where
 --   resulting grid will have @2*r*c@ tiles. Otherwise, the resulting grid will be null and
 --   the list of indices will be null.
 rectTriGrid :: Int -> Int -> RectTriGrid
-rectTriGrid r c = RectTriGrid (r,c) [(x,y) | y <- [0..2*r-1], x <- [xMin y .. xMax c y], even (x+y)]
-  where xMin y = if even y then w else w+1
-          where w = -2*((y+1) `div` 4)
-        xMax c2 y = xMin y + 2*(c2-1)
+rectTriGrid r c = RectTriGrid (r,c)
 
 
 --
@@ -233,16 +231,13 @@ rectTriGrid r c = RectTriGrid (r,c) [(x,y) | y <- [0..2*r-1], x <- [xMin y .. xM
 -- | A toroidal grid with triangular tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data TorTriGrid = TorTriGrid (Int, Int) [(Int, Int)]
-  deriving  (Eq, Generic)
-
-instance Show TorTriGrid where
-  show (TorTriGrid (r,c) _) = "torTriGrid " ++ show r ++ " " ++ show c
+data TorTriGrid = TorTriGrid (Int, Int)
+  deriving  (Read, Show, Eq, Generic)
 
 instance Grid TorTriGrid where
   type Index TorTriGrid = (Int, Int)
   type Direction TorTriGrid = TriDirection
-  indices (TorTriGrid _ xs) = xs
+  indices (TorTriGrid (r, c)) = parallelogramIndices r c
   neighbours = neighboursWrappedBasedOn UnboundedTriGrid
   neighbour = neighbourWrappedBasedOn UnboundedTriGrid
   distance = distanceWrappedBasedOn UnboundedTriGrid
@@ -252,7 +247,7 @@ instance Grid TorTriGrid where
 
 instance FiniteGrid TorTriGrid where
   type Size TorTriGrid = (Int, Int)
-  size (TorTriGrid s _) = s
+  size (TorTriGrid s) = s
   maxPossibleDistance g = -- TODO: make more efficient
     maximum . map (distance g (0,0)) . indices $ g
 
@@ -269,13 +264,15 @@ instance WrappedGrid TorTriGrid where
     where (r, c) = size g
           (x, y) = normalise g a
 
+{-# DEPRECATED torTriGrid "Use the TorTriGrid constructor instead." #-}
+
 -- | @'torTriGrid' r c@ returns a toroidal grid with @r@ rows and @c@
 --   columns, using triangular tiles. The indexing method is the same as
 --   for @ParaTriGrid@. If @r@ and @c@ are both nonnegative, the
 --   resulting grid will have @2*r*c@ tiles. Otherwise, the resulting
 --   grid will be null and the list of indices will be null.
 torTriGrid :: Int -> Int -> TorTriGrid
-torTriGrid r c = TorTriGrid (r,c) (parallelogramIndices r c)
+torTriGrid r c = TorTriGrid (r,c)
 
 --
 -- Cylindrical grids with triangular tiles
@@ -285,16 +282,13 @@ torTriGrid r c = TorTriGrid (r,c) (parallelogramIndices r c)
 --   along the y-axis.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data YCylTriGrid = YCylTriGrid (Int, Int) [(Int, Int)]
-  deriving  (Eq, Generic)
-
-instance Show YCylTriGrid where
-  show (YCylTriGrid (r,c) _) = "yCylTriGrid " ++ show r ++ " " ++ show c
+data YCylTriGrid = YCylTriGrid (Int, Int)
+  deriving  (Read, Show, Eq, Generic)
 
 instance Grid YCylTriGrid where
   type Index YCylTriGrid = (Int, Int)
   type Direction YCylTriGrid = TriDirection
-  indices (YCylTriGrid _ xs) = xs
+  indices (YCylTriGrid (r, c)) = parallelogramIndices r c
   neighbours = neighboursWrappedBasedOn UnboundedTriGrid
   neighbour = neighbourWrappedBasedOn UnboundedTriGrid
   distance = distanceWrappedBasedOn UnboundedTriGrid
@@ -305,7 +299,7 @@ instance Grid YCylTriGrid where
 
 instance FiniteGrid YCylTriGrid where
   type Size YCylTriGrid = (Int, Int)
-  size (YCylTriGrid s _) = s
+  size (YCylTriGrid s) = s
   maxPossibleDistance g = -- TODO: make more efficient
     maximum . map (distance g (0,0)) . indices $ g
 
@@ -318,6 +312,8 @@ instance WrappedGrid YCylTriGrid where
     where (_, c) = size g
           (x, y) = normalise g a
 
+{-# DEPRECATED yCylTriGrid "Use the YCylTriGrid constructor instead." #-}
+
 -- | @'yCylTriGrid' r c@ returns a cylindrical grid with @r@ rows and
 --   @c@ columns, using triangular tiles, where the cylinder is along
 --   the y-axis. The indexing method is the same as for @ParaTriGrid@.
@@ -325,22 +321,19 @@ instance WrappedGrid YCylTriGrid where
 --   @2*r*c@ tiles. Otherwise, the resulting grid will be null and the
 --   list of indices will be null.
 yCylTriGrid :: Int -> Int -> YCylTriGrid
-yCylTriGrid r c = YCylTriGrid (r,c) (parallelogramIndices r c)
+yCylTriGrid r c = YCylTriGrid (r,c)
 
 -- | A cylindrical grid with triangular tiles, where the cylinder is
 --   along the x-axis.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data XCylTriGrid = XCylTriGrid (Int, Int) [(Int, Int)]
-  deriving  (Eq, Generic)
-
-instance Show XCylTriGrid where
-  show (XCylTriGrid (r,c) _) = "yCylTriGrid " ++ show r ++ " " ++ show c
+data XCylTriGrid = XCylTriGrid (Int, Int)
+  deriving  (Read, Show, Eq, Generic)
 
 instance Grid XCylTriGrid where
   type Index XCylTriGrid = (Int, Int)
   type Direction XCylTriGrid = TriDirection
-  indices (XCylTriGrid _ xs) = xs
+  indices (XCylTriGrid (r, c)) = parallelogramIndices r c
   neighbours = neighboursWrappedBasedOn UnboundedTriGrid
   neighbour = neighbourWrappedBasedOn UnboundedTriGrid
   distance = distanceWrappedBasedOn UnboundedTriGrid
@@ -351,7 +344,7 @@ instance Grid XCylTriGrid where
 
 instance FiniteGrid XCylTriGrid where
   type Size XCylTriGrid = (Int, Int)
-  size (XCylTriGrid s _) = s
+  size (XCylTriGrid s) = s
   maxPossibleDistance g = -- TODO: make more efficient
     maximum . map (distance g (0,0)) . indices $ g
 
@@ -364,6 +357,8 @@ instance WrappedGrid XCylTriGrid where
     where (r, _) = size g
           (x, y) = normalise g a
 
+{-# DEPRECATED xCylTriGrid "Use the XCylTriGrid constructor instead." #-}
+
 -- | @'xCylTriGrid' r c@ returns a cylindrical grid with @r@ rows and
 --   @c@ columns, using triangular tiles, where the cylinder is along
 --   the y-axis. The indexing method is the same as for @ParaTriGrid@.
@@ -371,5 +366,5 @@ instance WrappedGrid XCylTriGrid where
 --   @2*r*c@ tiles. Otherwise, the resulting grid will be null and the
 --   list of indices will be null.
 xCylTriGrid :: Int -> Int -> XCylTriGrid
-xCylTriGrid r c = XCylTriGrid (r,c) (parallelogramIndices r c)
+xCylTriGrid r c = XCylTriGrid (r,c)
 

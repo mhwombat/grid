@@ -14,18 +14,19 @@
 -- Also see @Math.Geometry.Grid@ for examples of how to use this class.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Math.Geometry.Grid.Hexagonal2
   (
     -- * Unbounded grid with hexagonal tiles
     UnboundedHexGrid(..),
     -- * Hexagonal grid with hexagonal tiles
-    HexHexGrid,
+    HexHexGrid(..),
     hexHexGrid,
     -- * Rectangular grid with hexagonal tiles
-    RectHexGrid,
+    RectHexGrid(..),
     rectHexGrid
   ) where
 
-import Math.Geometry.Grid.HexagonalInternal2
+import           Math.Geometry.Grid.HexagonalInternal2

@@ -7,39 +7,41 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- A module containing private @OctGrid@ internals. Most developers 
--- should use @OctGrid@ instead. This module is subject to change 
+-- A module containing private @OctGrid@ internals. Most developers
+-- should use @OctGrid@ instead. This module is subject to change
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts, DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric    #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies     #-}
 
 module Math.Geometry.Grid.OctagonalInternal where
 
-import Prelude hiding (null)
+import           Prelude                    hiding (null)
 
-import Data.List (nub)
-import GHC.Generics (Generic)
-import Math.Geometry.GridInternal
+import           Data.List                  (nub)
+import           GHC.Generics               (Generic)
+import           Math.Geometry.GridInternal
 
-data OctDirection = West | Northwest | North | Northeast | East | 
+data OctDirection = West | Northwest | North | Northeast | East |
                       Southeast | South | Southwest
-                        deriving (Show, Eq, Generic)
+                        deriving (Read, Show, Eq, Generic)
 
 -- | An unbounded grid with octagonal tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedOctGrid = UnboundedOctGrid deriving (Eq, Show, Generic)
+data UnboundedOctGrid = UnboundedOctGrid deriving (Read, Show, Eq, Generic)
 
 instance Grid UnboundedOctGrid where
   type Index UnboundedOctGrid = (Int, Int)
   type Direction UnboundedOctGrid = OctDirection
   indices _ = undefined
-  neighbours _ (x,y) = [(x-1,y+1), (x,y+1), (x+1,y+1), (x+1,y), 
+  neighbours _ (x,y) = [(x-1,y+1), (x,y+1), (x+1,y+1), (x+1,y),
                         (x+1,y-1), (x,y-1), (x-1,y-1), (x-1,y)]
   distance _ (x1, y1) (x2, y2) = max (abs (x2-x1)) (abs (y2-y1))
   contains _ _ = True
-  directionTo _ (x1, y1) (x2, y2) = 
+  directionTo _ (x1, y1) (x2, y2) =
     f1 . f2 . f3 . f4 . f5 . f6 . f7 . f8 $ []
     where f1 ds =  if  dy > abs dx then North:ds else ds
           f2 ds =  if -dy > abs dx then South:ds else ds
@@ -61,17 +63,13 @@ instance Grid UnboundedOctGrid where
 -- | A rectangular grid with octagonal tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data RectOctGrid = RectOctGrid (Int, Int) [(Int, Int)]
-  deriving (Eq, Generic)
-
-instance Show RectOctGrid where 
-  show (RectOctGrid (r,c) _) = 
-    "rectOctGrid " ++ show r ++ " " ++ show c
+data RectOctGrid = RectOctGrid (Int, Int)
+  deriving (Read, Show, Eq, Generic)
 
 instance Grid RectOctGrid where
   type Index RectOctGrid = (Int, Int)
   type Direction RectOctGrid = OctDirection
-  indices (RectOctGrid _ xs) = xs
+  indices (RectOctGrid (r, c)) = [(x,y) | x <- [0..c-1], y <- [0..r-1]]
   neighbours = neighboursBasedOn UnboundedOctGrid
   distance = distanceBasedOn UnboundedOctGrid
   directionTo = directionToBasedOn UnboundedOctGrid
@@ -80,8 +78,8 @@ instance Grid RectOctGrid where
 
 instance FiniteGrid RectOctGrid where
   type Size RectOctGrid = (Int, Int)
-  size (RectOctGrid s _) = s
-  maxPossibleDistance g@(RectOctGrid (r,c) _) = 
+  size (RectOctGrid s) = s
+  maxPossibleDistance g@(RectOctGrid (r,c)) =
     distance g (0,0) (c-1,r-1)
 
 instance BoundedGrid RectOctGrid where
@@ -89,14 +87,15 @@ instance BoundedGrid RectOctGrid where
   boundary g = cartesianIndices . size $ g
   centre g = cartesianCentre . size $ g
 
+{-# DEPRECATED rectOctGrid "Use the RectOctGrid constructor instead." #-}
+
 -- | @'rectOctGrid' r c@ produces a rectangular grid with @r@ rows
---   and @c@ columns, using octagonal tiles. If @r@ and @c@ are both 
---   nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
---   the resulting grid will be null and the list of indices will be 
+--   and @c@ columns, using octagonal tiles. If @r@ and @c@ are both
+--   nonnegative, the resulting grid will have @r*c@ tiles. Otherwise,
+--   the resulting grid will be null and the list of indices will be
 --   null.
 rectOctGrid :: Int -> Int -> RectOctGrid
-rectOctGrid r c = 
-  RectOctGrid (r,c) [(x,y) | x <- [0..c-1], y <- [0..r-1]]
+rectOctGrid r c = RectOctGrid (r,c)
 
 --
 -- Toroidal grids with octagonal tiles.
@@ -105,16 +104,13 @@ rectOctGrid r c =
 -- | A toroidal grid with octagonal tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data TorOctGrid = TorOctGrid (Int, Int) [(Int, Int)]
-  deriving (Eq, Generic)
-
-instance Show TorOctGrid where 
-  show (TorOctGrid (r,c) _) = "torOctGrid " ++ show r ++ " " ++ show c
+data TorOctGrid = TorOctGrid (Int, Int)
+  deriving (Read, Show, Eq, Generic)
 
 instance Grid TorOctGrid where
   type Index TorOctGrid = (Int, Int)
   type Direction TorOctGrid = OctDirection
-  indices (TorOctGrid _ xs) = xs
+  indices (TorOctGrid (r, c)) = [(x, y) | x <- [0..c-1], y <- [0..r-1]]
   neighbours = neighboursWrappedBasedOn UnboundedOctGrid
   neighbour = neighbourWrappedBasedOn UnboundedOctGrid
   distance = distanceWrappedBasedOn UnboundedOctGrid
@@ -124,23 +120,25 @@ instance Grid TorOctGrid where
 
 instance FiniteGrid TorOctGrid where
   type Size TorOctGrid = (Int, Int)
-  size (TorOctGrid s _) = s
-  maxPossibleDistance g@(TorOctGrid (r,c) _) =
+  size (TorOctGrid s) = s
+  maxPossibleDistance g@(TorOctGrid (r,c)) =
     distance g (0,0) (c `div` 2, r `div` 2)
 
 instance WrappedGrid TorOctGrid where
   normalise g (x,y) = (x `mod` c, y `mod` r)
     where (r, c) = size g
-  denormalise g a = nub [ (x-c,y+r), (x,y+r), (x+c,y+r), 
+  denormalise g a = nub [ (x-c,y+r), (x,y+r), (x+c,y+r),
                           (x-c,y),   (x,y),   (x+c,y),
                           (x-c,y-r), (x,y-r), (x+c,y-r) ]
     where (r, c) = size g
           (x, y) = normalise g a
 
--- | @'torOctGrid' r c@ returns a toroidal grid with @r@ 
---   rows and @c@ columns, using octagonal tiles. If @r@ and @c@ are 
---   both nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
+{-# DEPRECATED torOctGrid "Use the TorOctGrid constructor instead." #-}
+
+-- | @'torOctGrid' r c@ returns a toroidal grid with @r@
+--   rows and @c@ columns, using octagonal tiles. If @r@ and @c@ are
+--   both nonnegative, the resulting grid will have @r*c@ tiles. Otherwise,
 --   the resulting grid will be null and the list of indices will be null.
 torOctGrid :: Int -> Int -> TorOctGrid
-torOctGrid r c = TorOctGrid (r,c) [(x, y) | x <- [0..c-1], y <- [0..r-1]]
+torOctGrid r c = TorOctGrid (r,c)
 

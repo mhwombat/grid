@@ -1,5 +1,7 @@
 # Changelog for grid
 
+8.0.0  Grids and Maps now implement Read.
+
 7.8.16 De-linting.
 
 7.8.15 Simplified nix config again.

@@ -7,29 +7,31 @@
 -- Stability   :  experimental
 -- Portability :  portable
 --
--- A module containing private @SquareGrid@ internals. Most developers 
--- should use @SquareGrid@ instead. This module is subject to change 
+-- A module containing private @SquareGrid@ internals. Most developers
+-- should use @SquareGrid@ instead. This module is subject to change
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts, DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric    #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies     #-}
 
 module Math.Geometry.Grid.SquareInternal where
 
-import Prelude hiding (null)
+import           Prelude                    hiding (null)
 
-import Data.List (nub)
-import GHC.Generics (Generic)
-import Math.Geometry.GridInternal
+import           Data.List                  (nub)
+import           GHC.Generics               (Generic)
+import           Math.Geometry.GridInternal
 
 data SquareDirection = North | East | South | West
-  deriving (Show, Eq)
+  deriving (Read, Show, Eq)
 
 -- | An unbounded grid with square tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
 data UnboundedSquareGrid = UnboundedSquareGrid
-  deriving (Eq, Show, Generic)
+  deriving (Read, Show, Eq, Generic)
 
 instance Grid UnboundedSquareGrid where
   type Index UnboundedSquareGrid = (Int, Int)
@@ -53,20 +55,16 @@ instance Grid UnboundedSquareGrid where
 -- | A rectangular grid with square tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data RectSquareGrid = RectSquareGrid (Int, Int) [(Int, Int)]
-  deriving  (Eq, Generic)
-
-instance Show RectSquareGrid where 
-  show (RectSquareGrid (r,c) _) = 
-    "rectSquareGrid " ++ show r ++ " " ++ show c
+data RectSquareGrid = RectSquareGrid (Int, Int)
+  deriving  (Read, Show, Eq, Generic)
 
 instance Grid RectSquareGrid where
   type Index RectSquareGrid = (Int, Int)
   type Direction RectSquareGrid = SquareDirection
-  indices (RectSquareGrid _ xs) = xs
+  indices (RectSquareGrid (r, c)) = [(x,y) | x <- [0..c-1], y <- [0..r-1]]
   neighbours = neighboursBasedOn UnboundedSquareGrid
   distance = distanceBasedOn UnboundedSquareGrid
-  adjacentTilesToward g a@(x1, y1) (x2, y2) = 
+  adjacentTilesToward g a@(x1, y1) (x2, y2) =
     filter (\i -> g `contains` i && i /= a) $ nub [(x1,y1+dy),(x1+dx,y1)]
       where dx = signum (x2-x1)
             dy = signum (y2-y1)
@@ -78,8 +76,8 @@ instance Grid RectSquareGrid where
 
 instance FiniteGrid RectSquareGrid where
   type Size RectSquareGrid = (Int, Int)
-  size (RectSquareGrid s _) = s
-  maxPossibleDistance g@(RectSquareGrid (r,c) _) = 
+  size (RectSquareGrid s) = s
+  maxPossibleDistance g@(RectSquareGrid (r,c)) =
     distance g (0,0) (c-1,r-1)
 
 instance BoundedGrid RectSquareGrid where
@@ -87,14 +85,15 @@ instance BoundedGrid RectSquareGrid where
   boundary g = cartesianIndices . size $ g
   centre g = cartesianCentre . size $ g
 
+{-# DEPRECATED rectSquareGrid "Use the RectSquareGrid constructor instead." #-}
+
 -- | @'rectSquareGrid' r c@ produces a rectangular grid with @r@ rows
---   and @c@ columns, using square tiles. If @r@ and @c@ are both 
---   nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
---   the resulting grid will be null and the list of indices will be 
+--   and @c@ columns, using square tiles. If @r@ and @c@ are both
+--   nonnegative, the resulting grid will have @r*c@ tiles. Otherwise,
+--   the resulting grid will be null and the list of indices will be
 --   null.
 rectSquareGrid :: Int -> Int -> RectSquareGrid
-rectSquareGrid r c = 
-  RectSquareGrid (r,c) [(x,y) | x <- [0..c-1], y <- [0..r-1]]
+rectSquareGrid r c = RectSquareGrid (r,c)
 
 --
 -- Toroidal grids with square tiles.
@@ -103,16 +102,13 @@ rectSquareGrid r c =
 -- | A toroidal grid with square tiles.
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data TorSquareGrid = TorSquareGrid (Int, Int) [(Int, Int)]
-  deriving  (Eq, Generic)
-
-instance Show TorSquareGrid where 
-  show (TorSquareGrid (r,c) _) = "torSquareGrid " ++ show r ++ " " ++ show c
+data TorSquareGrid = TorSquareGrid (Int, Int)
+  deriving  (Read, Show, Eq, Generic)
 
 instance Grid TorSquareGrid where
   type Index TorSquareGrid = (Int, Int)
   type Direction TorSquareGrid = SquareDirection
-  indices (TorSquareGrid _ xs) = xs
+  indices (TorSquareGrid (r, c)) = [(x, y) | x <- [0..c-1], y <- [0..r-1]]
   neighbours = neighboursWrappedBasedOn UnboundedSquareGrid
   neighbour = neighbourWrappedBasedOn UnboundedSquareGrid
   distance = distanceWrappedBasedOn UnboundedSquareGrid
@@ -122,8 +118,8 @@ instance Grid TorSquareGrid where
 
 instance FiniteGrid TorSquareGrid where
   type Size TorSquareGrid = (Int, Int)
-  size (TorSquareGrid s _) = s
-  maxPossibleDistance g@(TorSquareGrid (r,c) _) =
+  size (TorSquareGrid s) = s
+  maxPossibleDistance g@(TorSquareGrid (r,c)) =
     distance g (0,0) (c `div` 2, r `div` 2)
 
 instance WrappedGrid TorSquareGrid where
@@ -135,10 +131,12 @@ instance WrappedGrid TorSquareGrid where
     where (r, c) = size g
           (x, y) = normalise g b
 
--- | @'torSquareGrid' r c@ returns a toroidal grid with @r@ 
---   rows and @c@ columns, using square tiles. If @r@ and @c@ are 
---   both nonnegative, the resulting grid will have @r*c@ tiles. Otherwise, 
+{-# DEPRECATED torSquareGrid "Use the TorSquareGrid constructor instead." #-}
+
+-- | @'torSquareGrid' r c@ returns a toroidal grid with @r@
+--   rows and @c@ columns, using square tiles. If @r@ and @c@ are
+--   both nonnegative, the resulting grid will have @r*c@ tiles. Otherwise,
 --   the resulting grid will be null and the list of indices will be null.
 torSquareGrid :: Int -> Int -> TorSquareGrid
-torSquareGrid r c = TorSquareGrid (r,c) [(x, y) | x <- [0..c-1], y <- [0..r-1]]
+torSquareGrid r c = TorSquareGrid (r,c)
 

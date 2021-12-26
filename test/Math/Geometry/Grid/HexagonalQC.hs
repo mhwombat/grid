@@ -10,8 +10,9 @@
 -- QuickCheck tests.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE FlexibleContexts, ExistentialQuantification,
-    TypeFamilies #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleContexts          #-}
+{-# LANGUAGE TypeFamilies              #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Math.Geometry.Grid.HexagonalQC
@@ -19,14 +20,16 @@ module Math.Geometry.Grid.HexagonalQC
     test
   ) where
 
-import Math.Geometry.Grid.HexagonalInternal
-import Math.Geometry.GridInternal
-import Math.Geometry.GridQC
+import           Math.Geometry.Grid.HexagonalInternal
+import           Math.Geometry.GridInternal
+import           Math.Geometry.GridQC
 
-import Prelude hiding (null)
-import Test.Framework (Test, testGroup)
-import Test.QuickCheck
-  (Gen, Arbitrary, arbitrary, sized, elements, choose, Property, vectorOf)
+import           Prelude                              hiding (null)
+import           Test.Framework                       (Test, testGroup)
+import           Test.QuickCheck                      (Arbitrary, Gen, Property,
+                                                       arbitrary, choose,
+                                                       elements, sized,
+                                                       vectorOf)
 
 instance Arbitrary HexDirection where
   arbitrary =
@@ -38,7 +41,7 @@ instance Arbitrary HexDirection where
 
 data UnboundedHexGridTD =
   UnboundedHexGridTD [(Int,Int)] ((Int,Int),(Int,Int)) HexDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData UnboundedHexGridTD where
   type BaseGrid UnboundedHexGridTD = UnboundedHexGrid
@@ -70,7 +73,7 @@ unboundedHexGridTests = makeTests unboundedHexGridProperties
 
 data HexHexGridTD =
   HexHexGridTD HexHexGrid [(Int,Int)] ((Int,Int),(Int,Int)) HexDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData HexHexGridTD where
   type BaseGrid HexHexGridTD = HexHexGrid
@@ -96,7 +99,7 @@ instance TestDataB HexHexGridTD where
 sizedHexHexGridTD :: Int -> Gen HexHexGridTD
 sizedHexHexGridTD n = do
   let s = isqrt (n `div` 3)
-  let g = hexHexGrid s
+  let g = HexHexGrid s
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
   HexHexGridTD g ps qs <$> arbitrary
@@ -119,7 +122,7 @@ hexHexGridTests = makeTests hexHexGridProperties
 
 data ParaHexGridTD =
   ParaHexGridTD ParaHexGrid [(Int,Int)] ((Int,Int),(Int,Int)) HexDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData ParaHexGridTD where
   type BaseGrid ParaHexGridTD = ParaHexGrid
@@ -144,7 +147,7 @@ sizedParaHexGridTD :: Int -> Gen ParaHexGridTD
 sizedParaHexGridTD n = do
   r <- choose (0,n)
   let c = n `div` (r+1)
-  let g = paraHexGrid r c
+  let g = ParaHexGrid (r, c)
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
   ParaHexGridTD g ps qs <$> arbitrary

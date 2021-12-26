@@ -10,8 +10,9 @@
 -- QuickCheck tests.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE FlexibleContexts, ExistentialQuantification,
-    TypeFamilies #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleContexts          #-}
+{-# LANGUAGE TypeFamilies              #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Math.Geometry.Grid.TriangularQC
@@ -19,15 +20,16 @@ module Math.Geometry.Grid.TriangularQC
     test
   ) where
 
-import Math.Geometry.Grid.TriangularInternal
-import Math.Geometry.GridInternal
-import Math.Geometry.GridQC
+import           Math.Geometry.Grid.TriangularInternal
+import           Math.Geometry.GridInternal
+import           Math.Geometry.GridQC
 
-import Prelude hiding (null)
-import Test.Framework (Test, testGroup)
-import Test.QuickCheck
-  (Gen, Arbitrary, arbitrary, sized, choose, elements, Property,
-    vectorOf, suchThat)
+import           Prelude                               hiding (null)
+import           Test.Framework                        (Test, testGroup)
+import           Test.QuickCheck                       (Arbitrary, Gen,
+                                                        Property, arbitrary,
+                                                        choose, elements, sized,
+                                                        suchThat, vectorOf)
 
 instance Arbitrary TriDirection where
   arbitrary =
@@ -39,7 +41,7 @@ instance Arbitrary TriDirection where
 
 data UnboundedTriGridTD =
   UnboundedTriGridTD [(Int,Int)] ((Int,Int),(Int,Int)) TriDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData UnboundedTriGridTD where
   type BaseGrid UnboundedTriGridTD = UnboundedTriGrid
@@ -79,7 +81,7 @@ unboundedTriGridTests = makeTests unboundedTriGridProperties
 
 data TriTriGridTD =
   TriTriGridTD TriTriGrid [(Int,Int)] ((Int,Int),(Int,Int)) TriDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData TriTriGridTD where
   type BaseGrid TriTriGridTD = TriTriGrid
@@ -104,7 +106,7 @@ instance TestDataB TriTriGridTD where
 -- We want the number of tiles in a test grid to be O(n)
 sizedTriTriGridTD :: Int -> Gen TriTriGridTD
 sizedTriTriGridTD n = do
-  let g = triTriGrid (2 * isqrt n)
+  let g = TriTriGrid (2 * isqrt n)
   ps <- chooseIndices g n
   qs <- chooseClosePoints g `suchThat` bothValid
   TriTriGridTD g ps qs <$> arbitrary
@@ -126,7 +128,7 @@ triTriGridTests = makeTests triTriGridProperties
 
 data ParaTriGridTD =
   ParaTriGridTD ParaTriGrid [(Int,Int)] ((Int,Int),(Int,Int)) TriDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData ParaTriGridTD where
   type BaseGrid ParaTriGridTD = ParaTriGrid
@@ -155,7 +157,7 @@ sizedParaTriGridTD :: Int -> Gen ParaTriGridTD
 sizedParaTriGridTD n = do
   r <- choose (0,n)
   let c = n `div` (2*r + 1)
-  let g = paraTriGrid r c
+  let g = ParaTriGrid (r, c)
   ps <- chooseIndices g n
   qs <- chooseClosePoints g `suchThat` bothValid
   ParaTriGridTD g ps qs <$> arbitrary
@@ -178,7 +180,7 @@ paraTriGridTests = makeTests paraTriGridProperties
 
 data RectTriGridTD =
   RectTriGridTD RectTriGrid [(Int,Int)] ((Int,Int),(Int,Int)) TriDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData RectTriGridTD where
   type BaseGrid RectTriGridTD = RectTriGrid
@@ -207,7 +209,7 @@ sizedRectTriGridTD :: Int -> Gen RectTriGridTD
 sizedRectTriGridTD n = do
   r <- choose (0,n)
   let c = n `div` (2*r + 1)
-  let g = rectTriGrid r c
+  let g = RectTriGrid (r, c)
   ps <- chooseIndices g n
   qs <- chooseClosePoints g `suchThat`
     (\(a,b) -> bothValid (a,b) && inRectBounds r c a && inRectBounds r c b)
@@ -237,7 +239,7 @@ rectTriGridTests = makeTests rectTriGridProperties
 
 data TorTriGridTD =
   TorTriGridTD TorTriGrid [(Int,Int)] ((Int,Int),(Int,Int)) TriDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData TorTriGridTD where
   type BaseGrid TorTriGridTD = TorTriGrid
@@ -259,7 +261,7 @@ sizedTorTriGridTD n = do
   r0 <- choose (0,n `div` 2)
   let r = 2*r0
   let c = n `div` (2*r + 1)
-  let g = torTriGrid r c
+  let g = TorTriGrid (r, c)
 --  r <- choose (0,n)
 --  let c = n `div` (2*r + 1)
 --  let g = torTriGrid r c
@@ -284,7 +286,7 @@ torTriGridTests = makeTests torTriGridProperties
 
 data YCylTriGridTD =
   YCylTriGridTD YCylTriGrid [(Int,Int)] ((Int,Int),(Int,Int)) TriDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData YCylTriGridTD where
   type BaseGrid YCylTriGridTD = YCylTriGrid
@@ -306,7 +308,7 @@ sizedYCylTriGridTD n = do
   r0 <- choose (0,n `div` 2)
   let r = 2*r0
   let c = n `div` (2*r + 1)
-  let g = yCylTriGrid r c
+  let g = YCylTriGrid (r, c)
   ps <- chooseIndices g n
   qs <- chooseClosePoints g `suchThat` bothValid
   YCylTriGridTD g ps qs <$> arbitrary
@@ -323,7 +325,7 @@ yCylTriGridTests = makeTests yCylTriGridProperties
 
 data XCylTriGridTD =
   XCylTriGridTD XCylTriGrid [(Int,Int)] ((Int,Int),(Int,Int)) TriDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData XCylTriGridTD where
   type BaseGrid XCylTriGridTD = XCylTriGrid
@@ -345,7 +347,7 @@ sizedXCylTriGridTD n = do
   r0 <- choose (0,n `div` 2)
   let r = 2*r0
   let c = n `div` (2*r + 1)
-  let g = xCylTriGrid r c
+  let g = XCylTriGrid (r, c)
   ps <- chooseIndices g n
   qs <- chooseClosePoints g `suchThat` bothValid
   XCylTriGridTD g ps qs <$> arbitrary

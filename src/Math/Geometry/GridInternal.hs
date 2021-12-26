@@ -11,15 +11,17 @@
 -- use @Grid@ instead. This module is subject to change without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts, ConstrainedClassMethods #-}
+{-# LANGUAGE ConstrainedClassMethods #-}
+{-# LANGUAGE FlexibleContexts        #-}
+{-# LANGUAGE TypeFamilies            #-}
 
 module Math.Geometry.GridInternal where
 
-import Prelude hiding (null)
+import           Prelude       hiding (null)
 
-import Data.Function (on)
-import Data.List ((\\), groupBy, nub, nubBy, sortBy)
-import Data.Ord (comparing)
+import           Data.Function (on)
+import           Data.List     (groupBy, nub, nubBy, sortBy, (\\))
+import           Data.Ord      (comparing)
 
 -- | A regular arrangement of tiles.
 --   Minimal complete definition: @'Index'@, @'Direction'@, @'indices'@,
@@ -160,7 +162,7 @@ class Grid g where
   defaultNeighbour g a d =
     maybeHead . filter (\b -> [d] == directionTo g a b) . neighbours g $ a
     where maybeHead (x:_) = Just x
-          maybeHead _ = Nothing
+          maybeHead _     = Nothing
 
   defaultTileCount :: g -> Int
   defaultTileCount = length . indices

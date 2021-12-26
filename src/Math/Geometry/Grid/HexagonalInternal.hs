@@ -12,24 +12,25 @@
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts, DeriveGeneric #-}
-
+{-# LANGUAGE DeriveGeneric    #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies     #-}
 module Math.Geometry.Grid.HexagonalInternal where
 
-import Prelude hiding (null)
-import Data.Function (on)
-import Data.List (groupBy, sortBy)
-import Data.Ord (comparing)
-import GHC.Generics (Generic)
-import Math.Geometry.GridInternal
+import           Data.Function              (on)
+import           Data.List                  (groupBy, sortBy)
+import           Data.Ord                   (comparing)
+import           GHC.Generics               (Generic)
+import           Math.Geometry.GridInternal
+import           Prelude                    hiding (null)
 
 data HexDirection = West | Northwest | Northeast | East | Southeast |
-                      Southwest deriving (Show, Eq, Generic)
+                      Southwest deriving (Show, Read, Eq, Generic)
 
 -- | An unbounded grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedHexGrid = UnboundedHexGrid deriving (Show, Eq, Generic)
+data UnboundedHexGrid = UnboundedHexGrid deriving (Show, Read, Eq, Generic)
 
 instance Grid UnboundedHexGrid where
   type Index UnboundedHexGrid = (Int, Int)
@@ -64,14 +65,13 @@ instance Grid UnboundedHexGrid where
 -- | A hexagonal grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data HexHexGrid = HexHexGrid Int [(Int, Int)] deriving (Eq, Generic)
-
-instance Show HexHexGrid where show (HexHexGrid s _) = "hexHexGrid " ++ show s
+data HexHexGrid = HexHexGrid Int deriving (Show, Read, Eq, Generic)
 
 instance Grid HexHexGrid where
   type Index HexHexGrid = (Int, Int)
   type Direction HexHexGrid = HexDirection
-  indices (HexHexGrid _ xs) = xs
+  indices (HexHexGrid r) =  [(x, y) | x <- [-r+1..r-1], y <- f x]
+    where f x = if x < 0 then [1-r-x .. r-1] else [1-r .. r-1-x]
   neighbours = neighboursBasedOn UnboundedHexGrid
   distance = distanceBasedOn UnboundedHexGrid
   directionTo = directionToBasedOn UnboundedHexGrid
@@ -83,8 +83,8 @@ instance Grid HexHexGrid where
 
 instance FiniteGrid HexHexGrid where
   type Size HexHexGrid = Int
-  size (HexHexGrid s _) = s
-  maxPossibleDistance g@(HexHexGrid s _) = distance g (-s+1,0) (s-1,0)
+  size (HexHexGrid s) = s
+  maxPossibleDistance g@(HexHexGrid s) = distance g (-s+1,0) (s-1,0)
 
 instance BoundedGrid HexHexGrid where
   tileSideCount _ = 6
@@ -99,13 +99,14 @@ instance BoundedGrid HexHexGrid where
           northwest = [(-s+1,k) | k <- [1,2..s-2]]
   centre _ = [(0,0)]
 
+{-# DEPRECATED hexHexGrid "Use the HexHexGrid constructor instead." #-}
+
 -- | @'hexHexGrid' s@ returns a grid of hexagonal shape, with
 --   sides of length @s@, using hexagonal tiles. If @s@ is nonnegative, the
 --   resulting grid will have @3*s*(s-1) + 1@ tiles. Otherwise, the resulting
 --   grid will be null and the list of indices will be null.
 hexHexGrid :: Int -> HexHexGrid
-hexHexGrid r = HexHexGrid r [(x, y) | x <- [-r+1..r-1], y <- f x]
-  where f x = if x < 0 then [1-r-x .. r-1] else [1-r .. r-1-x]
+hexHexGrid = HexHexGrid
 
 --
 -- Parallelogrammatical grids with hexagonal tiles
@@ -114,16 +115,13 @@ hexHexGrid r = HexHexGrid r [(x, y) | x <- [-r+1..r-1], y <- f x]
 -- | A parallelogramatical grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data ParaHexGrid = ParaHexGrid (Int, Int) [(Int, Int)]
-  deriving (Eq, Generic)
-
-instance Show ParaHexGrid where
-  show (ParaHexGrid (r,c) _) = "paraHexGrid " ++ show r ++ " " ++ show c
+data ParaHexGrid = ParaHexGrid (Int, Int)
+  deriving (Show, Read, Eq, Generic)
 
 instance Grid ParaHexGrid where
   type Index ParaHexGrid = (Int, Int)
   type Direction ParaHexGrid = HexDirection
-  indices (ParaHexGrid _ xs) = xs
+  indices (ParaHexGrid (r, c)) = [(x, y) | x <- [0..c-1], y <- [0..r-1]]
   neighbours = neighboursBasedOn UnboundedHexGrid
   distance = distanceBasedOn UnboundedHexGrid
   directionTo = directionToBasedOn UnboundedHexGrid
@@ -132,8 +130,8 @@ instance Grid ParaHexGrid where
 
 instance FiniteGrid ParaHexGrid where
   type Size ParaHexGrid = (Int, Int)
-  size (ParaHexGrid s _) = s
-  maxPossibleDistance g@(ParaHexGrid (r,c) _) =
+  size (ParaHexGrid s) = s
+  maxPossibleDistance g@(ParaHexGrid (r,c)) =
     distance g (0,0) (c-1,r-1)
 
 instance BoundedGrid ParaHexGrid where
@@ -147,12 +145,13 @@ instance BoundedGrid ParaHexGrid where
                  . map (\a -> (a, uncurry (+) a))
                  . cartesianCentre . size $ g
 
+{-# DEPRECATED paraHexGrid "Use the paraHexGrid constructor instead." #-}
+
 -- | @'paraHexGrid' r c@ returns a grid in the shape of a
 --   parallelogram with @r@ rows and @c@ columns, using hexagonal tiles. If
 --   @r@ and @c@ are both nonnegative, the resulting grid will have @r*c@ tiles.
 --   Otherwise, the resulting grid will be null and the list of indices will
 --   be null.
 paraHexGrid :: Int -> Int -> ParaHexGrid
-paraHexGrid r c =
-  ParaHexGrid (r,c) [(x, y) | x <- [0..c-1], y <- [0..r-1]]
+paraHexGrid r c = ParaHexGrid (r, c)
 

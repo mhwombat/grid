@@ -26,8 +26,7 @@ import           Control.Monad                        (replicateM)
 import           Data.List                            (foldl', intersect, (\\))
 import           Data.Maybe                           (isJust, isNothing)
 import qualified Math.Geometry.Grid                   as G
-import           Math.Geometry.Grid.Square            (RectSquareGrid,
-                                                       rectSquareGrid)
+import           Math.Geometry.Grid.Square            (RectSquareGrid (..))
 import qualified Math.Geometry.GridMap                as GM
 import           Math.Geometry.GridMap.Lazy
 import           Test.Framework                       (Test, testGroup)
@@ -42,7 +41,7 @@ sizedRectSquareGrid :: Int -> Gen RectSquareGrid
 sizedRectSquareGrid n = do
   r <- choose (0,n)
   let c = n `div` (r+1)
-  return $ rectSquareGrid r c
+  return $ RectSquareGrid (r, c)
 
 sizedGridMap :: Int -> Gen (LGridMap RectSquareGrid Int)
 sizedGridMap n = do
@@ -61,7 +60,7 @@ instance Arbitrary (LGridMap RectSquareGrid Int) where
   arbitrary = sized sizedGridMap
 
 -- data GridMapTD = GridMapTD (LGridMap RectSquareGrid Int) (Int,Int)
---   deriving (Eq, Show)
+--   deriving (Show, Read, Eq)
 
 -- sizedGridMapTD :: Int -> Gen GridMapTD
 -- sizedGridMapTD n = do
@@ -123,14 +122,14 @@ prop_lazyGridMapIndexed_adds_all_valid_keys
 prop_lazyGridMapIndexed_adds_all_valid_keys n m kvs
   = (GM.keys gm `intersect` G.indices g) == GM.keys gm
   where gm = lazyGridMapIndexed g kvs
-        g = rectSquareGrid n m
+        g = RectSquareGrid (n, m)
 
 prop_lazyGridMapIndexed_never_adds_invalid_keys
   :: Int -> Int -> [(G.Index RectSquareGrid, Int)] -> Bool
 prop_lazyGridMapIndexed_never_adds_invalid_keys n m kvs
   = null (GM.keys gm \\ G.indices g)
   where gm = lazyGridMapIndexed g kvs
-        g = rectSquareGrid n m
+        g = RectSquareGrid (n, m)
 
 test :: Test
 test = testGroup "Math.Geometry.GridMap.LazyQC"

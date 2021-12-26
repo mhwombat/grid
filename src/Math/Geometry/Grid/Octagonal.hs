@@ -17,18 +17,19 @@
 -- Also see @Math.Geometry.Grid@ for examples of how to use this class.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Math.Geometry.Grid.Octagonal
   (
     -- * Unbounded grid with octagonal tiles
     UnboundedOctGrid(..),
     -- * Rectangular grid with octagonal tiles
-    RectOctGrid,
+    RectOctGrid(..),
     rectOctGrid,
     -- * Toroidal grid with octagonal tiles
-    TorOctGrid,
+    TorOctGrid(..),
     torOctGrid
   ) where
 
-import Math.Geometry.Grid.OctagonalInternal
+import           Math.Geometry.Grid.OctagonalInternal

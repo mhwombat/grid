@@ -13,18 +13,19 @@
 -- Also see @Math.Geometry.Grid@ for examples of how to use this class.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Math.Geometry.Grid.Square
   (
     -- * Unbounded grid with square tiles
     UnboundedSquareGrid(..),
     -- * Rectangular grid with square tiles
-    RectSquareGrid,
+    RectSquareGrid(..),
     rectSquareGrid,
     -- * Toroidal grid with square tiles
-    TorSquareGrid,
+    TorSquareGrid(..),
     torSquareGrid
   ) where
 
-import Math.Geometry.Grid.SquareInternal
+import           Math.Geometry.Grid.SquareInternal

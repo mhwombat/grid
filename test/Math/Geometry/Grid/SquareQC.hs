@@ -10,8 +10,9 @@
 -- QuickCheck tests.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE FlexibleContexts, ExistentialQuantification,
-    TypeFamilies #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleContexts          #-}
+{-# LANGUAGE TypeFamilies              #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Math.Geometry.Grid.SquareQC
@@ -19,14 +20,15 @@ module Math.Geometry.Grid.SquareQC
     test
   ) where
 
-import Math.Geometry.Grid.SquareInternal
-import Math.Geometry.GridInternal
-import Math.Geometry.GridQC
+import           Math.Geometry.Grid.SquareInternal
+import           Math.Geometry.GridInternal
+import           Math.Geometry.GridQC
 
-import Prelude hiding (null)
-import Test.Framework (Test, testGroup)
-import Test.QuickCheck
-  (Gen, Arbitrary, arbitrary, sized, choose, elements,  Property, vectorOf)
+import           Prelude                           hiding (null)
+import           Test.Framework                    (Test, testGroup)
+import           Test.QuickCheck                   (Arbitrary, Gen, Property,
+                                                    arbitrary, choose, elements,
+                                                    sized, vectorOf)
 
 instance Arbitrary SquareDirection where
   arbitrary =
@@ -38,7 +40,7 @@ instance Arbitrary SquareDirection where
 
 data UnboundedSquareGridTD =
   UnboundedSquareGridTD [(Int,Int)] ((Int,Int),(Int,Int)) SquareDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData UnboundedSquareGridTD where
   type BaseGrid UnboundedSquareGridTD = UnboundedSquareGrid
@@ -71,7 +73,7 @@ unboundedSquareGridTests = makeTests unboundedSquareGridProperties
 
 data RectSquareGridTD =
   RectSquareGridTD RectSquareGrid [(Int,Int)] ((Int,Int),(Int,Int)) SquareDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData RectSquareGridTD where
   type BaseGrid RectSquareGridTD = RectSquareGrid
@@ -96,7 +98,7 @@ sizedRectSquareGridTD :: Int -> Gen RectSquareGridTD
 sizedRectSquareGridTD n = do
   r <- choose (0,n)
   let c = n `div` (r+1)
-  let g = rectSquareGrid r c
+  let g = RectSquareGrid (r, c)
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
   RectSquareGridTD g ps qs <$> arbitrary
@@ -120,7 +122,7 @@ rectSquareGridTests = makeTests rectSquareGridProperties
 
 data TorSquareGridTD =
   TorSquareGridTD TorSquareGrid [(Int,Int)] ((Int,Int),(Int,Int)) SquareDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData TorSquareGridTD where
   type BaseGrid TorSquareGridTD = TorSquareGrid
@@ -141,7 +143,7 @@ sizedTorSquareGridTD :: Int -> Gen TorSquareGridTD
 sizedTorSquareGridTD n = do
   r <- choose (0,n)
   let c = n `div` (r+1)
-  let g = torSquareGrid r c
+  let g = TorSquareGrid (r, c)
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
   TorSquareGridTD g ps qs <$> arbitrary

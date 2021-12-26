@@ -10,8 +10,9 @@
 -- QuickCheck tests.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE FlexibleContexts, ExistentialQuantification,
-    TypeFamilies #-}
+{-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE FlexibleContexts          #-}
+{-# LANGUAGE TypeFamilies              #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Math.Geometry.Grid.OctagonalQC
@@ -19,14 +20,16 @@ module Math.Geometry.Grid.OctagonalQC
     test
   ) where
 
-import Math.Geometry.Grid.OctagonalInternal
-import Math.Geometry.GridInternal
-import Math.Geometry.GridQC
+import           Math.Geometry.Grid.OctagonalInternal
+import           Math.Geometry.GridInternal
+import           Math.Geometry.GridQC
 
-import Prelude hiding (null)
-import Test.Framework (Test, testGroup)
-import Test.QuickCheck
-  (Gen, Arbitrary, arbitrary, sized, choose, elements, Property, vectorOf)
+import           Prelude                              hiding (null)
+import           Test.Framework                       (Test, testGroup)
+import           Test.QuickCheck                      (Arbitrary, Gen, Property,
+                                                       arbitrary, choose,
+                                                       elements, sized,
+                                                       vectorOf)
 
 instance Arbitrary OctDirection where
   arbitrary = elements [West, Northwest, North, Northeast, East,
@@ -38,7 +41,7 @@ instance Arbitrary OctDirection where
 
 data UnboundedOctGridTD =
   UnboundedOctGridTD [(Int,Int)] ((Int,Int),(Int,Int)) OctDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData UnboundedOctGridTD where
   type BaseGrid UnboundedOctGridTD = UnboundedOctGrid
@@ -70,7 +73,7 @@ unboundedOctGridTests = makeTests unboundedOctGridProperties
 
 data RectOctGridTD =
   RectOctGridTD RectOctGrid [(Int,Int)] ((Int,Int),(Int,Int)) OctDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData RectOctGridTD where
   type BaseGrid RectOctGridTD = RectOctGrid
@@ -98,7 +101,7 @@ sizedRectOctGridTD n = do
 --  let c = n' `div` (r+1)
   r <- choose (0,n)
   let c = n `div` (r+1)
-  let g = rectOctGrid r c
+  let g = RectOctGrid (r, c)
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
   RectOctGridTD g ps qs <$> arbitrary
@@ -122,7 +125,7 @@ rectOctGridTests = makeTests rectOctGridProperties
 
 data TorOctGridTD =
   TorOctGridTD TorOctGrid [(Int,Int)] ((Int,Int),(Int,Int)) OctDirection
-  deriving Show
+  deriving (Show, Read)
 
 instance TestData TorOctGridTD where
   type BaseGrid TorOctGridTD = TorOctGrid
@@ -143,7 +146,7 @@ sizedTorOctGridTD :: Int -> Gen TorOctGridTD
 sizedTorOctGridTD n = do
   r <- choose (0,n)
   let c = n `div` (r+1)
-  let g = torOctGrid r c
+  let g = TorOctGrid (r, c)
   ps <- chooseIndices g n
   qs <- chooseClosePoints g
   TorOctGridTD g ps qs <$> arbitrary

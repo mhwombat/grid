@@ -13,8 +13,13 @@
 -- into a single type.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts, FlexibleInstances,
-    MultiParamTypeClasses, UndecidableInstances, DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric         #-}
+{-# LANGUAGE FlexibleContexts      #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE StandaloneDeriving    #-}
+{-# LANGUAGE TypeFamilies          #-}
+{-# LANGUAGE UndecidableInstances  #-}
 
 module Math.Geometry.GridMap.Lazy
   (
@@ -24,16 +29,17 @@ module Math.Geometry.GridMap.Lazy
     empty
   ) where
 
-import Prelude hiding (lookup, map, foldr, foldl, foldr1, foldl1, null)
+import           Prelude                    hiding (foldl, foldl1, foldr,
+                                             foldr1, lookup, map, null)
 
-import qualified Prelude as P (map)
-import qualified Data.Foldable as F (Foldable(..))
-import qualified Data.Map as M
+import qualified Data.Foldable              as F (Foldable (..))
+import qualified Data.Map                   as M
+import qualified Prelude                    as P (map)
 --import qualified Data.Map.Strict as Strict (Map)
-import Data.Maybe (fromMaybe)
-import GHC.Generics (Generic)
+import           Data.Maybe                 (fromMaybe)
+import           GHC.Generics               (Generic)
 import qualified Math.Geometry.GridInternal as G
-import Math.Geometry.GridMap
+import           Math.Geometry.GridMap
 
 -- | A map from tile positions in a grid to values.
 data LGridMap g v =
@@ -116,8 +122,8 @@ instance (G.Grid g) => GridMap (LGridMap g) v where
   filter f (LGridMap g m) = LGridMap g (M.filter f m)
   filterWithKey f (LGridMap g m) = LGridMap g (M.filterWithKey f m)
 
-instance (Eq g, Eq (G.Index g), Eq v) => Eq (LGridMap g v) where
-  (==) (LGridMap g1 gm1) (LGridMap g2 gm2) = g1 == g2 && gm1 == gm2
+deriving instance (Eq g, Eq v, Eq (G.Index g)) => Eq (LGridMap g v)
 
-instance (Show g, Show v) => Show (LGridMap g v) where
-  show (LGridMap g m) = "lazyGridMap (" ++ show g ++ ") " ++ show (M.elems m)
+deriving instance (Show g, Show v, Show (G.Index g)) => Show (LGridMap g v)
+
+deriving instance (Read g, Read v, Read (G.Index g), Ord (G.Index g)) => Read (LGridMap g v)

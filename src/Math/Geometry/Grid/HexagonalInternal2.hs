@@ -12,21 +12,23 @@
 -- without notice.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE TypeFamilies, FlexibleContexts, DeriveGeneric #-}
+{-# LANGUAGE DeriveGeneric    #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE TypeFamilies     #-}
 
 module Math.Geometry.Grid.HexagonalInternal2 where
 
-import Prelude hiding (null)
-import GHC.Generics (Generic)
-import Math.Geometry.GridInternal
+import           GHC.Generics               (Generic)
+import           Math.Geometry.GridInternal
+import           Prelude                    hiding (null)
 
 data HexDirection = Northwest | North | Northeast | Southeast | South |
-                      Southwest deriving (Show, Eq, Generic)
+                      Southwest deriving (Show, Read, Eq, Generic)
 
 -- | An unbounded grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data UnboundedHexGrid = UnboundedHexGrid deriving (Eq, Show, Generic)
+data UnboundedHexGrid = UnboundedHexGrid deriving (Show, Read, Eq, Generic)
 
 instance Grid UnboundedHexGrid where
   type Index UnboundedHexGrid = (Int, Int)
@@ -61,14 +63,13 @@ instance Grid UnboundedHexGrid where
 -- | A hexagonal grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data HexHexGrid = HexHexGrid Int [(Int, Int)] deriving (Eq, Generic)
-
-instance Show HexHexGrid where show (HexHexGrid s _) = "hexHexGrid " ++ show s
+data HexHexGrid = HexHexGrid Int deriving (Show, Read, Eq, Generic)
 
 instance Grid HexHexGrid where
   type Index HexHexGrid = (Int, Int)
   type Direction HexHexGrid = HexDirection
-  indices (HexHexGrid _ xs) = xs
+  indices (HexHexGrid r) = [(x, y) | x <- [-r+1..r-1], y <- f x]
+    where f x = if x < 0 then [1-r-x .. r-1] else [1-r .. r-1-x]
   neighbours = neighboursBasedOn UnboundedHexGrid
   distance = distanceBasedOn UnboundedHexGrid
   directionTo = directionToBasedOn UnboundedHexGrid
@@ -80,8 +81,8 @@ instance Grid HexHexGrid where
 
 instance FiniteGrid HexHexGrid where
   type Size HexHexGrid = Int
-  size (HexHexGrid s _) = s
-  maxPossibleDistance g@(HexHexGrid s _) = distance g (-s+1,0) (s-1,0)
+  size (HexHexGrid s) = s
+  maxPossibleDistance g@(HexHexGrid s) = distance g (-s+1,0) (s-1,0)
 
 instance BoundedGrid HexHexGrid where
   tileSideCount _ = 6
@@ -96,13 +97,14 @@ instance BoundedGrid HexHexGrid where
           west = [(-s+1,k) | k <- [1,2..s-2]]
   centre _ = [(0,0)]
 
+{-# DEPRECATED hexHexGrid "Use the HexHexGrid constructor instead." #-}
+
 -- | @'hexHexGrid' s@ returns a grid of hexagonal shape, with
 --   sides of length @s@, using hexagonal tiles. If @s@ is nonnegative, the
 --   resulting grid will have @3*s*(s-1) + 1@ tiles. Otherwise, the resulting
 --   grid will be null and the list of indices will be null.
 hexHexGrid :: Int -> HexHexGrid
-hexHexGrid r = HexHexGrid r [(x, y) | x <- [-r+1..r-1], y <- f x]
-  where f x = if x < 0 then [1-r-x .. r-1] else [1-r .. r-1-x]
+hexHexGrid = HexHexGrid
 
 --
 -- Rectangular grids with hexagonal tiles
@@ -111,16 +113,13 @@ hexHexGrid r = HexHexGrid r [(x, y) | x <- [-r+1..r-1], y <- f x]
 -- | A rectangular grid with hexagonal tiles
 --   The grid and its indexing scheme are illustrated in the user guide,
 --   available at <https://github.com/mhwombat/grid/wiki>.
-data RectHexGrid = RectHexGrid (Int, Int) [(Int, Int)]
-  deriving (Eq, Generic)
-
-instance Show RectHexGrid where
-  show (RectHexGrid (r,c) _) = "rectHexGrid " ++ show r ++ " " ++ show c
+data RectHexGrid = RectHexGrid (Int, Int)
+  deriving (Show, Read, Eq, Generic)
 
 instance Grid RectHexGrid where
   type Index RectHexGrid = (Int, Int)
   type Direction RectHexGrid = HexDirection
-  indices (RectHexGrid _ xs) = xs
+  indices (RectHexGrid (r, c)) = [(x,rectHexGridY x j) | x <- [0..c-1], j <- [0..r-1]]
   neighbours = neighboursBasedOn UnboundedHexGrid
   distance = distanceBasedOn UnboundedHexGrid
   directionTo = directionToBasedOn UnboundedHexGrid
@@ -132,8 +131,8 @@ instance Grid RectHexGrid where
 
 instance FiniteGrid RectHexGrid where
   type Size RectHexGrid = (Int, Int)
-  size (RectHexGrid s _) = s
-  maxPossibleDistance g@(RectHexGrid (r,c) _) =
+  size (RectHexGrid s) = s
+  maxPossibleDistance g@(RectHexGrid (r,c)) =
     distance g (0,0) (c-1,r-(c `div` 2))
 
 instance BoundedGrid RectHexGrid where
@@ -145,14 +144,16 @@ instance BoundedGrid RectHexGrid where
       ++ [(x,rectHexGridY x 0) | r>1, x <- [c-2,c-3..1]]       -- South
     where (r,c) = size g
 
+
+{-# DEPRECATED rectHexGrid "Use the RectHexGrid constructor instead." #-}
+
 -- | @'rectHexGrid' r c@ returns a grid in the shape of a
 --   parallelogram with @r@ rows and @c@ columns, using hexagonal tiles.
 --   If @r@ and @c@ are both nonnegative, the resulting grid will have
 --   @r*c@ tiles. Otherwise, the resulting grid will be null and the
 --   list of indices will be null.
 rectHexGrid :: Int -> Int -> RectHexGrid
-rectHexGrid r c =
-  RectHexGrid (r,c) [(x,rectHexGridY x j) | x <- [0..c-1], j <- [0..r-1]]
+rectHexGrid r c = RectHexGrid (r,c)
 
 rectHexGridY :: Int -> Int -> Int
 rectHexGridY x j = j - x `div` 2

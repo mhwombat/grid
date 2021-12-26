@@ -13,29 +13,30 @@
 -- Also see @Math.Geometry.Grid@ for examples of how to use this class.
 --
 ------------------------------------------------------------------------
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Math.Geometry.Grid.Triangular
   (
     -- * Unbounded grid with triangular tiles
     UnboundedTriGrid(..),
     -- * Triangular grid with triangular tiles
-    TriTriGrid,
+    TriTriGrid(..),
     triTriGrid,
     -- * Parallelogram-shaped grid with triangular tiles
-    ParaTriGrid,
+    ParaTriGrid(..),
     paraTriGrid,
     -- * Rectangular grid with triangular tiles
-    RectTriGrid,
+    RectTriGrid(..),
     rectTriGrid,
     -- * Toroidal grid with triangular tiles
-    TorTriGrid,
+    TorTriGrid(..),
     torTriGrid,
     -- * Cylindrical grids with triangular tiles
-    YCylTriGrid,
+    YCylTriGrid(..),
     yCylTriGrid,
-    XCylTriGrid,
+    XCylTriGrid(..),
     xCylTriGrid
   ) where
 
-import Math.Geometry.Grid.TriangularInternal
+import           Math.Geometry.Grid.TriangularInternal
