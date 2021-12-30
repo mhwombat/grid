@@ -45,7 +45,7 @@ library
   autogen-modules:  Paths_grid
   ghc-options:      -Wall -Wunused-packages
   build-depends:
-    , base        >=4.7 && <5
+    , base        >=4.8 && <5
     , containers  >= 0.6.5 && < 0.7
   other-extensions:
     CPP
