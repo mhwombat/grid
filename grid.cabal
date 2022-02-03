@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               grid
-version:            8.0.0
+version:            8.0.1
 synopsis:           Tools for working with regular grids (graphs, lattices).
 description:
   Please see the README on GitHub at <https://github.com/mhwombat/grid#readme>
@@ -10,7 +10,7 @@ license:            BSD-3-Clause
 license-file:       LICENSE
 author:             Amy de Buitléir
 maintainer:         amy@nualeargais.ie
-copyright:          2010-2021 Amy de Buitléir
+copyright:          2010-2022 Amy de Buitléir
 category:           Math
 extra-source-files:
   CHANGELOG.md

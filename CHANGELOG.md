@@ -1,6 +1,9 @@
 # Changelog for grid
 
-8.0.0  Grids and Maps now implement Read.
+8.0.1 Switch to Nix flake builds.
+      Update copyright year.
+
+8.0.0 Grids and Maps now implement Read.
 
 7.8.16 De-linting.
 
