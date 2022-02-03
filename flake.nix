@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: CC0-1.0
 
 {
-  description = "My haskell application";
+  description = "Tools for working with regular grids (graphs, lattices).";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs";
@@ -21,7 +21,7 @@
           pkgs.haskell.lib.doJailbreak (pkg.overrideAttrs (_: { meta = { }; }));
 
         # DON'T FORGET TO PUT YOUR PACKAGE NAME HERE, REMOVING `throw`
-        packageName = throw "put your package name here!";
+        packageName = "grid";
       in {
         packages.${packageName} =
           haskellPackages.callCabal2nix packageName self rec {
