@@ -32,7 +32,7 @@ module Math.Geometry.GridMap
   ) where
 
 import Data.Map           qualified as M
-import Data.Type          qualified (Type)
+import Data.Kind          (Type)
 import Math.Geometry.Grid qualified as G
 import Prelude            hiding (foldl, foldl1, foldr, foldr1, lookup, map,
                            null)

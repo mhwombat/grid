@@ -22,6 +22,7 @@ source-repository head
 
 common common-stuff
   default-language: Haskell2010
+  default-extensions: ImportQualifiedPost
 
 library
   import:           common-stuff
