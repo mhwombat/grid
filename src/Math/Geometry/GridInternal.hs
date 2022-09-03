@@ -17,11 +17,11 @@
 
 module Math.Geometry.GridInternal where
 
-import           Prelude       hiding (null)
+import Prelude       hiding (null)
 
-import           Data.Function (on)
-import           Data.List     (groupBy, nub, nubBy, sortBy, (\\))
-import           Data.Ord      (comparing)
+import Data.Function (on)
+import Data.List     (groupBy, nub, nubBy, sortBy, (\\))
+import Data.Ord      (comparing)
 
 -- | A regular arrangement of tiles.
 --   Minimal complete definition: @'Index'@, @'Direction'@, @'indices'@,

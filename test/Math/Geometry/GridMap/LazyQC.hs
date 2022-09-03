@@ -22,19 +22,18 @@ module Math.Geometry.GridMap.LazyQC
     test
   ) where
 
-import           Control.Monad                        (replicateM)
-import           Data.List                            (foldl', intersect, (\\))
-import           Data.Maybe                           (isJust, isNothing)
-import qualified Math.Geometry.Grid                   as G
-import           Math.Geometry.Grid.Square            (RectSquareGrid (..))
-import qualified Math.Geometry.GridMap                as GM
-import           Math.Geometry.GridMap.Lazy
-import           Test.Framework                       (Test, testGroup)
-import           Test.Framework.Providers.QuickCheck2 (testProperty)
-import           Test.QuickCheck                      (Arbitrary, Gen, Property,
-                                                       arbitrary, choose,
-                                                       elements, sized,
-                                                       vectorOf, (==>))
+import Control.Monad                        (replicateM)
+import Data.List                            (foldl', intersect, (\\))
+import Data.Maybe                           (isJust, isNothing)
+import Math.Geometry.Grid                   qualified as G
+import Math.Geometry.Grid.Square            (RectSquareGrid (..))
+import Math.Geometry.GridMap                qualified as GM
+import Math.Geometry.GridMap.Lazy
+import Test.Framework                       (Test, testGroup)
+import Test.Framework.Providers.QuickCheck2 (testProperty)
+import Test.QuickCheck                      (Arbitrary, Gen, Property,
+                                             arbitrary, choose, elements, sized,
+                                             vectorOf, (==>))
 
 -- We want the number of tiles in a test grid to be O(n)
 sizedRectSquareGrid :: Int -> Gen RectSquareGrid

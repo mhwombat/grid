@@ -20,16 +20,15 @@ module Math.Geometry.Grid.TriangularQC
     test
   ) where
 
-import           Math.Geometry.Grid.TriangularInternal
-import           Math.Geometry.GridInternal
-import           Math.Geometry.GridQC
+import Math.Geometry.Grid.TriangularInternal
+import Math.Geometry.GridInternal
+import Math.Geometry.GridQC
 
-import           Prelude                               hiding (null)
-import           Test.Framework                        (Test, testGroup)
-import           Test.QuickCheck                       (Arbitrary, Gen,
-                                                        Property, arbitrary,
-                                                        choose, elements, sized,
-                                                        suchThat, vectorOf)
+import Prelude                               hiding (null)
+import Test.Framework                        (Test, testGroup)
+import Test.QuickCheck                       (Arbitrary, Gen, Property,
+                                              arbitrary, choose, elements,
+                                              sized, suchThat, vectorOf)
 
 instance Arbitrary TriDirection where
   arbitrary =

@@ -18,9 +18,9 @@
 
 module Math.Geometry.Grid.HexagonalInternal2 where
 
-import           GHC.Generics               (Generic)
-import           Math.Geometry.GridInternal
-import           Prelude                    hiding (null)
+import GHC.Generics               (Generic)
+import Math.Geometry.GridInternal
+import Prelude                    hiding (null)
 
 data HexDirection = Northwest | North | Northeast | Southeast | South |
                       Southwest deriving (Show, Read, Eq, Generic)

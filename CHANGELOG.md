@@ -1,5 +1,7 @@
 # Changelog for grid
 
+8.0.2 Reformatted source code.
+
 8.0.1 Switch to Nix flake builds.
       Update copyright year.
 

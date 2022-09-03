@@ -39,4 +39,4 @@ module Math.Geometry.Grid.Triangular
     xCylTriGrid
   ) where
 
-import           Math.Geometry.Grid.TriangularInternal
+import Math.Geometry.Grid.TriangularInternal

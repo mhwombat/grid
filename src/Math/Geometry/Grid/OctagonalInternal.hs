@@ -18,11 +18,11 @@
 
 module Math.Geometry.Grid.OctagonalInternal where
 
-import           Prelude                    hiding (null)
+import Prelude                    hiding (null)
 
-import           Data.List                  (nub)
-import           GHC.Generics               (Generic)
-import           Math.Geometry.GridInternal
+import Data.List                  (nub)
+import GHC.Generics               (Generic)
+import Math.Geometry.GridInternal
 
 data OctDirection = West | Northwest | North | Northeast | East |
                       Southeast | South | Southwest

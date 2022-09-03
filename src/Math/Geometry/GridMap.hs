@@ -31,10 +31,11 @@ module Math.Geometry.GridMap
     -- $Compare
   ) where
 
-import qualified Data.Map           as M
-import qualified Math.Geometry.Grid as G
-import           Prelude            hiding (foldl, foldl1, foldr, foldr1,
-                                     lookup, map, null)
+import Data.Map           qualified as M
+import Data.Type          qualified (Type)
+import Math.Geometry.Grid qualified as G
+import Prelude            hiding (foldl, foldl1, foldr, foldr1, lookup, map,
+                           null)
 
 -- | A regular arrangement of tiles, having a value associated with
 --   each tile.
@@ -57,7 +58,7 @@ import           Prelude            hiding (foldl, foldl1, foldr, foldr1,
 --   live with it. In summary, to use some methods in this class, your
 --   grid indices must be orderable.
 class (G.Grid (BaseGrid gm v), Foldable gm) =>
-    GridMap (gm :: * -> *) v where
+    GridMap (gm :: Type -> Type) v where
   type BaseGrid gm v
 
   -- | Find the value at a tile position in the grid.

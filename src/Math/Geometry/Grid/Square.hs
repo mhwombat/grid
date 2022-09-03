@@ -28,4 +28,4 @@ module Math.Geometry.Grid.Square
     torSquareGrid
   ) where
 
-import           Math.Geometry.Grid.SquareInternal
+import Math.Geometry.Grid.SquareInternal

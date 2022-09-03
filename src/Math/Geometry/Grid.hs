@@ -47,7 +47,8 @@
 -- operations.
 --
 -----------------------------------------------------------------------------
-{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances     #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 module Math.Geometry.Grid
   (
@@ -68,8 +69,7 @@ module Math.Geometry.Grid
     BoundedGrid(..)
   ) where
 
-import Math.Geometry.GridInternal (Grid(..), FiniteGrid(..),
-  BoundedGrid(..))
+import Math.Geometry.GridInternal (BoundedGrid (..), FiniteGrid (..), Grid (..))
 
 
 {- $Example

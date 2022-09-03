@@ -29,4 +29,4 @@ module Math.Geometry.Grid.Hexagonal2
     rectHexGrid
   ) where
 
-import           Math.Geometry.Grid.HexagonalInternal2
+import Math.Geometry.Grid.HexagonalInternal2

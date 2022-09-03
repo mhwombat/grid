@@ -1,6 +1,7 @@
 # misc
 *.lock
 *~
+.textadept_session
 
 # nix
 result

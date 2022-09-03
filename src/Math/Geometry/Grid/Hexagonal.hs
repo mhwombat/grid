@@ -28,4 +28,4 @@ module Math.Geometry.Grid.Hexagonal
     paraHexGrid
   ) where
 
-import           Math.Geometry.Grid.HexagonalInternal
+import Math.Geometry.Grid.HexagonalInternal

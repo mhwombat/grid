@@ -20,16 +20,15 @@ module Math.Geometry.Grid.Hexagonal2QC
     test
   ) where
 
-import           Math.Geometry.Grid.HexagonalInternal2
-import           Math.Geometry.GridInternal
-import           Math.Geometry.GridQC
+import Math.Geometry.Grid.HexagonalInternal2
+import Math.Geometry.GridInternal
+import Math.Geometry.GridQC
 
-import           Prelude                               hiding (null)
-import           Test.Framework                        (Test, testGroup)
-import           Test.QuickCheck                       (Arbitrary, Gen,
-                                                        Property, arbitrary,
-                                                        choose, elements, sized,
-                                                        vectorOf)
+import Prelude                               hiding (null)
+import Test.Framework                        (Test, testGroup)
+import Test.QuickCheck                       (Arbitrary, Gen, Property,
+                                              arbitrary, choose, elements,
+                                              sized, vectorOf)
 
 instance Arbitrary HexDirection where
   arbitrary =

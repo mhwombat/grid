@@ -18,11 +18,11 @@
 
 module Math.Geometry.Grid.SquareInternal where
 
-import           Prelude                    hiding (null)
+import Prelude                    hiding (null)
 
-import           Data.List                  (nub)
-import           GHC.Generics               (Generic)
-import           Math.Geometry.GridInternal
+import Data.List                  (nub)
+import GHC.Generics               (Generic)
+import Math.Geometry.GridInternal
 
 data SquareDirection = North | East | South | West
   deriving (Read, Show, Eq)

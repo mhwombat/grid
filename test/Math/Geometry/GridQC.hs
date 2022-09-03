@@ -18,18 +18,17 @@
 
 module Math.Geometry.GridQC where
 
-import           Math.Geometry.GridInternal
+import Math.Geometry.GridInternal
 
-import           Data.List                            (delete, nub, sort)
-import           Data.Maybe                           (fromJust, isJust)
-import           Prelude                              hiding (null)
-import qualified Prelude                              as P (null)
-import           Test.Framework                       (Test)
-import           Test.Framework.Providers.QuickCheck2 (testProperty)
-import           Test.QuickCheck                      (Arbitrary, Gen, Property,
-                                                       arbitrary, choose,
-                                                       elements, property,
-                                                       vectorOf, (==>))
+import Data.List                            (delete, nub, sort)
+import Data.Maybe                           (fromJust, isJust)
+import Prelude                              hiding (null)
+import Prelude                              qualified as P (null)
+import Test.Framework                       (Test)
+import Test.Framework.Providers.QuickCheck2 (testProperty)
+import Test.QuickCheck                      (Arbitrary, Gen, Property,
+                                             arbitrary, choose, elements,
+                                             property, vectorOf, (==>))
 
 -- | @'isqrt' n@ returns the greatest integer not greater than the square root
 --   of @n@.

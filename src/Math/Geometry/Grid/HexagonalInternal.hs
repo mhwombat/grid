@@ -17,12 +17,12 @@
 {-# LANGUAGE TypeFamilies     #-}
 module Math.Geometry.Grid.HexagonalInternal where
 
-import           Data.Function              (on)
-import           Data.List                  (groupBy, sortBy)
-import           Data.Ord                   (comparing)
-import           GHC.Generics               (Generic)
-import           Math.Geometry.GridInternal
-import           Prelude                    hiding (null)
+import Data.Function              (on)
+import Data.List                  (groupBy, sortBy)
+import Data.Ord                   (comparing)
+import GHC.Generics               (Generic)
+import Math.Geometry.GridInternal
+import Prelude                    hiding (null)
 
 data HexDirection = West | Northwest | Northeast | East | Southeast |
                       Southwest deriving (Show, Read, Eq, Generic)

@@ -29,17 +29,17 @@ module Math.Geometry.GridMap.Lazy
     empty
   ) where
 
-import           Prelude                    hiding (foldl, foldl1, foldr,
-                                             foldr1, lookup, map, null)
+import Prelude                    hiding (foldl, foldl1, foldr, foldr1, lookup,
+                                   map, null)
 
-import qualified Data.Foldable              as F (Foldable (..))
-import qualified Data.Map                   as M
-import qualified Prelude                    as P (map)
+import Data.Foldable              qualified as F (Foldable (..))
+import Data.Map                   qualified as M
+import Prelude                    qualified as P (map)
 --import qualified Data.Map.Strict as Strict (Map)
-import           Data.Maybe                 (fromMaybe)
-import           GHC.Generics               (Generic)
-import qualified Math.Geometry.GridInternal as G
-import           Math.Geometry.GridMap
+import Data.Maybe                 (fromMaybe)
+import GHC.Generics               (Generic)
+import Math.Geometry.GridInternal qualified as G
+import Math.Geometry.GridMap
 
 -- | A map from tile positions in a grid to values.
 data LGridMap g v =

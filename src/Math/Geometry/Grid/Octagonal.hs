@@ -32,4 +32,4 @@ module Math.Geometry.Grid.Octagonal
     torOctGrid
   ) where
 
-import           Math.Geometry.Grid.OctagonalInternal
+import Math.Geometry.Grid.OctagonalInternal
